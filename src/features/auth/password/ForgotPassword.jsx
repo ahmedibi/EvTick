@@ -1,0 +1,54 @@
+import { useState } from "react";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../../../firebase/firebase.config";
+import { Link } from "react-router-dom";
+import AuthLayout from "../components/AuthLayout";
+
+export default function ForgotPassword() {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleReset = async (e) => {
+    e.preventDefault();
+    try {
+      await sendPasswordResetEmail(auth, email,{
+   url: "http://localhost:5173/reset-password", 
+   handleCodeInApp: true
+});
+      setMessage("Password reset link sent! Check your email.");
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
+  return (
+    <AuthLayout imageSrc="/auth.jpeg" reverse={true}>
+      {/* <h2 className="text-xl font-bold mb-4 text-center">Reset Password</h2> */}
+      <div className="absolute top-1 -left-12 bg-[#aa7e61] text-white font-bold w-80 py-3 shadow-md text-center text-2xl rotate-[-20deg]">
+        <div className="mr-12">Reset Password</div>
+      </div>
+
+      <form onSubmit={handleReset} className="space-y-4">
+        <input
+          className="auth-input"
+          placeholder="Enter your email"
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        {message && <p className="auth-error text-center">{message}</p>}
+
+        <button
+          type="submit"
+          className="w-full py-3 bg-[#aa7e61] text-white rounded font-semibold"
+           style={{ background: "#aa7e61" }}
+        >
+          Send Reset Link
+        </button>
+      </form>
+
+      <p className="mt-4 text-sm text-gray-800 text-center">
+        Back to <Link to="/login" className="text-[#aa7e61] font-medium">Login</Link>
+      </p>
+    </AuthLayout>
+  );
+}
