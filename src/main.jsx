@@ -6,12 +6,16 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.js';
+//import { AuthProvider } from './context/AuthContext.jsx';
+import AuthListener from './features/auth/AuthListener.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
       <BrowserRouter>
+      <AuthListener>
         <AppRouter />
+      </AuthListener>
       </BrowserRouter>
     </Provider>
   </StrictMode>
