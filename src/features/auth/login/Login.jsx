@@ -72,7 +72,7 @@ export default function Login() {
       switch (userData.role) {
         case "admin": navigate("/admin"); break;
         case "organizer": navigate("/organizer"); break;
-        default: navigate("/user");
+        default: navigate("/");
       }
 
     } catch (err) {

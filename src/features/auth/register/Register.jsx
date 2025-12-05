@@ -109,8 +109,8 @@ export default function Register() {
     dispatch(setUser(newUser));
     dispatch(setRole("user"));
 
-    // redirect to home/dashboard
-    navigate("/user");
+    // redirect to home
+    navigate("/");
 
   } catch (err) {
     setErrors((prev) => ({ ...prev, firebase: err.message }));
