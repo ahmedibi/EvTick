@@ -34,45 +34,46 @@ export default function Register() {
 
   //validation
 
-  const nameRegex = /^[A-Za-z ]+$/; // only letters + spaces
+  const nameRegex = /^[A-Za-z ]+$/; // only letters and spaces
   const phoneRegex = /^(010|011|012)[0-9]{8,9}$/; // must start 010/011/012 + total 11-12 digits
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const passwordRules = [
-    { check: password.length >= 6, text: "• At least 6 characters" },
-    { check: /[0-9]/.test(password), text: "• At least one number" },
-    { check: /[!@#$%^&*]/.test(password), text: "• At least one special character" },
+    { check: password.length >= 6, text: "please enter at least 6 characters." },
+    { check: /[0-9]/.test(password), text: "please enter at least one number." },
+    { check: /[!@#$%^&*]/.test(password), text: "please enter at least one special character." },
   ];
 
   const validateForm = () => {
     let valid = true;
     let newErrors = { fullName: "", phone: "", email: "", password: "", confirmPassword: "", firebase: "" };
 
-    // FULL NAME (must contain two names)
+    //full name (must contain two names)
     if (!fullName || !nameRegex.test(fullName) || fullName.trim().split(" ").length < 2) {
       newErrors.fullName = "Please enter first & last name (letters only).";
       valid = false;
     }
 
-    // PHONE VALIDATION
+    // phone validation
     if (!phoneRegex.test(phone)) {
-      newErrors.phone = "Phone must be 11-12 digits & start with 010/011/012.";
+      newErrors.phone = "Invalid Phone";
       valid = false;
     }
 
-    // EMAIL
+    // email
     if (!emailRegex.test(email)) {
       newErrors.email = "Invalid email address.";
       valid = false;
     }
 
-    // PASSWORD STRENGTH
-    if (!passwordRules.every((rule) => rule.check)) {
-      newErrors.password = "Password does not meet required rules.";
+    //passsword rules
+    const failedRules = passwordRules.filter((rule) => !rule.check);
+    if (failedRules.length > 0) {
+      newErrors.password = failedRules.map((rule) => rule.text).join(" ");
       valid = false;
     }
 
-    // CONFIRM PASSWORD
+    //confirm password
     if (password !== confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match.";
       valid = false;
@@ -104,11 +105,11 @@ export default function Register() {
       createdAt: serverTimestamp(),
     });
 
-    // save to redux & localStorage
+    // save to redux and localStorage
     dispatch(setUser(newUser));
     dispatch(setRole("user"));
 
-    // redirect always to home/dashboard
+    // redirect to home/dashboard
     navigate("/user");
 
   } catch (err) {
@@ -117,36 +118,43 @@ export default function Register() {
 };
 
   return (
-    <AuthLayout imageSrc="/auth.jpeg" reverse={false}>
+    <AuthLayout>
       {/* <div className="absolute top-1 -right-12 bg-[#aa7e61] text-white font-bold w-80 py-3 shadow-md text-center text-2xl rotate-[20deg]">
         <div className="ml-9">Create Account</div>
       </div> */}
-      <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
+        <div className="relative w-full">
+    <img 
+      src="/ticket.png"   
+      alt="ticket" 
+      className="absolute -top-8 left-1/2 -translate-x-1/2 w-25 "
+    />
+  </div>
+      <h2 className="font-serif text-xl font-bold mb-4 text-center mt-6">Register</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-2">
+      <form onSubmit={handleSubmit} className="space-y-2 ">
 
-        {/* Full Name */}
+        {/* full name */}
         <div>
           <input className="auth-input" placeholder="Full Name"
             value={fullName} onChange={(e) => setFullName(e.target.value)} />
           {errors.fullName && <p className="auth-error">{errors.fullName}</p>}
         </div>
 
-        {/* Phone */}
+        {/* phone */}
         <div>
           <input className="auth-input" placeholder="Phone Number"
             value={phone} onChange={(e) => setPhone(e.target.value)} />
           {errors.phone && <p className="auth-error">{errors.phone}</p>}
         </div>
 
-        {/* Email */}
+        {/*email */}
         <div>
           <input className="auth-input" placeholder="Email"
             value={email} onChange={(e) => setEmail(e.target.value)} />
           {errors.email && <p className="auth-error">{errors.email}</p>}
         </div>
 
-        {/* Password */}
+        {/* password */}
         <div className="relative">
           <input type={show ? "text" : "password"} className="auth-input"
             placeholder="Password" value={password}
@@ -165,7 +173,7 @@ export default function Register() {
           </div> */}
         </div>
 
-        {/* Confirm Password */}
+        {/* confirm password */}
         <div className="relative">
           <input type={showConfirm ? "text" : "password"} className="auth-input"
             placeholder="Confirm Password" value={confirmPassword}
@@ -181,7 +189,7 @@ export default function Register() {
         {errors.firebase && <p className="auth-error">{errors.firebase}</p>}
 
         <button type="submit"
-          className="w-full py-3 text-white rounded font-semibold"
+          className="w-full py-3 text-white rounded font-semibold outline-none"
           style={{ background: "#0f9386" }}>
           Sign Up
         </button>
@@ -189,7 +197,7 @@ export default function Register() {
 
       <p className="mt-4 text-sm  text-center text-white/90">
         Already have an account?
-        <Link to="/login" className=" font-medium"> Log in</Link>
+        <Link to="/login" className=" font-bold text-[#0f9386]"> Log in</Link>
       </p>
     </AuthLayout>
   );

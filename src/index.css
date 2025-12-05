@@ -51,10 +51,10 @@ button {
 /* button:hover {
   border-color: #646cff;
 } */
-button:focus,
-button:focus-visible {
+/* button:focus,
+/* button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
+} */
 
 @media (prefers-color-scheme: light) {
   :root {
@@ -68,8 +68,6 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
-
-/* auth*/
 
 
 /* auth */
@@ -92,9 +90,9 @@ button:focus-visible {
 .auth-input {
   width: 100%;
   font-size: 15px;
-  padding: 10px 4px;
+  padding: 10px 13px;
   border-radius: 15px;
-  border: 2px solid rgb(231, 230, 230);
+  border: 1px solid rgb(231, 230, 230);
   outline: none;
   transition: 0.2s border-color;
   margin-bottom: 5px;
@@ -103,6 +101,12 @@ button:focus-visible {
 .auth-input:focus {
   border: 2px solid #0f9386; 
    /* #aa7e61 */
+}
+
+button:focus-visible {
+
+  outline: none;
+
 }
 
 .auth-error {
@@ -120,38 +124,3 @@ button:focus-visible {
   font-size: 18px;
   color: #8c8c8c;
 }
-
-/* animation liquid ripple*/
-/* .auth-liquid-bg {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 20% 20%, rgba(170,126,97,0.25), transparent 60%),
-              radial-gradient(circle at 80% 80%, rgba(170,126,97,0.15), transparent 60%),
-              radial-gradient(circle at 50% 50%, rgba(170,126,97,0.10), transparent 70%);
-  animation: liquidMove 12s infinite ease-in-out alternate;
-  z-index: 0;
-  filter: blur(40px);
-}
-
-@keyframes liquidMove {
-  0%   { transform: translate(-30px, -20px) scale(1); }
-  50%  { transform: translate(20px, 40px) scale(1.1); }
-  100% { transform: translate(-10px, -30px) scale(0.95); }
-} */
-
-/* 3dcard effect*/
-/* .auth-3d-card {
-  position: relative;
-  background: white;
-  border-radius: 20px;
-  box-shadow:
-    0px 25px 50px rgba(0, 0, 0, 0.20),
-    0px 10px 20px rgba(0, 0, 0, 0.15),
-    inset 0px 3px 8px rgba(255,255,255,0.6);
-  transition: transform 0.4s ease;
-}
-
-.auth-3d-card:hover {
-  transform: translateY(-6px) rotateX(4deg) rotateY(-4deg);
-} */
-

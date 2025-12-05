@@ -14,17 +14,18 @@ export default function ResetPassword() {
 
   const navigate = useNavigate();
   const [params] = useSearchParams();
-//   const oobCode = params.get("oobCode"); // Get the oobCode from URL
+//   const oobCode = params.get("oobCode"); // get the oobCode from url
 const oobCode = new URLSearchParams(window.location.search).get("oobCode");
 
   // password rules
   const passwordRules = [
-    { check: password.length >= 6, text: "• At least 6 characters" },
-    { check: /[0-9]/.test(password), text: "• At least one number" },
-    { check: /[!@#$%^&*]/.test(password), text: "• At least one special character" },
+    { check: password.length >= 6, text: "please enter at least 6 characters" },
+    { check: /[0-9]/.test(password), text: "please enter at least one number" },
+    { check: /[!@#$%^&*]/.test(password), text: "please enter at least one special character" },
   ];
 
   const isValidPassword = passwordRules.every(rule => rule.check);
+  const failedRules = passwordRules.filter(rule => !rule.check);
   const isConfirmed = password === confirm;
 
   const handleReset = async (e) => {
@@ -32,7 +33,14 @@ const oobCode = new URLSearchParams(window.location.search).get("oobCode");
     setError("");
 
     if (!isValidPassword) {
-      return setError("Password does not meet required rules.");
+      setError(
+      <ul className="list-disc list-inside text-red-600 text-sm space-y-1">
+        {failedRules.map((rule, index) => (
+        <li key={index}>{rule.text}</li>
+        ))}
+      </ul>
+      );
+      return;
     }
 
     if (!isConfirmed) {
@@ -42,15 +50,22 @@ const oobCode = new URLSearchParams(window.location.search).get("oobCode");
     try {
       await confirmPasswordReset(auth, oobCode, password);
       setSuccess("Password reset successful! Redirecting...");
-      setTimeout(() => navigate("/login"), 2000);
+      setTimeout(() => navigate("http://localhost:5173/login"), 2000);
     } catch (err) {
       setError(err.message);
     }
   };
 
   return (
-    <AuthLayout imageSrc="/auth.jpeg">
-      <h2 className="text-2xl font-bold text-center mb-4">Set New Password</h2>
+    <AuthLayout>
+        <div className="relative w-full">
+    <img 
+      src="/ticket.png"   
+      alt="ticket" 
+      className="absolute -top-8 left-1/2 -translate-x-1/2 w-25 "
+    />
+  </div>
+      <h2 className="text-xl font-bold font-serif text-center mb-4 mt-6">Reset Password</h2>
       {/* <div className="absolute top-1 -right-12 bg-[#aa7e61] text-white font-bold w-80 py-3 shadow-md text-center text-xl rotate-[20deg]">
         <div className="ml-9">Set New Password</div>
       </div> */}
@@ -80,27 +95,28 @@ const oobCode = new URLSearchParams(window.location.search).get("oobCode");
         </ul> */}
 
         {/* Confirm Password */}
+         <div className="relative">
         <input
-          type="password"
+          type={show ? "text" : "password"}
           className="auth-input"
           placeholder="Confirm Password"
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
         />
+        <span className="eye-btn" onClick={() => setShow(!show)}>
+          {show ?<FaEye /> : <FaEyeSlash />}
+           </span>
+        </div>
         {!isConfirmed && confirm.length > 0 && (
           <p className="text-red-600 text-sm">Passwords do not match</p>
         )}
 
-        {/* Error / Success Messages */}
+        {/* error / success messages */}
         {error && <p className="auth-error">{error}</p>}
         {success && <p className="text-green-600 font-medium">{success}</p>}
 
-        {/* Disabled until valid */}
-        <button
-          // disabled={!isValidPassword || !isConfirmed}
-          className="w-full py-3 text-white rounded font-semibold mt-4"
-          // ${(!isValidPassword || !isConfirmed) ? "opacity-50 cursor-not-allowed" : ""}
-          
+        
+        <button className="w-full py-3 text-white rounded font-semibold mt-4"
           style={{ background: "#0f9386" }}
         >
           Reset Password
