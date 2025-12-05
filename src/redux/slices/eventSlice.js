@@ -1,10 +1,17 @@
-// src/store/eventSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { db } from "../../firebase/firebase.config";
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where } from "firebase/firestore";
 
+// --- Fetch all events ---
+export const fetchAllEvents = createAsyncThunk(
+  "events/fetchAllEvents",
+  async () => {
+    const snapshot = await getDocs(collection(db, "events"));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  }
+);
 
-
+// --- Fetch event types ---
 export const fetchEventTypes = createAsyncThunk(
   "events/fetchEventTypes",
   async () => {
@@ -13,17 +20,20 @@ export const fetchEventTypes = createAsyncThunk(
   }
 );
 
-
+// --- Fetch events by type ---
 export const fetchEventsByType = createAsyncThunk(
   "events/fetchEventsByType",
-  async (typeId) => {
+  async (typeId, { dispatch }) => {
+    if (typeId === "All") {
+      return dispatch(fetchAllEvents()).unwrap();
+    }
     const q = query(collection(db, "events"), where("type", "==", typeId));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 );
 
-
+// --- Fetch single event by ID ---
 export const fetchEventById = createAsyncThunk(
   "events/fetchEventById",
   async (eventId) => {
@@ -34,7 +44,7 @@ export const fetchEventById = createAsyncThunk(
   }
 );
 
-
+// --- Update event ---
 export const updateEventData = createAsyncThunk(
   "events/updateEvent",
   async ({ eventId, data }) => {
@@ -44,16 +54,14 @@ export const updateEventData = createAsyncThunk(
   }
 );
 
-
+// --- Add new event ---
 export const addNewEvent = createAsyncThunk(
   "events/addEvent",
   async (eventData) => {
-    await addDoc(collection(db, "events"), eventData);
-    return eventData;
+    const docRef = await addDoc(collection(db, "events"), eventData);
+    return { id: docRef.id, ...eventData }; 
   }
 );
-
-
 
 const eventSlice = createSlice({
   name: "events",
@@ -61,49 +69,80 @@ const eventSlice = createSlice({
     types: [],
     events: [],
     currentEvent: null,
-    loading: false,
-    error: null,
+    loadingEvents: false,
+    loadingTypes: false,
+    errorEvents: null,
+    errorTypes: null,
+    errorCurrentEvent: null,
   },
   reducers: {},
-
   extraReducers: (builder) => {
     builder
-      // --- Event Types
+      // --- All Events ---
+      .addCase(fetchAllEvents.pending, (state) => {
+        state.loadingEvents = true;
+        state.errorEvents = null;
+      })
+      .addCase(fetchAllEvents.fulfilled, (state, action) => {
+        state.loadingEvents = false;
+        state.events = action.payload;
+      })
+      .addCase(fetchAllEvents.rejected, (state, action) => {
+        state.loadingEvents = false;
+        state.errorEvents = action.error.message;
+      })
+
+      // --- Event Types ---
       .addCase(fetchEventTypes.pending, (state) => {
-        state.loading = true;
+        state.loadingTypes = true;
+        state.errorTypes = null;
       })
       .addCase(fetchEventTypes.fulfilled, (state, action) => {
-        state.loading = false;
+        state.loadingTypes = false;
         state.types = action.payload;
       })
       .addCase(fetchEventTypes.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
+        state.loadingTypes = false;
+        state.errorTypes = action.error.message;
       })
 
-      // --- Events by Type
+      // --- Events by Type ---
       .addCase(fetchEventsByType.pending, (state) => {
-        state.loading = true;
+        state.loadingEvents = true;
+        state.errorEvents = null;
       })
       .addCase(fetchEventsByType.fulfilled, (state, action) => {
-        state.loading = false;
+        state.loadingEvents = false;
         state.events = action.payload;
       })
+      .addCase(fetchEventsByType.rejected, (state, action) => {
+        state.loadingEvents = false;
+        state.errorEvents = action.error.message;
+      })
 
-      // --- Event by ID
+      // --- Single Event by ID ---
+      .addCase(fetchEventById.pending, (state) => {
+        state.errorCurrentEvent = null;
+      })
       .addCase(fetchEventById.fulfilled, (state, action) => {
         state.currentEvent = action.payload;
       })
+      .addCase(fetchEventById.rejected, (state, action) => {
+        state.errorCurrentEvent = action.error.message;
+      })
 
-      // --- Update Event
+      // --- Update Event ---
       .addCase(updateEventData.fulfilled, (state, action) => {
         const { eventId, data } = action.payload;
         state.events = state.events.map(e =>
           e.id === eventId ? { ...e, ...data } : e
         );
+        if (state.currentEvent?.id === eventId) {
+          state.currentEvent = { ...state.currentEvent, ...data };
+        }
       })
 
-      // --- Add Event
+      // --- Add Event ---
       .addCase(addNewEvent.fulfilled, (state, action) => {
         state.events.push(action.payload);
       });
