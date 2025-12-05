@@ -11,7 +11,7 @@ export default function AuthListener({ children }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      // If NO user logged in
+      // if NO user logged in
       if (!user) {
         dispatch(setUser(null));
         dispatch(setRole(null));
@@ -19,11 +19,11 @@ export default function AuthListener({ children }) {
         return;
       }
 
-      // Get extra user data from Firestore
+      // get extra user data from Firestore
       const snap = await getDoc(doc(db, "users", user.uid));
       //const role = snap.exists() ? snap.data().role : "user";
 
-      // Build lightweight user object to store in Redux + localStorage
+      // Build light user object to store in Redux + localStorage
       const userData = {
         uid: user.uid,
         email: user.email ?? null,
@@ -31,7 +31,7 @@ export default function AuthListener({ children }) {
         fullName: snap.exists() ? snap.data().fullName : null,
       };
 
-      dispatch(setUser(userData)); // Saves to redux + localStorage
+      dispatch(setUser(userData)); // saves to redux and localStorage
       dispatch(setRole(snap.exists() ? snap.data().role : null));
       dispatch(setLoading(false));
 

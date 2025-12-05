@@ -24,7 +24,7 @@ export default function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  //  Basic front-end validation
+  //validation
   const validateForm = () => {
     let valid = true;
     let newErrors = { email: "", password: "", firebase: "" };
@@ -43,7 +43,7 @@ export default function Login() {
     return valid;
   };
 
-  //  LOGIN HANDLER
+  // handle login
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -56,7 +56,7 @@ export default function Login() {
 
       const userData = snap.data();
 
-      //  Save user to localStorage
+      // save user to localStorage
       localStorage.setItem("user", JSON.stringify({
         uid: cred.user.uid,
         fullName: userData.fullName,
@@ -68,11 +68,11 @@ export default function Login() {
       // dispatch to Redux 
       dispatch(setUser(userData));
 
-      //  Role-based redirect
+      // role-based redirect
       switch (userData.role) {
         case "admin": navigate("/admin"); break;
         case "organizer": navigate("/organizer"); break;
-        default: navigate("/user");
+        default: navigate("/");
       }
 
     } catch (err) {
@@ -82,8 +82,15 @@ export default function Login() {
   };
 
   return (
-    <AuthLayout imageSrc="/auth.jpeg" reverse={true}>
-      <h2 className="text-2xl font-bold mb-4 text-center">Log in</h2>
+    <AuthLayout>
+      <div className="relative w-full">
+    <img 
+      src="/ticket.png"   
+      alt="ticket" 
+      className="absolute -top-8 left-1/2 -translate-x-1/2 w-25 "
+    />
+  </div>
+      <h2 className="font-serif text-xl font-bold mb-4 text-center mt-6">Log in</h2>
       
       {/* <div className="absolute top-1 -left-12 bg-[#aa7e61] text-white font-bold w-80 py-3 shadow-md text-center text-2xl rotate-[-20deg]">
         <div className="mr-12">Welcome Back</div>
@@ -119,7 +126,7 @@ export default function Login() {
         </div>
 
         {errors.firebase && <p className="auth-error">{errors.firebase}</p>}
-        <p className="text-sm  font-medium mt-2 text-right">
+        <p className="text-sm  font-medium mt-2 text-right text-[#0f9386]">
         <Link to="/forgot-password">Forgot Password?</Link>
        </p>
 
@@ -134,7 +141,7 @@ export default function Login() {
 
       <p className="mt-4 text-sm  text-center text-white/90">
         Don’t have an account?
-        <Link to="/register" className=" font-medium"> Sign up</Link>
+        <Link to="/register" className="text-[#0f9386] font-bold"> Sign up</Link>
       </p>
     </AuthLayout>
   );
