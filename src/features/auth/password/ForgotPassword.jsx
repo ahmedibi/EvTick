@@ -23,10 +23,10 @@ export default function ForgotPassword() {
 
   return (
     <AuthLayout imageSrc="/auth.jpeg" reverse={true}>
-      {/* <h2 className="text-xl font-bold mb-4 text-center">Reset Password</h2> */}
-      <div className="absolute top-1 -left-12 bg-[#aa7e61] text-white font-bold w-80 py-3 shadow-md text-center text-2xl rotate-[-20deg]">
+      <h2 className="text-xl font-bold mb-4 text-center">Reset Password</h2>
+      {/* <div className="absolute top-1 -left-12 bg-[#aa7e61] text-white font-bold w-80 py-3 shadow-md text-center text-2xl rotate-[-20deg]">
         <div className="mr-12">Reset Password</div>
-      </div>
+      </div> */}
 
       <form onSubmit={handleReset} className="space-y-4">
         <input
@@ -39,15 +39,15 @@ export default function ForgotPassword() {
 
         <button
           type="submit"
-          className="w-full py-3 bg-[#aa7e61] text-white rounded font-semibold"
-           style={{ background: "#aa7e61" }}
+          className="w-full py-3 bg-[#aa7e61] text-white rounded font-semibold mt-4"
+           style={{ background: "#0f9386" }}
         >
           Send Reset Link
         </button>
       </form>
 
-      <p className="mt-4 text-sm text-gray-800 text-center">
-        Back to <Link to="/login" className="text-[#aa7e61] font-medium">Login</Link>
+      <p className="mt-4 text-sm  text-center">
+        Back to <Link to="/login" className=" font-medium">Login</Link>
       </p>
     </AuthLayout>
   );

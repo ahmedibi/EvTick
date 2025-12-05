@@ -71,34 +71,6 @@ button:focus-visible {
 
 /* auth*/
 
-/* background */
-.auth-bg {
-  background: linear-gradient(
-    135deg,
-    rgba(170, 126, 97, 0.15),
-    rgba(170, 126, 97, 0.05)
-  );
-  padding: 32px;
-}
-
-/* 3dcard*/
-.auth-card-container {
-  background: white;
-  width: 900px;
-  max-width: 90%;
-  height: 520px;
-  border-radius: 18px;
-  display: flex;
-  overflow: hidden; 
-
-  /* 3d effect */
-  box-shadow:
-    0px 20px 40px rgba(0, 0, 0, 0.18),
-    0px 10px 25px rgba(0, 0, 0, 0.10),
-    0px 4px 12px rgba(0, 0, 0, 0.08);
-  
-  transform: translateY(-10px);
-}
 
 /* auth */
 .auth-image {
@@ -121,14 +93,15 @@ button:focus-visible {
   width: 100%;
   font-size: 15px;
   padding: 10px 4px;
-  border: none;
-  border-bottom: 2px solid #aa7e6130;
+  border-radius: 15px;
+  border: 2px solid rgb(231, 230, 230);
   outline: none;
   transition: 0.2s border-color;
+  margin-bottom: 5px;
 }
 
 .auth-input:focus {
-  border-bottom: 2px solid #a0775c; 
+  border: 2px solid #0f9386; 
    /* #aa7e61 */
 }
 
@@ -141,7 +114,7 @@ button:focus-visible {
 /* Eye button */
 .eye-btn {
   position: absolute;
-  right: 4px;
+  right: 10px;
   top: 10px;
   cursor: pointer;
   font-size: 18px;

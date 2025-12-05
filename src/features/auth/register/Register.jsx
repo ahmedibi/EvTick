@@ -118,9 +118,10 @@ export default function Register() {
 
   return (
     <AuthLayout imageSrc="/auth.jpeg" reverse={false}>
-      <div className="absolute top-1 -right-12 bg-[#aa7e61] text-white font-bold w-80 py-3 shadow-md text-center text-2xl rotate-[20deg]">
+      {/* <div className="absolute top-1 -right-12 bg-[#aa7e61] text-white font-bold w-80 py-3 shadow-md text-center text-2xl rotate-[20deg]">
         <div className="ml-9">Create Account</div>
-      </div>
+      </div> */}
+      <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
 
       <form onSubmit={handleSubmit} className="space-y-2">
 
@@ -157,11 +158,11 @@ export default function Register() {
 
           {errors.password && <p className="auth-error">{errors.password}</p>}
 
-          <div className="mt-2 text-xs text-gray-600">
+          {/* <div className="mt-2 text-xs text-gray-600">
             {passwordRules.map((rule, i) => (
               <p key={i} className={rule.check ? "text-green-600" : "text-gray-500"}>{rule.text}</p>
             ))}
-          </div>
+          </div> */}
         </div>
 
         {/* Confirm Password */}
@@ -181,14 +182,14 @@ export default function Register() {
 
         <button type="submit"
           className="w-full py-3 text-white rounded font-semibold"
-          style={{ background: "#aa7e61" }}>
-          Create Account
+          style={{ background: "#0f9386" }}>
+          Sign Up
         </button>
       </form>
 
-      <p className="mt-4 text-sm text-gray-800">
+      <p className="mt-4 text-sm  text-center text-white/90">
         Already have an account?
-        <Link to="/login" className="text-[#aa7e61] font-medium"> Log in</Link>
+        <Link to="/login" className=" font-medium"> Log in</Link>
       </p>
     </AuthLayout>
   );
