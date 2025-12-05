@@ -4,13 +4,13 @@ import { useSelector } from "react-redux";
 export default function ProtectedRoute({ children, requiredRole }) {
   const { currentUser, role, loading } = useSelector((state) => state.auth);
 
-  // Wait for Firebase listener to finish
+  // wait for firebase listener to finish
   if (loading) return null;
 
-  // If not logged in → go to login
+  // if not logged in, go to login
   if (!currentUser) return <Navigate to="/login" replace />;
 
-  // If logged in but unauthorized role → return home (or 403 page)
+  // if logged in but unauthorized role, return home
   if (requiredRole && role !== requiredRole) 
     return <Navigate to="/" replace />;
 
