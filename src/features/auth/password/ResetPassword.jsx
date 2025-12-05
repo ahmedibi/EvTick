@@ -3,12 +3,14 @@ import { confirmPasswordReset } from "firebase/auth";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { auth } from "../../../firebase/firebase.config";
 import AuthLayout from "../components/AuthLayout";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [show, setShow] = useState(false);
 
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -48,30 +50,34 @@ const oobCode = new URLSearchParams(window.location.search).get("oobCode");
 
   return (
     <AuthLayout imageSrc="/auth.jpeg">
-      {/* <h2 className="text-xl font-bold text-center mb-4">Set New Password</h2> */}
-      <div className="absolute top-1 -right-12 bg-[#aa7e61] text-white font-bold w-80 py-3 shadow-md text-center text-xl rotate-[20deg]">
+      <h2 className="text-2xl font-bold text-center mb-4">Set New Password</h2>
+      {/* <div className="absolute top-1 -right-12 bg-[#aa7e61] text-white font-bold w-80 py-3 shadow-md text-center text-xl rotate-[20deg]">
         <div className="ml-9">Set New Password</div>
-      </div>
+      </div> */}
 
       <form onSubmit={handleReset} className="space-y-4">
 
         {/* New Password */}
+         <div className="relative">
         <input
-          type="password"
+          type={show ? "text" : "password"}
           className="auth-input"
           placeholder="New Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-
+        <span className="eye-btn" onClick={() => setShow(!show)}>
+          {show ?<FaEye /> : <FaEyeSlash />}
+           </span>
+        </div>
         {/* Password Requirements UI */}
-        <ul className="text-sm space-y-1">
+        {/* <ul className="text-sm space-y-1">
           {passwordRules.map((item, i) => (
             <li key={i} className={item.check ? "text-green-600" : "text-gray-600"}>
               {item.text}
             </li>
           ))}
-        </ul>
+        </ul> */}
 
         {/* Confirm Password */}
         <input
@@ -91,11 +97,11 @@ const oobCode = new URLSearchParams(window.location.search).get("oobCode");
 
         {/* Disabled until valid */}
         <button
-          disabled={!isValidPassword || !isConfirmed}
-          className={`w-full py-3 text-white rounded font-semibold
-          ${(!isValidPassword || !isConfirmed) ? "opacity-50 cursor-not-allowed" : ""}
-          `}
-          style={{ background: "#aa7e61" }}
+          // disabled={!isValidPassword || !isConfirmed}
+          className="w-full py-3 text-white rounded font-semibold mt-4"
+          // ${(!isValidPassword || !isConfirmed) ? "opacity-50 cursor-not-allowed" : ""}
+          
+          style={{ background: "#0f9386" }}
         >
           Reset Password
         </button>

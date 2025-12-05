@@ -83,12 +83,13 @@ export default function Login() {
 
   return (
     <AuthLayout imageSrc="/auth.jpeg" reverse={true}>
+      <h2 className="text-2xl font-bold mb-4 text-center">Log in</h2>
       
-      <div className="absolute top-1 -left-12 bg-[#aa7e61] text-white font-bold w-80 py-3 shadow-md text-center text-2xl rotate-[-20deg]">
+      {/* <div className="absolute top-1 -left-12 bg-[#aa7e61] text-white font-bold w-80 py-3 shadow-md text-center text-2xl rotate-[-20deg]">
         <div className="mr-12">Welcome Back</div>
-      </div>
+      </div> */}
 
-      <form onSubmit={handleLogin} className="space-y-3">
+      <form onSubmit={handleLogin} className="space-y-3 ">
 
         {/* Email */}
         <div>
@@ -118,19 +119,22 @@ export default function Login() {
         </div>
 
         {errors.firebase && <p className="auth-error">{errors.firebase}</p>}
-
-        <button type="submit" className="w-full py-3 text-white font-semibold rounded"
-          style={{ background: "#aa7e61" }}>
-          Sign in
-        </button>
-        <p className="text-sm text-[#aa7e61] font-medium mt-2">
+        <p className="text-sm  font-medium mt-2 text-right">
         <Link to="/forgot-password">Forgot Password?</Link>
        </p>
+
+        <button type="submit" className="w-full py-3 text-white font-semibold rounded"
+          style={{ background: "#0f9386" }}>
+          Sign in
+        </button>
+        {/* <p className="text-sm text-[#aa7e61] font-medium mt-2">
+        <Link to="/forgot-password">Forgot Password?</Link>
+       </p> */}
       </form>
 
-      <p className="mt-4 text-sm text-gray-800">
+      <p className="mt-4 text-sm  text-center text-white/90">
         Don’t have an account?
-        <Link to="/register" className="text-[#aa7e61] font-medium"> Sign up</Link>
+        <Link to="/register" className=" font-medium"> Sign up</Link>
       </p>
     </AuthLayout>
   );
