@@ -6,6 +6,7 @@ import { Route, Routes } from 'react-router'
 import ProtectedRoute from "./ProtectedRoute";
 import ForgotPassword from "../features/auth/password/ForgotPassword";
 import ResetPassword from "../features/auth/password/ResetPassword";
+import Events from '../features/events/Events';
 
 
 
@@ -54,6 +55,7 @@ export default function AppRouter() {
 
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/events" element={<Events/>} />
      </Routes>
     
     </>
