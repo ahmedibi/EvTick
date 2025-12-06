@@ -5,25 +5,32 @@ import bgImage from "../../assets/auth.jpeg";
 // Firebase
 import { db } from "../../firebase/firebase.config";
 import { doc, updateDoc } from "firebase/firestore";
+import {
+  getAuth,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  updatePassword,
+} from "firebase/auth";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const auth = getAuth();
 
   const [user, setUser] = useState(null);
 
   const [formData, setFormData] = useState({
-    name: "",
+    fullName: "",
     email: "",
-    phone: "",
+    phoneNumber: "",
     oldPassword: "",
     password: "",
     "re-password": "",
   });
 
   const [editable, setEditable] = useState({
-    name: false,
+    fullName: false,
     email: false,
-    phone: false,
+    phoneNumber: false,
     oldPassword: false,
     password: false,
     rePassword: false,
@@ -37,9 +44,9 @@ export default function ProfilePage() {
       setUser(parsed);
 
       setFormData({
-        name: parsed.name || "",
+        fullName: parsed.fullName || "",
         email: parsed.email || "",
-        phone: parsed.phone || "",
+        phoneNumber: parsed.phoneNumber || "",
         oldPassword: "",
         password: "",
         "re-password": "",
@@ -63,37 +70,56 @@ export default function ProfilePage() {
   const handleUpdate = async (e) => {
     e.preventDefault();
 
-    if (!user?.id) return alert("User not found!");
+    if (!user?.uid) return alert("User not found!");
 
     const updatedFields = {};
 
-    if (formData.name !== user.name) updatedFields.name = formData.name;
+    // تحديث البيانات العادية
+    if (formData.fullName !== user.fullName) updatedFields.fullName = formData.fullName;
     if (formData.email !== user.email) updatedFields.email = formData.email;
-    if (formData.phone !== user.phone) updatedFields.phone = formData.phone;
+    if (formData.phoneNumber !== user.phoneNumber) updatedFields.phoneNumber = formData.phoneNumber;
 
+    // تحديث الباسورد
     if (formData.password) {
-      if (formData.oldPassword !== user.password)
-        return alert("Old password incorrect.");
-
       if (formData.password !== formData["re-password"])
         return alert("Passwords do not match.");
 
-      updatedFields.password = formData.password;
+      try {
+        const currentUser = auth.currentUser;
+
+        const credential = EmailAuthProvider.credential(
+          currentUser.email,
+          formData.oldPassword
+        );
+
+        // خطوة إجبارية قبل تغيير الباسورد
+        await reauthenticateWithCredential(currentUser, credential);
+
+        // تغيير الباسورد
+        await updatePassword(currentUser, formData.password);
+
+        updatedFields.password = formData.password;
+      } catch (error) {
+        console.log(error);
+        return alert("Old password is incorrect!");
+      }
     }
 
-    await updateDoc(doc(db, "users", user.id), updatedFields);
+    // تحديث Firestore
+    await updateDoc(doc(db, "users", user.uid), updatedFields);
 
+    // تحديث localStorage
     const updatedUser = { ...user, ...updatedFields };
     localStorage.setItem("user", JSON.stringify(updatedUser));
     setUser(updatedUser);
 
     alert("Updated successfully!");
 
-    // Disable all inputs again
+    // Disable inputs
     setEditable({
-      name: false,
+      fullName: false,
       email: false,
-      phone: false,
+      phoneNumber: false,
       oldPassword: false,
       password: false,
       rePassword: false,
@@ -101,17 +127,19 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center"
+    <div
+      className="relative min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
-
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
       <div className="relative bg-white/10 rounded-2xl w-full max-w-4xl p-10 shadow-xl">
-
         <div className="flex items-center gap-5 mb-8">
           <img
-            src={user?.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
+            src={
+              user?.avatar ||
+              "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+            }
             className="w-20 h-20 rounded-full border border-gray-300"
             alt="avatar"
           />
@@ -122,25 +150,25 @@ export default function ProfilePage() {
         </div>
 
         <form onSubmit={handleUpdate}>
-
-          {/* GRID */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            {/* Full Name */}
+            {/* Name */}
             <div>
               <label className="font-semibold">Full Name</label>
               <div className="flex items-center gap-3 mt-2">
                 <input
                   type="text"
                   name="name"
-                  disabled={!editable.name}
-                  value={formData.name}
+                  disabled={!editable.fullName}
+                  value={formData.fullName}
                   onChange={handleChange}
                   className="w-full border border-teal-300 text-gray-300 px-3 py-2 rounded-lg"
                 />
-                <button type="button" onClick={() => enableEdit("name")}
-                  className="text-teal-300 font-medium">
-                  <i class="fa-regular fa-pen-to-square"></i>
+                <button
+                  type="button"
+                  onClick={() => enableEdit("name")}
+                  className="text-teal-300 font-medium"
+                >
+                  <i className="fa-regular fa-pen-to-square"></i>
                 </button>
               </div>
             </div>
@@ -157,9 +185,12 @@ export default function ProfilePage() {
                   onChange={handleChange}
                   className="w-full border text-gray-300 border-teal-300 px-3 py-2 rounded-lg"
                 />
-                <button type="button" onClick={() => enableEdit("email")}
-                  className="text-teal-300 font-medium">
-                    <i class="fa-regular fa-pen-to-square"></i>
+                <button
+                  type="button"
+                  onClick={() => enableEdit("email")}
+                  className="text-teal-300 font-medium"
+                >
+                  <i className="fa-regular fa-pen-to-square"></i>
                 </button>
               </div>
             </div>
@@ -170,15 +201,18 @@ export default function ProfilePage() {
               <div className="flex items-center gap-3 mt-2">
                 <input
                   type="text"
-                  name="phone"
-                  disabled={!editable.phone}
-                  value={formData.phone}
+                  name="phoneNumber"
+                  disabled={!editable.phoneNumber}
+                  value={formData.phoneNumber}
                   onChange={handleChange}
                   className="w-full border border-teal-300 text-gray-300 px-3 py-2 rounded-lg"
                 />
-                <button type="button" onClick={() => enableEdit("phone")}
-                  className="text-teal-300 font-medium">
-                    <i class="fa-regular fa-pen-to-square"></i>
+                <button
+                  type="button"
+                  onClick={() => enableEdit("phoneNumber")}
+                  className="text-teal-300 font-medium"
+                >
+                  <i className="fa-regular fa-pen-to-square"></i>
                 </button>
               </div>
             </div>
@@ -195,9 +229,12 @@ export default function ProfilePage() {
                   onChange={handleChange}
                   className="w-full border border-teal-300 text-gray-300 px-3 py-2 rounded-lg"
                 />
-                <button type="button" onClick={() => enableEdit("oldPassword")}
-                  className="text-teal-300 font-medium">
-                    <i class="fa-regular fa-pen-to-square"></i>
+                <button
+                  type="button"
+                  onClick={() => enableEdit("oldPassword")}
+                  className="text-teal-300 font-medium"
+                >
+                  <i className="fa-regular fa-pen-to-square"></i>
                 </button>
               </div>
             </div>
@@ -214,14 +251,17 @@ export default function ProfilePage() {
                   onChange={handleChange}
                   className="w-full border border-teal-300 text-gray-300 px-3 py-2 rounded-lg"
                 />
-                <button type="button" onClick={() => enableEdit("password")}
-                  className="text-teal-300 font-medium">
-                    <i class="fa-regular fa-pen-to-square"></i>
+                <button
+                  type="button"
+                  onClick={() => enableEdit("password")}
+                  className="text-teal-300 font-medium"
+                >
+                  <i className="fa-regular fa-pen-to-square"></i>
                 </button>
               </div>
             </div>
 
-            {/* Re-Password */}
+            {/* Re Password */}
             <div>
               <label className="font-semibold">Re-enter Password</label>
               <div className="flex items-center gap-3 mt-2">
@@ -233,16 +273,17 @@ export default function ProfilePage() {
                   onChange={handleChange}
                   className="w-full border border-teal-300 text-gray-300 px-3 py-2 rounded-lg"
                 />
-                <button type="button" onClick={() => enableEdit("rePassword")}
-                  className="text-teal-300 font-medium">
-                    <i class="fa-regular fa-pen-to-square"></i>
+                <button
+                  type="button"
+                  onClick={() => enableEdit("rePassword")}
+                  className="text-teal-300 font-medium"
+                >
+                  <i className="fa-regular fa-pen-to-square"></i>
                 </button>
               </div>
             </div>
-
           </div>
 
-          {/* Save Button */}
           <div className="text-right mt-8">
             <button
               type="submit"
@@ -251,7 +292,6 @@ export default function ProfilePage() {
               Save Changes
             </button>
           </div>
-
         </form>
       </div>
     </div>

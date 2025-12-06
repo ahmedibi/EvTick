@@ -8,7 +8,9 @@ import {
   FaBars,
   FaTimes,
   FaFacebookMessenger,
+  FaTicketAlt,
 } from "react-icons/fa";
+import { Ticket, TicketIcon, TicketPercent } from "lucide-react";
 
 export default function ProfileLayout() {
   const navigate = useNavigate();
@@ -29,13 +31,13 @@ export default function ProfileLayout() {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
 
       {/* Sidebar */}
       <div
         className={`${
           isOpen ? "w-72" : "w-20"
-        }  text-white duration-300 p-5 flex flex-col shadow-xl`}
+        }  text-white duration-300 p-5 flex flex-col shadow-xl flex-shrink-0`}
       >
         {/* Toggle Button */}
         <button
@@ -71,17 +73,17 @@ export default function ProfileLayout() {
           </NavLink>
 
           <NavLink
+            to="/profile/tickets"
+            className="flex items-center gap-3 p-3 rounded  focus:bg-teal-300  hover:bg-teal-300 hover:text-black"
+          >
+            <FaTicketAlt /> {isOpen && "My Tickets"}
+          </NavLink>
+
+          <NavLink
             to="/profile/messages"
             className="flex items-center gap-3 p-3 rounded focus:bg-teal-300  hover:bg-teal-300 hover:text-black"
           >
             <FaFacebookMessenger /> {isOpen && "My Messages"}
-          </NavLink>
-
-          <NavLink
-            to="/profile/orders"
-            className="flex items-center gap-3 p-3 rounded  focus:bg-teal-300  hover:bg-teal-300 hover:text-black"
-          >
-            <FaClipboardList /> {isOpen && "Orders"}
           </NavLink>
 
           <NavLink
@@ -102,7 +104,7 @@ export default function ProfileLayout() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 ">
+      <div className="flex-1 overflow-y-auto">
         <Outlet />
       </div>
     </div>
