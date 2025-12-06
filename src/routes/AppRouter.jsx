@@ -2,12 +2,15 @@ import React from "react";
 import Home from "../features/home/Home";
 import Login from "../features/auth/login/Login";
 import Register from "../features/auth/register/Register";
-import { Route, Routes } from "react-router";
+import { Navigate, Route, Routes } from "react-router";
 import ProtectedRoute from "./ProtectedRoute";
 import ForgotPassword from "../features/auth/password/ForgotPassword";
 import ResetPassword from "../features/auth/password/ResetPassword";
 import Events from "../features/events/Events";
 import EventDetails from "../features/events/EventDetails";
+import Checkout from "../features/checkout/Checkout";
+import ProfilePage from "../features/profile/ProfilePage";
+import ProfileLayout from "../features/profile/ProfileLayout";
 
 // simple placeholder dashboards
 const UserDashboard = () => <div className="p-6">User Dashboard</div>;
@@ -55,6 +58,13 @@ export default function AppRouter() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetails />} />
+        <Route path="/checkout" element={<Checkout />} />
+
+
+        <Route path="/profile" element={<ProfileLayout />}>
+          <Route index element={<Navigate to="info" replace />} />
+          <Route path="info" element={<ProfilePage />} />
+        </Route>
       </Routes>
     </>
   );
