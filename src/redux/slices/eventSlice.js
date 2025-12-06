@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { db } from "../../firebase/firebase.config";
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, arrayUnion, increment } from "firebase/firestore";
 
 // --- Fetch all events ---
 export const fetchAllEvents = createAsyncThunk(
@@ -62,6 +62,44 @@ export const addNewEvent = createAsyncThunk(
     return { id: docRef.id, ...eventData }; 
   }
 );
+
+export const updateEventAfterCheckout = createAsyncThunk(
+  "events/updateEventAfterCheckout",
+  async ({ eventId, seats, userId }, { rejectWithValue }) => {
+    try {
+      const eventRef = doc(db, "events", eventId);
+
+      // bookedSeats جديد
+      const bookedSeatsData = seats.map(s => ({
+        row: s.row,
+        seat: s.seat,
+        userId
+      }));
+
+      // تحديث seatMap بحيث المقاعد الجديدة تتحجز
+      const seatMapUpdate = {};
+      seats.forEach(s => {
+        const seatId = `${s.row}${s.seat}`;
+        seatMapUpdate[`seatMap.${seatId}`] = true; // ✅ هنا الفرق - لازم تحط seatMap. قبل الـ key
+      });
+
+      // تحديث ticketsSold
+      const ticketsSoldIncrement = seats.length;
+
+      await updateDoc(eventRef, {
+        bookedSeats: arrayUnion(...bookedSeatsData),
+        ...seatMapUpdate, //  ده هيحدث seatMap بشكل صحيح
+        ticketsSold: increment(ticketsSoldIncrement)
+      });
+
+      return { eventId, seats, userId };
+
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
 
 const eventSlice = createSlice({
   name: "events",
@@ -145,6 +183,18 @@ const eventSlice = createSlice({
       // --- Add Event ---
       .addCase(addNewEvent.fulfilled, (state, action) => {
         state.events.push(action.payload);
+      })
+
+          // --- Update Event After Checkout
+      .addCase(updateEventAfterCheckout.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateEventAfterCheckout.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(updateEventAfterCheckout.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

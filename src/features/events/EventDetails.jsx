@@ -5,12 +5,14 @@ import { X, Plus, Minus } from "lucide-react";
 import { saveCheckout } from "../../redux/slices/checkoutSlice";
 import { fetchEventById } from "../../redux/slices/eventSlice";
 import SeatsModal from "../../components/SeatsModal";
+import { auth } from "../../firebase/firebase.config";
 export default function EventDetails() {
+
   const { id } = useParams();
   const { events } = useSelector((state) => state.events);
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [showPrices, setShowPrices] = useState(false);
@@ -43,9 +45,25 @@ export default function EventDetails() {
   const rows = ["A", "B", "C", "D"];
   const seatsPerRow = 6;
 
+
+  const isSeatBookedInFirebase = (seatId) => {
+  if (!event.bookedSeats) return false;
+
+  const row = seatId[0];
+  const seatNumber = seatId.slice(1);
+
+  return event.bookedSeats.some(
+    b => b.row === row && b.seat === seatNumber
+  );
+};
+
   const getSeatStatus = (seatId) => {
-    return event.seatMap[seatId];
-  };
+  // أولاً لو الكرسي موجود في seatMap ومحجوز
+  if (event.seatMap && event.seatMap[seatId]) return true;
+
+  // ثانياً لو موجود في bookedSeats بتوع Firebase
+  return isSeatBookedInFirebase(seatId);
+};
 
   const getSeatPrice = (row) => {
     return event.price[row];
@@ -75,6 +93,8 @@ export default function EventDetails() {
       return;
     }
 
+     setIsCheckoutLoading(true);
+
     const tickets = selectedSeats.map((seatId) => ({
       row: seatId[0],
       seat: seatId.slice(1),
@@ -82,19 +102,17 @@ export default function EventDetails() {
       type: "GENERAL",
     }));
 
-    const checkoutData = {
-      eventId: event.id,
-      eventName: event.eventName,
-      eventDate: event.date?.seconds
-        ? new Date(event.date.seconds * 1000).toISOString()
-        : null,
-      venue: event.address,
-      tickets,
-      subtotal: tickets.reduce((sum, t) => sum + t.price, 0),
-      serviceFee: 0.5,
-      total: tickets.reduce((sum, t) => sum + t.price, 0) + 0.5,
-    };
-
+  const checkoutData = {
+    eventId: event.id,
+    eventName: event.eventName,
+    eventDate: event.date?.seconds ? new Date(event.date.seconds * 1000).toISOString() : null,
+    venue: event.address,
+    tickets,
+    subtotal: tickets.reduce((sum, t) => sum + t.price, 0),
+    serviceFee: 0.5,
+    total: tickets.reduce((sum, t) => sum + t.price, 0) + 0.5,
+    userId: auth.currentUser?.uid || 'guest' // أضف الـ userId هنا
+  };
     // تخزين البيانات في Firestore
     await dispatch(saveCheckout(checkoutData));
 
@@ -237,6 +255,7 @@ export default function EventDetails() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         event={event}
+        bookedSeats={Array.isArray(event.bookedSeats) ? event.bookedSeats : []} 
         selectedSeats={selectedSeats}
         toggleSeat={toggleSeat}
         calculateTotal={calculateTotal}
@@ -247,6 +266,7 @@ export default function EventDetails() {
         getSeatPrice={getSeatPrice}
         showPrices={showPrices}
         setShowPrices={setShowPrices}
+        isLoading={isCheckoutLoading}
       />{" "}
     </div>
   );
