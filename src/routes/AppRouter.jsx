@@ -11,8 +11,7 @@ import EventDetails from "../features/events/EventDetails";
 import Checkout from "../features/checkout/Checkout";
 import ProfilePage from "../features/profile/ProfilePage";
 import ProfileLayout from "../features/profile/ProfileLayout";
-import Services from "../features/services/Services";
-import ContactUs from "../features/contactUs/ContactUs";
+import MyTickets from "../features/profile/MyTickets";
 
 // simple placeholder dashboards
 const UserDashboard = () => <div className="p-6">User Dashboard</div>;
@@ -24,11 +23,6 @@ export default function AppRouter() {
     <>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/contact" element={<ContactUs />} />
-
-
-
         {/* Authentication */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -71,9 +65,8 @@ export default function AppRouter() {
         <Route path="/profile" element={<ProfileLayout />}>
           <Route index element={<Navigate to="info" replace />} />
           <Route path="info" element={<ProfilePage />} />
+          <Route path="tickets" element={<MyTickets/>} />
         </Route>
-
-
       </Routes>
     </>
   );
