@@ -101,6 +101,49 @@ export const updateEventAfterCheckout = createAsyncThunk(
 );
 
 
+// --- Fetch user tickets ---
+export const fetchUserTickets = createAsyncThunk(
+  "events/fetchUserTickets",
+  async (userId) => {
+  
+    const snapshot = await getDocs(collection(db, "events"));
+    const userTickets = [];
+    
+    snapshot.docs.forEach(doc => {
+      const eventData = doc.data();
+      
+      // Check if bookedSeats exists and is an array
+      if (!eventData.bookedSeats || !Array.isArray(eventData.bookedSeats)) {
+        console.warn(' No bookedSeats or not an array for event:', doc.id);
+        return;
+      }
+      
+      // Filter booked seats for this user
+      const userSeats = eventData.bookedSeats.filter(seat => {
+        console.log('Checking seat:', seat, 'userId:', seat?.userId, 'matches:', seat?.userId === userId);
+        return seat?.userId === userId;
+      });
+      
+      console.log('User seats found:', userSeats.length, 'for event:', doc.id);
+      
+      // Add each ticket to the array
+      userSeats.forEach(seat => {
+        userTickets.push({
+          id: doc.id,
+          ...eventData,
+          bookedSeat: seat,
+          ticketPrice: eventData.price?.[seat.row] || 0
+        });
+      });
+    });
+    
+    console.log('Total user tickets:', userTickets.length);
+    return userTickets;
+  }
+);
+
+
+
 const eventSlice = createSlice({
   name: "events",
   initialState: {
@@ -112,6 +155,9 @@ const eventSlice = createSlice({
     errorEvents: null,
     errorTypes: null,
     errorCurrentEvent: null,
+    userTickets: [],
+    loadingTickets: false,
+    errorTickets: null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -195,6 +241,20 @@ const eventSlice = createSlice({
       .addCase(updateEventAfterCheckout.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+            // --- Fetch User Tickets ---
+      .addCase(fetchUserTickets.pending, (state) => {
+        state.loadingTickets = true;
+        state.errorTickets = null;
+      })
+      .addCase(fetchUserTickets.fulfilled, (state, action) => {
+        state.loadingTickets = false;
+        state.userTickets = action.payload;
+      })
+      .addCase(fetchUserTickets.rejected, (state, action) => {
+        state.loadingTickets = false;
+        state.errorTickets = action.error.message;
       });
   },
 });
