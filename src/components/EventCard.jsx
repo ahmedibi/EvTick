@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const MapPinIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg className="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
   </svg>
@@ -47,12 +47,12 @@ const EventCard = ({ event }) => {
   return (
     <div
       onClick={() => navigate(`/events/${event.id}`)}
-      className="relative h-[450px] w-full rounded-[30px] overflow-hidden group cursor-pointer shadow-xl hover:shadow-2xl transition-all duration-300"
+      className="relative h-[400px] w-[350px] rounded-[30px] overflow-hidden group cursor-pointer shadow-xl hover:shadow-2xl transition-all duration-300"
     >
       <img
         src={image}
         alt={title}
-        className="absolute inset-0 h-full w-full object-center transition-transform duration-700 group-hover:scale-110"
+        className="absolute inset-0 h-full w-full object-center   transition-transform duration-700 group-hover:scale-110"
         onError={(e) => { e.target.src = "https://via.placeholder.com/400x600?text=Error" }}
       />
 
@@ -65,17 +65,17 @@ const EventCard = ({ event }) => {
         </h3>
 
         <div className="flex items-end gap-4">
-          <div className="bg-[#FFC107] backdrop-blur-sm rounded-xl p-2.5 text-center min-w-[60px] text-black shadow-lg">
-            <span className="block text-xs font-bold uppercase tracking-wide text-red-700">{month}</span>
+          <div className="bg-[#0f9386] backdrop-blur-sm rounded-xl p-2.5 text-center min-w-[60px] text-white shadow-lg">
+            <span className="block text-xs font-bold uppercase tracking-wide text-gray-950">{month}</span>
             <span className="block text-2xl font-extrabold leading-none">{day}</span>
           </div>
 
           <div className="flex flex-col gap-1 pb-1">
-            <div className="flex items-center gap-2 text-gray-200 text-sm font-medium">
+            <div className="flex items-center gap-2 text-gray-200 text-XL font-medium">
               <MapPinIcon />
-              <span className="truncate max-w-[180px]">{address}</span>
+              <span className="truncate max-w-[250px]">{address}</span>
             </div>
-            <div className="text-[#FFC107] font-bold text-lg drop-shadow-sm">
+            <div className="text-[#FFF] font-bold text-lg drop-shadow-sm">
               EGP {displayPrice}
             </div>
           </div>
