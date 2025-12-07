@@ -45,7 +45,7 @@ export default function Navbar() {
                         </Link>
                     </div>
 
-                    {/* Right Side - Globe & Profile */}
+                    {/* Right Side  */}
                     <div className="hidden lg:flex items-center space-x-4">
 
                         {/* Profile Icon */}

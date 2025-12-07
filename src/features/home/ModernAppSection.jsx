@@ -10,7 +10,7 @@ export default function ModernAppSection() {
 
         <section className="relative w-full h-full py-28 px-4 sm:px-6 md:px-10 lg:px-16 xl:px-20 overflow-hidden">
 
-            {/* Background behind everything */}
+            {/* Background */}
             <div className="absolute inset-0 -z-10">
                 <HeroBackground />
             </div>

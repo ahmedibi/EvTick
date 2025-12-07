@@ -6,14 +6,14 @@ export default function RevealRepeat({ children, delay = 0 }) {
     const controls = useAnimation();
     const { ref, inView } = useInView({
         threshold: 0.3,
-        triggerOnce: false, // 👈 خليها false علشان يشتغل كل مرة
+        triggerOnce: false,
     });
 
     useEffect(() => {
         if (inView) {
             controls.start("visible");
         } else {
-            controls.start("hidden"); // 👈 يخليه يختفي لما يخرج من الشاشة
+            controls.start("hidden");
         }
     }, [inView]);
 

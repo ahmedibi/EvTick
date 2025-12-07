@@ -7,7 +7,7 @@ export default function Footer() {
     return (
         <footer className="w-full bg-black text-white pt-16 pb-10">
 
-            {/* ==== TOP SECTION (Banner) ==== */}
+            {/* TOP SECTION */}
             <div className="max-w-7xl mx-auto mb-16 px-4">
                 <div className="w-full h-[300px] sm:h-[350px] md:h-[400px] rounded-3xl relative overflow-hidden">
 
@@ -42,7 +42,7 @@ export default function Footer() {
                 </div>
             </div>
 
-            {/* ==== BOTTOM FOOTER CONTENT ==== */}
+            {/* BOTTOM FOOTER CONTENT  */}
             <div className="max-w-7xl mx-auto px-4">
                 <div className="
           grid grid-cols-1 
@@ -52,19 +52,19 @@ export default function Footer() {
           items-center md:items-start
         ">
 
-                    {/* Column 1 — Logo */}
+                    {/*  Logo */}
                     <div className="flex justify-center md:justify-start">
                         <img src={Logo2} alt="EvTeck Logo" className="w-32 sm:w-40" />
                     </div>
 
-                    {/* Column 2 — Links */}
+                    {/* Links */}
                     <div className="flex flex-col gap-3 text-base sm:text-lg items-center md:items-start lg:mx-auto">
                         <a href="/" className="hover:text-gray-500">Home</a>
                         <a href="/services" className="hover:text-gray-500">Services</a>
                         <a href="/events" className="hover:text-gray-500">Events</a>
                     </div>
 
-                    {/* Column 3 — Button */}
+                    {/* Button */}
                     <div className="flex justify-center md:justify-end">
                         <Link
                             to="/contact"
