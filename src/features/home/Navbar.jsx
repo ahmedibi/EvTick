@@ -7,9 +7,9 @@ export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (
-        <nav className="fixed w-full z-50">
-            <div className="max-w-8xl mx-5 my-6 bg-transparent border shadow-lg rounded-4xl px-4">
-                <div className="flex items-center justify-between h-20">
+        <nav className="fixed w-full z-50 ">
+            <div className="max-w-8xl mx-10 my-6 bg-white/40 backdrop-blur-sm border shadow-lg rounded-4xl px-4">
+                <div className="flex items-center justify-between h-15">
 
                     {/* Logo */}
                     <div className="flex-shrink-0">
@@ -22,25 +22,25 @@ export default function Navbar() {
                     <div className="hidden lg:flex items-center space-x-8 flex-1 justify-center">
                         <Link
                             to="/"
-                            className="text-white hover:text-gray-300 transition-colors duration-200 text-base font-medium">
+                            className="text-black text-lg hover:text-gray-300 transition-colors duration-200  font-medium">
                             Home
                         </Link>
 
                         <Link
                             to="/services"
-                            className="text-white hover:text-gray-300 transition-colors duration-200 text-base font-medium">
+                            className="text-black text-lg hover:text-gray-300 transition-colors duration-200 font-medium">
                             Services
                         </Link>
 
                         <Link
                             to="/events"
-                            className="text-white hover:text-gray-300 transition-colors duration-200 text-base font-medium">
+                            className="text-black text-lg hover:text-gray-300 transition-colors duration-200  font-medium">
                             Events
                         </Link>
 
                         <Link
                             to="/contact"
-                            className="text-white hover:text-gray-300 transition-colors duration-200 text-base font-medium">
+                            className="text-black text-lg hover:text-gray-300 transition-colors duration-200 font-medium">
                             Contact
                         </Link>
                     </div>
@@ -50,10 +50,10 @@ export default function Navbar() {
 
                         {/* Profile Icon */}
                         <Link
-                            className="p-2 rounded-full hover:bg-gray-300 transition-colors duration-200"
+                            className="p-2 rounded-full bg-gray-300 hover:bg-gray-300 transition-colors duration-200"
                             aria-label="Profile" to="/profile">
                             <svg
-                                className="w-6 h-6 text-white hover:text-black"
+                                className="w-6 h-6 text-black hover:text-white"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24">

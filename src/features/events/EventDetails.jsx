@@ -123,151 +123,115 @@ export default function EventDetails() {
     : new Date(event.date);
   return (
     <div className="min-h-screen bg-black text-white w-full">
-      {" "}
-      {/* NAV BAR */}{" "}
-      <nav className="w-full bg-black/70 backdrop-blur-md border-b border-white/10 sticky top-0 z-50">
-        {" "}
-        <div className="flex items-center justify-between py-4 px-6">
-          {" "}
-          <div className="text-white font-extrabold tracking-widest text-xl">
-            {" "}
-            EVTICK{" "}
-          </div>{" "}
-          <div className="hidden md:flex gap-8 text-white/80">
-            {" "}
-            <button className="hover:text-white transition">Home</button>{" "}
-            <button className="hover:text-white transition">Events</button>{" "}
-            <button className="hover:text-white transition">Categories</button>{" "}
-            <button className="hover:text-white transition">Contact</button>{" "}
-          </div>{" "}
-          <div className="flex items-center gap-4">
-            {" "}
-            <button className="text-white hover:text-gray-300">
-              {" "}
-              <i className="ri-search-line text-xl"></i>{" "}
-            </button>{" "}
-            <button className="bg-teal-600 text-white px-4 py-1.5 rounded-md transition cursor-pointer">
-              {" "}
-              Sign In{" "}
-            </button>{" "}
-          </div>{" "}
-        </div>{" "}
-      </nav>{" "}
-      {/* HERO COVER */}{" "}
-      <div className="relative w-full h-[30vh]">
-        {" "}
-        <img
-          src={event.cover || event.photo}
-          className="w-full h-full object-cover brightness-50"
-        />{" "}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black"></div>{" "}
-      </div>{" "}
-      {/* MAIN CONTENT */}{" "}
-      <div className="w-full px-50 py-0 grid grid-cols-1 md:grid-cols-3 gap-8">
-        {" "}
-        {/* LEFT - Poster */}{" "}
-        <div className="flex justify-center md:justify-start relative z-20 -mt-36 md:-mt-12">
-          {" "}
-          <img
-            src={event.photo}
-            className="w-80 h-auto rounded-xl shadow-xl object-cover"
-          />{" "}
-        </div>{" "}
-        {/* CENTER - Title + Description */}
-        <div className="space-y-12">
-          <h1 className="text-4xl font-extrabold tracking-wide">
-            {event.eventName}
-          </h1>
 
-          <p className="text-sm text-gray-400">Hosted by: {event.eventOwner}</p>
+  {/* HERO COVER */}
+  <div className="relative w-full h-[40vh] md:h-[50vh]">
+    <img
+      src={event.cover || event.photo}
+      className="w-full h-full object-cover brightness-50"
+    />
+    <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black"></div>
+  </div>
 
-          <p className="text-gray-300 leading-relaxed text-lg">
-            {event.description}
-          </p>
+  {/* MAIN CONTENT */}
+  <div className="w-full px-4 md:px-12 lg:px-40 pb-10 grid grid-cols-1 md:grid-cols-3 gap-10">
 
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-teal-600 text-white px-40 py-4 rounded-xl mt-4 text-lg font-medium transition cursor-pointer"
-          >
-            Buy Ticket
-          </button>
-        </div>
-        {/* RIGHT - Information Box */}{" "}
-        <div className="flex justify-end">
-          {" "}
-          <div className="bg-white/5 border border-white/10 rounded-xl p-12 max-w-xs self-start space-y-3 ">
-            {" "}
-            <div>
-              {" "}
-              <p className="text-sm text-gray-400">Date</p>{" "}
-              <p className="text-xl font-semibold">
-                {" "}
-                {eventDate.toLocaleDateString("en-US", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}{" "}
-              </p>{" "}
-            </div>{" "}
-            <div>
-              {" "}
-              <p className="text-sm text-gray-400">Time</p>{" "}
-              <p className="text-xl font-semibold">
-                {eventDate.toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: true,
-                })}
-              </p>
-            </div>{" "}
-            <div>
-              {" "}
-              <p className="text-sm text-gray-400">Location</p>{" "}
-              <p className="text-lg font-medium">{event.address}</p>{" "}
-            </div>{" "}
-          </div>{" "}
-        </div>{" "}
-      </div>{" "}
-      {/* MAP SECTION */}{" "}
-      <div className="w-full px-50 pb-18 py-24">
-        {" "}
-        <h2 className="text-2xl font-bold mb-4"></h2>{" "}
-        <div className="w-full h-[350px] rounded-xl overflow-hidden">
-          {" "}
-          <iframe
-            title="Google Maps"
-            width="100%"
-            height="100%"
-            style={{ border: 0 }}
-            loading="lazy"
-            allowFullScreen
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d27607.10562459786!2d31.2357!3d30.0444!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x145840c1df9d0b!2sCairo!5e0!3m2!1sen!2seg!4v1700000000000"
-          ></iframe>{" "}
-        </div>{" "}
-      </div>{" "}
-      {/* FOOTER */}{" "}
-      <footer className="w-full border-t border-white/10 py-8 mt-10 text-center text-gray-400">
-        {" "}
-        © 2025 EvTick. All rights reserved.{" "}
-      </footer>{" "}
-      {/* MODAL */}{" "}
-      <SeatsModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        event={event}
-        bookedSeats={Array.isArray(event.bookedSeats) ? event.bookedSeats : []} 
-        selectedSeats={selectedSeats}
-        toggleSeat={toggleSeat}
-        calculateTotal={calculateTotal}
-        handleCheckout={handleCheckout}
-        rows={rows}
-        seatsPerRow={seatsPerRow}
-        getSeatStatus={getSeatStatus}
-        getSeatPrice={getSeatPrice}
-        showPrices={showPrices}
-        setShowPrices={setShowPrices}
-        isLoading={isCheckoutLoading}
-      />{" "}
+    {/* LEFT - Poster */}
+    <div className="flex justify-center md:justify-start relative z-20 -mt-20 md:-mt-0">
+      <img
+        src={event.photo}
+        className="w-52 h-52 md:h-full md:w-72 lg:w-80 rounded-xl shadow-xl object-cover"
+      />
     </div>
+
+    {/* CENTER - Title + Description */}
+    <div className="space-y-6 ">
+      <h1 className="text-3xl md:text-4xl font-extrabold tracking-wide">
+        {event.eventName}
+      </h1>
+
+      <p className="text-sm text-gray-400">Hosted by: {event.eventOwner}</p>
+
+      <p className="text-gray-300 leading-relaxed text-base md:text-lg">
+        {event.description}
+      </p>
+
+      <button
+        onClick={() => setIsModalOpen(true)}
+        className="bg-teal-600 text-white w-full py-3  rounded-xl mt-4 text-lg font-medium transition cursor-pointer  "
+      >
+        Buy Ticket
+      </button>
+    </div>
+
+    {/* RIGHT - Information Box */}
+    <div className="flex md:justify-end ">
+      <div className="bg-white/5 border border-white/10 rounded-xl p-6 md:p-8 max-w-xs w-full  space-y-4">
+        <div>
+          <p className="text-sm text-gray-400">Date</p>
+          <p className="text-xl font-semibold">
+            {eventDate.toLocaleDateString("en-US", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-sm text-gray-400">Time</p>
+          <p className="text-xl font-semibold">
+            {eventDate.toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+            })}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-sm text-gray-400">Location</p>
+          <p className="text-lg font-medium">{event.address}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* MAP SECTION */}
+  <div className="w-full px-4 md:px-12 lg:px-20 pb-20">
+    <h2 className="text-2xl font-bold mb-4"></h2>
+    <div className="w-full h-[250px] md:h-[350px] rounded-xl overflow-hidden">
+      <iframe
+        title="Google Maps"
+        width="100%"
+        height="100%"
+        style={{ border: 0 }}
+        loading="lazy"
+        allowFullScreen
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d27607.10562459786!2d31.2357!3d30.0444!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x145840c1df9d0b!2sCairo!5e0!3m2!1sen!2seg!4v1700000000000"
+      ></iframe>
+    </div>
+  </div>
+
+  {/* MODAL */}
+  <SeatsModal
+    isOpen={isModalOpen}
+    onClose={() => setIsModalOpen(false)}
+    event={event}
+    bookedSeats={Array.isArray(event.bookedSeats) ? event.bookedSeats : []}
+    selectedSeats={selectedSeats}
+    toggleSeat={toggleSeat}
+    calculateTotal={calculateTotal}
+    handleCheckout={handleCheckout}
+    rows={rows}
+    seatsPerRow={seatsPerRow}
+    getSeatStatus={getSeatStatus}
+    getSeatPrice={getSeatPrice}
+    showPrices={showPrices}
+    setShowPrices={setShowPrices}
+    isLoading={isCheckoutLoading}
+  />
+</div>
+
   );
 }
