@@ -1,7 +1,7 @@
 import React from 'react';
 import img3 from "../../assets/img3.jpg";
 import { FiHelpCircle } from "react-icons/fi";
-import { Link } from 'react-router';
+import { Link, NavLink } from 'react-router';
 import Logo2 from '../../assets/EvTick_Logo2.png';
 export default function Footer() {
     return (
@@ -59,9 +59,9 @@ export default function Footer() {
 
                     {/* Column 2 — Links */}
                     <div className="flex flex-col gap-3 text-base sm:text-lg items-center md:items-start lg:mx-auto">
-                        <a href="/" className="hover:text-gray-500">Home</a>
-                        <a href="/services" className="hover:text-gray-500">Services</a>
-                        <a href="/events" className="hover:text-gray-500">Events</a>
+                        <NavLink to="/" className="hover:text-gray-500">Home</NavLink>
+                        <NavLink to="/services" className="hover:text-gray-500">Services</NavLink>
+                        <NavLink to="/events" className="hover:text-gray-500">Events</NavLink>
                     </div>
 
                     {/* Column 3 — Button */}
@@ -91,7 +91,10 @@ export default function Footer() {
 
                 </div>
             </div>
-
+              <div className="w-full  py-8 mt-5 text-center text-gray-400">
+                  
+                    © 2025 EvTick. All rights reserved.
+                  </div>
         </footer>
     );
 }

@@ -8,12 +8,10 @@ import HeroBackground from "../home/HeroBackground";
 export default function ModernAppSection() {
     return (
 
-        <section className="relative w-full h-full py-28 px-4 sm:px-6 md:px-10 lg:px-16 xl:px-20 overflow-hidden">
+        <section className="relative w-full h-full py-28 px-4 sm:px-6 md:px-10 lg:px-16 xl:px-20 overflow-hidden bg-black">
 
             {/* Background behind everything */}
-            <div className="absolute inset-0 -z-10">
-                <HeroBackground />
-            </div>
+            
 
             <div className="relative max-w-7xl mx-auto z-20">
                 <div className="flex flex-col lg:flex-row items-center justify-between gap-10 sm:gap-12 md:gap-16 lg:gap-20 xl:gap-24">

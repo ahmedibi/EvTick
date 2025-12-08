@@ -71,8 +71,7 @@ const MyTickets = () => {
 
   if (loadingTickets) {
     return (
-      <div className="relative min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center"
-      style={{ backgroundImage: `url(${bgImage})` }}>
+      <div className="relative min-h-screen bg-black flex items-center justify-center">
         <div className=" absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-teal-600"></div>
           <p className="mt-4 text-gray-100">Loading your tickets...</p>
@@ -93,8 +92,8 @@ const MyTickets = () => {
   }
 
   return (
-    <div className="relative min-h-screen bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: `url(${bgImage})` }}
+    <div className="relative min-h-screen bg-black"
+    
     >
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
@@ -124,7 +123,7 @@ const MyTickets = () => {
                 return (
                   <div
                     key={`${ticket.id}-${ticket.bookedSeat?.row}${ticket.bookedSeat?.seat}-${index}`}
-                    className="group relative bg-white/15 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
+                    className="group relative bg-white/10 backdrop-blur-2xl rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
                   >
                     {/* Hover Image Background */}
                     <div 
