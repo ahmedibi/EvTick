@@ -60,7 +60,7 @@ export default function Checkout() {
   if (loading) return <p className="text-center text-white text-xl mt-10">Loading...</p>;
   if (!data) return null;
 
-  const { eventName, eventDate, venue, tickets, serviceFee, eventId, userId } = data;
+  const { eventName, eventDate, venue, tickets, serviceFee, eventId, userId , eventOwner } = data;
 
   const subtotal = tickets.reduce((sum, t) => sum + t.price, 0);
   const total = subtotal + serviceFee;
@@ -80,6 +80,7 @@ export default function Checkout() {
         ...paymentData,
         eventId,
         eventName,
+        eventOwner,
         tickets,
         total,
         serviceFee,

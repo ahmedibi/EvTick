@@ -9,7 +9,7 @@ export default function Footer() {
 
             {/* ==== TOP SECTION (Banner) ==== */}
             <div className="max-w-7xl mx-auto mb-16 px-4">
-                <div className="w-full h-[300px] sm:h-[350px] md:h-[400px] rounded-3xl relative overflow-hidden">
+                <div className="w-full h-[300px] sm:h-[350px] md:h-[200px] rounded-3xl relative overflow-hidden">
 
                     {/* Overlay */}
                     <div className="absolute inset-0 bg-black/40 z-[1]"></div>
@@ -20,7 +20,7 @@ export default function Footer() {
 
                     <img
                         src={img3}
-                        className="absolute inset-0 w-full h-full object-cover z-0"
+                        className="absolute inset-0 w-full h-100 object-cover z-0"
                         alt="Wedding scene"
                     />
 
