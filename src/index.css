@@ -68,14 +68,12 @@ html {
   }
 }
 
-
 /* auth */
 .auth-image {
   flex: 1;
   position: relative;
   background: #eee;
 }
-
 
 .auth-form {
   flex: 1.3;
@@ -84,7 +82,6 @@ html {
   flex-direction: column;
   justify-content: center;
 }
-
 
 .auth-input {
   width: 100%;
@@ -98,14 +95,12 @@ html {
 }
 
 .auth-input:focus {
-  border: 2px solid #0f9386; 
-   /* #aa7e61 */
+  border: 2px solid #0f9386;
+  /* #aa7e61 */
 }
 
 button:focus-visible {
-
   outline: none;
-
 }
 
 .auth-error {
@@ -122,4 +117,20 @@ button:focus-visible {
   cursor: pointer;
   font-size: 18px;
   color: #8c8c8c;
+}
+
+.fade-in {
+  animation: fadeIn 0.9s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
 }
