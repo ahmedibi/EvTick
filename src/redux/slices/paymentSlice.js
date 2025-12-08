@@ -14,7 +14,8 @@ export const savePayment = createAsyncThunk(
         ...paymentData,
         userId: auth.currentUser.uid,
         createdAt: serverTimestamp(),
-        status: "completed"
+        status: "completed",
+        eventOwner: paymentData.eventOwner || null,
       };
 
       const docRef = await addDoc(collection(db, "payments"), dataToSave);

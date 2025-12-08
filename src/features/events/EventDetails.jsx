@@ -111,7 +111,8 @@ export default function EventDetails() {
     subtotal: tickets.reduce((sum, t) => sum + t.price, 0),
     serviceFee: 0.5,
     total: tickets.reduce((sum, t) => sum + t.price, 0) + 0.5,
-    userId: auth.currentUser?.uid || 'guest' // أضف الـ userId هنا
+    userId: auth.currentUser?.uid || 'guest' , // أضف الـ userId هنا
+    eventOwner:event.eventOwner,
   };
     // تخزين البيانات في Firestore
     await dispatch(saveCheckout(checkoutData));
