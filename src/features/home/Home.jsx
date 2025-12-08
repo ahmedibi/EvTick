@@ -9,9 +9,9 @@ export default function Home() {
   return (
     <>
 
-      <div className="snap-y snap-mandatory h-screen overflow-y-scroll">
+      <div className="snap-y snap-mandatory min-h-screen ">
 
-        <Navbar />
+
 
 
         <HeroSection />
@@ -23,7 +23,7 @@ export default function Home() {
         <EventCategoriesSection />
 
 
-        <Footer />
+
 
       </div>
 

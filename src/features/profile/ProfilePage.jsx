@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import bgImage from "../../assets/auth.jpeg";
 
 // Firebase
 import { db } from "../../firebase/firebase.config";
@@ -128,11 +127,10 @@ export default function ProfilePage() {
 
   return (
     <div
-      className="relative min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center"
-      style={{ backgroundImage: `url(${bgImage})` }}
+      className="min-h-screen bg-black flex items-center justify-center"
+      
     >
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-
+    
       <div className="relative bg-white/10 rounded-2xl w-full max-w-4xl p-10 shadow-xl">
         <div className="flex items-center gap-5 mb-8">
           <img

@@ -178,7 +178,7 @@ export default function PaymentModal({
                 className={`flex items-center justify-center gap-2 py-4 px-6 rounded-lg border-2 transition ${
                   paymentMethod === 'paypal'
                     ? 'bg-yellow-500 border-yellow-500'
-                    : 'bg-yellow-400 border-yellow-400 hover:bg-yellow-500'
+                    : 'bg-teal-400 border-teal-400 hover:bg-teal-500'
                 }`}
               >
                 <span className="text-xl text-blue-900">
@@ -312,7 +312,7 @@ export default function PaymentModal({
             <button
               type="submit"
               disabled={isProcessing}
-              className="w-full bg-amber-300 hover:bg-amber-400 text-black font-semibold py-4 rounded-lg transition-all duration-200 text-lg mt-6 disabled:bg-gray-500 disabled:cursor-not-allowed"
+              className="w-full bg-teal-300 hover:bg-teal-400 text-black font-semibold py-4 rounded-lg transition-all duration-200 text-lg mt-6 disabled:bg-gray-500 disabled:cursor-not-allowed"
             >
               {isProcessing ? 'Processing...' : 'Pay now'}
             </button>
