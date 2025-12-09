@@ -8,7 +8,7 @@ export default function Footer() {
     return (
         <footer className="w-full bg-gradient-to-br from-gray-50 via-white to-gray-100 text-black pt-16 pb-10">
 
-            {/* ==== TOP SECTION (Banner) ==== */}
+            {/*  TOP SECTION  */}
             <div className="max-w-7xl mx-auto mb-16 px-4">
                 <div className="w-full h-[300px] sm:h-[350px] md:h-[200px] rounded-3xl relative overflow-hidden">
 
@@ -43,26 +43,27 @@ export default function Footer() {
                 </div>
             </div>
 
-            {/* ==== BOTTOM FOOTER CONTENT ==== */}
+            {/*BOTTOM FOOTER CONTENT*/}
             <div className="max-w-7xl mx-auto px-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center md:text-left items-center md:items-start">
 
-                    {/* Column 1 — Logo */}
+                    {/*  Logo */}
                     <div className="flex justify-center md:justify-start">
                         <img src={Logo} alt="EvTeck Logo" className="w-32 sm:w-40" />
                     </div>
 
-                    {/* Column 2 — Links */}
+                    {/*  Links */}
                     <div className="flex flex-col gap-3 text-base sm:text-lg items-center md:items-start lg:mx-auto text-black">
                         <NavLink to="/" className="hover:text-gray-500">Home</NavLink>
                         <NavLink to="/services" className="hover:text-gray-500">Services</NavLink>
                         <NavLink to="/events" className="hover:text-gray-500">Events</NavLink>
                     </div>
 
-                    {/* Column 3 — Button */}
+                    {/* Button */}
                     <div className="flex justify-center md:justify-end">
                         <Link
                             to="/contact"
+                            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                             className="
                 flex items-center gap-2 sm:gap-3 
                 mt-4 md:mt-10
