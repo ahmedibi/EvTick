@@ -29,7 +29,9 @@ export default function AuthListener({ children }) {  //without it, app won't kn
         email: user.email ?? null,
         // phoneNumber: user.phoneNumber ?? null,
         fullName: snap.exists() ? snap.data().fullName : null,
-        ...snap.data()
+        phone:  snap.exists() ? snap.data().phone : null,
+        eventOwner: snap.exists() ? snap.data().eventOwner : null,
+        // ...snap.data()
       };
 
       dispatch(setUser(userData)); // saves to/updates redux and localStorage (make it available anywhere)
