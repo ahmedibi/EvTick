@@ -48,7 +48,12 @@ export default function HeroSection() {
         return () => clearInterval(timer);
     }, []);
 
-    const current = slides[index];
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % slides.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
 
     return (
         <div className="relative h-screen w-full overflow-hidden">
@@ -258,6 +263,7 @@ export default function HeroSection() {
                     </div>
                 </div>
             </div>
+          </div>
         </div>
     );
 }

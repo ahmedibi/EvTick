@@ -10,7 +10,7 @@ export default function EventCategoriesSection() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const { events, loading } = useSelector((state) => state.events);
+    const { types: eventTypes } = useSelector((state) => state.events);
 
     const [activeCategory] = useState(null);
 
@@ -27,10 +27,23 @@ export default function EventCategoriesSection() {
         "sports Events",
     ];
 
-    const [isMobile, setIsMobile] = useState(() => {
-        if (typeof window !== "undefined") return window.innerWidth <= 768;
-        return false;
-    });
+    // إصلاح شكل البيانات لتوافق Firestore
+    const displayCategories =
+        eventTypes && eventTypes.length > 0
+            ? eventTypes.map((cat) => ({
+                  id: cat.id,
+                  name: cat.type,
+                  image: cat.photo,
+                  description: cat.description,
+              }))
+            : fallbackCategories.map((name, index) => ({
+                  id: index,
+                  name,
+                  image: null,
+                  description: "",
+              }));
+
+    const [activeCategory, setActiveCategory] = useState(null);
 
     useEffect(() => {
         dispatch(fetchEventTypes());
@@ -70,8 +83,8 @@ export default function EventCategoriesSection() {
 
                     {/* Category Buttons */}
                     <div className="flex flex-wrap justify-center gap-3 mt-[30px]">
-                        {categories.map((cat, idx) => (
-                            <Reveal key={idx} delay={0.1 + idx * 0.05}>
+                        {displayCategories.map((type, idx) => (
+                            <Reveal key={type.id} delay={0.1 + idx * 0.05}>
                                 <button
                                     onClick={() => {
                                         navigate("/events", { state: { category: cat } });
@@ -84,7 +97,7 @@ export default function EventCategoriesSection() {
                                             : "bg-white/50 text-black hover:bg-black hover:text-white"
                                         }`}
                                 >
-                                    {cat}
+                                    {type.name}
                                 </button>
                             </Reveal>
                         ))}
