@@ -48,12 +48,7 @@ export default function HeroSection() {
         return () => clearInterval(timer);
     }, []);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % slides.length);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, []);
+    const current = slides[index];
 
     return (
         <div className="relative h-screen w-full overflow-hidden">
@@ -150,7 +145,7 @@ export default function HeroSection() {
                                 transition={{ delay: 0.6 }}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="group bg-black/5 backdrop-blur-sm 5 rounded-full text-black border border-black/20 hover:bg-black hover:text-white transition-all duration-300 flex items-center gap-3 px-8 py-3 text-lg font-medium w-[200px]"
+                                className="group bg-black/5 backdrop-blur-sm rounded-full text-black border border-black/20 hover:bg-black hover:text-white transition-all duration-300 flex items-center gap-3 px-8 py-3 text-lg font-medium w-[200px]"
                             >
                                 View More
                                 <svg
@@ -263,7 +258,6 @@ export default function HeroSection() {
                     </div>
                 </div>
             </div>
-          </div>
         </div>
     );
 }
