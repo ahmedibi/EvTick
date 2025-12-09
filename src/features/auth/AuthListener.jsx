@@ -6,12 +6,12 @@ import { doc, getDoc } from "firebase/firestore";
 import { setUser, setRole, setLoading } from "./authSlice";
 //import { useNavigate } from "react-router-dom";
 
-export default function AuthListener({ children }) {
+export default function AuthListener({ children }) {  //without it, app won't know user is logged in after refresh.
   const dispatch = useDispatch();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      // if NO user logged in
+      // if no user logged in (on logout, clears redux and localStorage)
       if (!user) {
         dispatch(setUser(null));
         dispatch(setRole(null));
@@ -19,7 +19,7 @@ export default function AuthListener({ children }) {
         return;
       }
 
-      // get extra user data from Firestore
+      // get user data from Firestore
       const snap = await getDoc(doc(db, "users", user.uid));
       //const role = snap.exists() ? snap.data().role : "user";
 
@@ -27,11 +27,12 @@ export default function AuthListener({ children }) {
       const userData = {
         uid: user.uid,
         email: user.email ?? null,
-        phoneNumber: user.phoneNumber ?? null,
+        // phoneNumber: user.phoneNumber ?? null,
         fullName: snap.exists() ? snap.data().fullName : null,
+        ...snap.data()
       };
 
-      dispatch(setUser(userData)); // saves to redux and localStorage
+      dispatch(setUser(userData)); // saves to/updates redux and localStorage (make it available anywhere)
       dispatch(setRole(snap.exists() ? snap.data().role : null));
       dispatch(setLoading(false));
 
