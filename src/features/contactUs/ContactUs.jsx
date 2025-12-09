@@ -18,30 +18,28 @@ export default function ContactUs() {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" }); // إزالة الخطأ عند الكتابة
+    setErrors({ ...errors, [e.target.name]: "" });
   };
 
-  // =======================
-  // 🔥 Validation
-  // =======================
+
   const validate = () => {
     const newErrors = {};
 
-    // الاسم لازم يكون على الأقل 3 حروف
+
     if (!formData.fullName.trim()) {
       newErrors.fullName = "Full name is required";
     } else if (formData.fullName.trim().length < 3) {
       newErrors.fullName = "Full name must be at least 3 characters";
     }
 
-    // رقم التليفون لازم يكون أرقام فقط ومن 8 لـ 15 رقم
+
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required";
     } else if (!/^\d{8,15}$/.test(formData.phone.trim())) {
       newErrors.phone = "Phone number must be 8-15 digits";
     }
 
-    // الإيميل لازم يكون صحيح الصيغة
+
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
     } else if (
@@ -50,7 +48,7 @@ export default function ContactUs() {
       newErrors.email = "Invalid email address";
     }
 
-    // الرسالة لازم تكون على الأقل 10 حروف
+
     if (!formData.message.trim()) {
       newErrors.message = "Message is required";
     } else if (formData.message.trim().length < 10) {
@@ -62,13 +60,11 @@ export default function ContactUs() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // =======================
-  // 🔥 حفظ البيانات في Firestore
-  // =======================
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validate()) return; // لو فيه أخطاء توقف هنا
+    if (!validate()) return;
 
     try {
       await addDoc(collection(db, "contactMessages"), {
@@ -88,7 +84,7 @@ export default function ContactUs() {
     <>
       <Navbar />
 
-      {/* ✅ Contact Hero Section */}
+      {/*ontact Hero Section */}
       <div className="relative w-full h-[400px] overflow-hidden">
         {/* Background Image */}
         <img
@@ -207,7 +203,7 @@ export default function ContactUs() {
             </div>
           </div>
 
-          {/* ================= RIGHT INFO ================= */}
+          {/*   RIGHT INFO  */}
           <div className="space-y-10">
             <div>
               <h2 className="text-4xl lg:text-5xl font-bold text-black mb-6 tracking-wide">

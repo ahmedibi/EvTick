@@ -16,15 +16,15 @@ export default function EventCategoriesSection() {
 
 
     const categories = [
-        "Charity Events",
-        "Community Events",
-        "Corporate Events",
-        "Educational Events",
-        "Entertainment Events",
-        "Marketing Events",
-        "School & University Events",
-        "Tec Events",
-        "sports Events",
+        "Charity",
+        "Community",
+        "Corporate",
+        "Educational",
+        "Entertainment",
+        "Marketing",
+        "School & University",
+        "Tec",
+        "sports",
     ];
 
     const [isMobile, setIsMobile] = useState(() => {
@@ -84,7 +84,7 @@ export default function EventCategoriesSection() {
                                             : "bg-white/50 text-black hover:bg-black hover:text-white"
                                         }`}
                                 >
-                                    {cat}
+                                    {cat} Event
                                 </button>
                             </Reveal>
                         ))}
@@ -121,6 +121,7 @@ export default function EventCategoriesSection() {
                         ].map((cat, i) => (
 
                             <div
+                                key={i}
                                 onClick={() => {
                                     navigate("/events", { state: { category: cat.name } });
                                     window.scrollTo({ top: 0, behavior: "smooth" });
