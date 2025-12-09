@@ -62,7 +62,8 @@ export default function Login() {
         fullName: userData.fullName,
         email: userData.email,
         phone: userData.phone,
-        role: userData.role
+        role: userData.role,
+        eventOwner: userData.eventOwner,
       }));
 
       // dispatch to Redux 
@@ -71,7 +72,7 @@ export default function Login() {
       // role-based redirect
       switch (userData.role) {
         case "admin": navigate("/admin"); break;
-        case "organizer": navigate("/organizer"); break;
+        case "organizer": navigate("/organizer"); break;   //"/organizer"
         default: navigate("/");
       }
 
