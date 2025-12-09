@@ -11,6 +11,7 @@ import {
   FaTicketAlt,
 } from "react-icons/fa";
 import { Ticket, TicketIcon, TicketPercent } from "lucide-react";
+import LogoutButton from "../../components/LogoutButton.jsx";
 
 export default function ProfileLayout() {
   const navigate = useNavigate();
@@ -25,10 +26,10 @@ export default function ProfileLayout() {
     }
   }, [initialUser, navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    navigate("/login");
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem("user");
+  //   navigate("/login");
+  // };
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -95,12 +96,8 @@ export default function ProfileLayout() {
         </ul>
 
         {/* Logout */}
-        <button
-          onClick={handleLogout}
-          className="mt-auto bg-teal-600 py-2 rounded hover:bg-teal-700 flex justify-center items-center gap-2"
-        >
-          <FaSignOutAlt /> {isOpen && "Logout"}
-        </button>
+       
+       <LogoutButton/>
       </div>
 
       {/* Content */}
