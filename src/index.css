@@ -60,6 +60,7 @@ html {
     color: #213547;
     background-color: #ffffff;
   }
+
   /* a:hover {
     color: #747bff;
   } */
@@ -98,8 +99,8 @@ html {
 }
 
 .auth-input:focus {
-  border: 2px solid #0f9386; 
-   /* #aa7e61 */
+  border: 2px solid #0f9386;
+  /* #aa7e61 */
 }
 
 button:focus-visible {
@@ -122,4 +123,34 @@ button:focus-visible {
   cursor: pointer;
   font-size: 18px;
   color: #8c8c8c;
+}
+
+/* Moving line animation */
+@keyframes lineMove {
+  0% {
+    left: -150px;
+  }
+
+  100% {
+    left: 100%;
+  }
+}
+
+/* Reverse direction for bottom line */
+@keyframes lineMoveReverse {
+  0% {
+    left: 100%;
+  }
+
+  100% {
+    left: -150px;
+  }
+}
+
+.animate-line {
+  animation: lineMove 4s linear infinite;
+}
+
+.animate-line-reverse {
+  animation: lineMoveReverse 4s linear infinite;
 }
