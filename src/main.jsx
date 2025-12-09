@@ -8,14 +8,16 @@ import { Provider } from 'react-redux';
 import { store } from './redux/store.js';
 //import { AuthProvider } from './context/AuthContext.jsx';
 import AuthListener from './features/auth/AuthListener.jsx';
+import { Toaster } from "react-hot-toast";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
       <BrowserRouter>
-      <AuthListener>
-        <AppRouter />
-      </AuthListener>
+        <AuthListener>
+          <AppRouter />
+        </AuthListener>
+        <Toaster position="top-center" />
       </BrowserRouter>
     </Provider>
   </StrictMode>
