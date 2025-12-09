@@ -16,6 +16,7 @@ import ContactUs from "../features/contactUs/ContactUs";
 import Services from "../features/services/Services";
 import Navbar from "../features/home/Navbar";
 import Footer from "../features/home/Footer";
+import GuestRoute from "../components/GuestRoute";
 // simple placeholder dashboards
 const UserDashboard = () => <div className="p-6">User Dashboard</div>;
 const OrgDashboard = () => <div className="p-6">Organizer Dashboard</div>;
@@ -46,8 +47,17 @@ export default function AppRouter() {
         <Route path="/services" element={<Services />} />
 
         {/* Authentication */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={
+          <GuestRoute>
+          <Login />
+          </GuestRoute>
+          
+          } />
+        <Route path="/register" element={
+          <GuestRoute>
+          <Register />
+          </GuestRoute>
+          } />
 
         {/* protected Role-based dashboards */}
         <Route
@@ -77,8 +87,16 @@ export default function AppRouter() {
           }
         />
 
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/forgot-password" element={
+          <GuestRoute>
+          <ForgotPassword />
+          </GuestRoute>
+          } />
+        <Route path="/reset-password" element={
+          <GuestRoute>
+          <ResetPassword />
+          </GuestRoute>
+          } />
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetails />} />
         <Route path="/checkout" element={<Checkout />} />
