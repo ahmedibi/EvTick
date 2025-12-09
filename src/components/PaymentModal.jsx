@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-// Zod Schema للـ Payment Validation
+// Zod Schema مع Validation محسّن
 const paymentSchema = z.object({
   paymentMethod: z.enum(['card', 'googlepay', 'paypal']),
   cardName: z.string().optional(),
@@ -14,6 +14,7 @@ const paymentSchema = z.object({
 }).superRefine((data, ctx) => {
   // Validation only for card payment
   if (data.paymentMethod === 'card') {
+    // Card Name
     if (!data.cardName || data.cardName.trim().length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -22,6 +23,7 @@ const paymentSchema = z.object({
       });
     }
 
+    // Card Number
     if (!data.cardNumber || data.cardNumber.trim().length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -36,6 +38,7 @@ const paymentSchema = z.object({
       });
     }
 
+    // Card Expiry
     if (!data.cardExpiry || data.cardExpiry.trim().length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -48,8 +51,42 @@ const paymentSchema = z.object({
         message: 'Format must be MM/YY',
         path: ['cardExpiry'],
       });
+    } else {
+      const [month, year] = data.cardExpiry.split('/').map(Number);
+      
+      // التحقق من الشهر (1-12)
+      if (month < 1 || month > 12) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Month must be between 01 and 12',
+          path: ['cardExpiry'],
+        });
+      }
+      
+      // التحقق من السنة (25-32)
+      if (year < 25 || year > 32) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Year must be between 25 and 32',
+          path: ['cardExpiry'],
+        });
+      }
+      
+      // التحقق من أن التاريخ لم ينتهي بعد
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear() % 100; // آخر رقمين من السنة
+      const currentMonth = currentDate.getMonth() + 1;
+      
+      if (year < currentYear || (year === currentYear && month < currentMonth)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Card has expired',
+          path: ['cardExpiry'],
+        });
+      }
     }
 
+    // CVV - 3 أرقام فقط
     if (!data.cvv || data.cvv.trim().length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -59,7 +96,7 @@ const paymentSchema = z.object({
     } else if (data.cvv.length !== 3) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'CVV must be 3 digits',
+        message: 'CVV must be exactly 3 digits',
         path: ['cvv'],
       });
     }
@@ -96,6 +133,7 @@ export default function PaymentModal({
   const paymentMethod = watch('paymentMethod');
   const cardNumber = watch('cardNumber');
   const cardExpiry = watch('cardExpiry');
+  const cvv = watch('cvv');
 
   if (!isOpen) return null;
 
@@ -118,18 +156,23 @@ export default function PaymentModal({
     }
   };
 
-  // Handle expiry input
+  // Handle expiry input مع validation محسّن
   const handleExpiryChange = (e) => {
     let value = e.target.value.replace(/\D/g, '');
+    
+    // إضافة / تلقائياً بعد الشهر
     if (value.length >= 2) {
-      value = value.slice(0, 2) + '/' + value.slice(2, 4);
+      const month = value.slice(0, 2);
+      const year = value.slice(2, 4);
+      value = month + (year ? '/' + year : '');
     }
+    
     if (value.length <= 5) {
       setValue('cardExpiry', value, { shouldValidate: true });
     }
   };
 
-  // Handle CVV input
+  // Handle CVV input - 3 أرقام فقط
   const handleCvvChange = (e) => {
     const value = e.target.value.replace(/\D/g, '');
     if (value.length <= 3) {
@@ -161,24 +204,22 @@ export default function PaymentModal({
               <button
                 type="button"
                 onClick={() => setValue('paymentMethod', 'googlepay')}
-                className={`flex items-center justify-center gap-2 px-6 rounded-lg border-2 transition ${
+                className={`flex items-center justify-center gap-2 py-4 px-6 rounded-lg border-2 transition ${
                   paymentMethod === 'googlepay'
-                    ? 'bg-neutral-800 border-blue-500'
-                    : 'bg-neutral-800 border-gray-600 hover:border-gray-500'
+                    ? 'bg-neutral-700 border-blue-500'
+                    : 'bg-neutral-700 border-gray-600 hover:border-gray-500'
                 }`}
               >
-                <span className="text-white text-4xl">
-                  <i className="fa-brands fa-google-pay"></i>
-                </span>
+                <span className="text-white font-semibold">Google Pay</span>
               </button>
 
-              <button
+                <button
                 type="button"
                 onClick={() => setValue('paymentMethod', 'paypal')}
                 className={`flex items-center justify-center gap-2 py-4 px-6 rounded-lg border-2 transition ${
                   paymentMethod === 'paypal'
                     ? 'bg-yellow-500 border-yellow-500'
-                    : 'bg-yellow-400 border-yellow-400 hover:bg-yellow-500'
+                    : 'bg-teal-400 border-teal-400 hover:bg-teal-500'
                 }`}
               >
                 <span className="text-xl text-blue-900">
@@ -187,6 +228,7 @@ export default function PaymentModal({
                 <span className="text-blue-900 font-bold">Paypal</span>
               </button>
             </div>
+
             {/* Divider */}
             <div className="flex items-center gap-4 mb-6">
               <div className="flex-1 h-px bg-gray-600"></div>
@@ -199,7 +241,7 @@ export default function PaymentModal({
               <div className="space-y-6">
                 {/* Full Name */}
                 <div>
-                  <label className="block text-white text-sm mb-2">
+                  <label className="block text-white text-sm mb-2 font-medium">
                     Full name (as displayed on card)
                   </label>
                   <input
@@ -208,7 +250,7 @@ export default function PaymentModal({
                     placeholder="Abdallah Elsaid"
                     className={`w-full bg-neutral-700 border-2 ${
                       errors.cardName ? 'border-red-500' : 'border-gray-600'
-                    } text-white px-4 py-3 rounded-lg focus:border-white focus:outline-none transition`}
+                    } text-white px-4 py-3 rounded-lg focus:border-teal-400 focus:outline-none transition`}
                   />
                   {errors.cardName && (
                     <p className="text-red-400 text-sm mt-1">
@@ -217,75 +259,71 @@ export default function PaymentModal({
                   )}
                 </div>
 
+                {/* Card Number */}
+                <div>
+                  <label className="block text-white text-sm mb-2 font-medium">
+                    Card number
+                  </label>
+                  <input
+                    type="text"
+                    value={formatCardNumber(cardNumber)}
+                    onChange={handleCardNumberChange}
+                    placeholder="1234-5678-9012-3456"
+                    className={`w-full bg-neutral-700 border-2 ${
+                      errors.cardNumber ? 'border-red-500' : 'border-gray-600'
+                    } text-white px-4 py-3 rounded-lg focus:border-teal-400 focus:outline-none transition`}
+                  />
+                  {errors.cardNumber && (
+                    <p className="text-red-400 text-sm mt-1">
+                      {errors.cardNumber.message}
+                    </p>
+                  )}
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Card Number */}
+                  {/* Card Expiry */}
                   <div>
-                    <label className="block text-white text-sm mb-2">
-                      Card number
+                    <label className="block text-white text-sm mb-2 font-medium">
+                      Card expiration (MM/YY)
                     </label>
                     <input
                       type="text"
-                      value={formatCardNumber(cardNumber)}
-                      onChange={handleCardNumberChange}
-                      placeholder="XXXX-XXXX-XXXX-XXXX"
+                      value={cardExpiry}
+                      onChange={handleExpiryChange}
+                      placeholder="12/25"
+                      maxLength={5}
                       className={`w-full bg-neutral-700 border-2 ${
-                        errors.cardNumber ? 'border-red-500' : 'border-gray-600'
-                      } text-white px-4 py-3 rounded-lg focus:border-white focus:outline-none transition`}
+                        errors.cardExpiry ? 'border-red-500' : 'border-gray-600'
+                      } text-white px-4 py-3 rounded-lg focus:border-teal-400 focus:outline-none transition`}
                     />
-                    {errors.cardNumber && (
+                    {errors.cardExpiry && (
                       <p className="text-red-400 text-sm mt-1">
-                        {errors.cardNumber.message}
+                        {errors.cardExpiry.message}
                       </p>
                     )}
                   </div>
 
                   {/* CVV */}
                   <div>
-                    <label className="block text-white text-sm mb-2 flex items-center gap-2">
-                      CVV
+                    <label className="block text-white text-sm mb-2 font-medium">
+                      CVV (3 digits)
                     </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        onChange={handleCvvChange}
-                        placeholder="•••"
-                        className={`w-full bg-neutral-700 border-2 ${
-                          errors.cvv ? 'border-red-500' : 'border-gray-600'
-                        } text-white px-4 py-3 rounded-lg focus:border-white focus:outline-none transition`}
-                      />
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <div className="w-8 h-6 bg-gray-600 rounded"></div>
-                      </div>
-                    </div>
+                    <input
+                      type="text"
+                      value={cvv}
+                      onChange={handleCvvChange}
+                      placeholder="123"
+                      maxLength={3}
+                      className={`w-full bg-neutral-700 border-2 ${
+                        errors.cvv ? 'border-red-500' : 'border-gray-600'
+                      } text-white px-4 py-3 rounded-lg focus:border-teal-400 focus:outline-none transition`}
+                    />
                     {errors.cvv && (
                       <p className="text-red-400 text-sm mt-1">
                         {errors.cvv.message}
                       </p>
                     )}
                   </div>
-                </div>
-
-                {/* Card Expiry */}
-                <div>
-                  <label className="block text-white text-sm mb-2">
-                    Card expiration
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={cardExpiry}
-                      onChange={handleExpiryChange}
-                      placeholder="12/23"
-                      className={`w-full bg-neutral-700 border-2 ${
-                        errors.cardExpiry ? 'border-red-500' : 'border-gray-600'
-                      } text-white px-4 py-3 rounded-lg focus:border-white focus:outline-none transition`}
-                    />
-                  </div>
-                  {errors.cardExpiry && (
-                    <p className="text-red-400 text-sm mt-1">
-                      {errors.cardExpiry.message}
-                    </p>
-                  )}
                 </div>
               </div>
             )}
@@ -312,7 +350,7 @@ export default function PaymentModal({
             <button
               type="submit"
               disabled={isProcessing}
-              className="w-full bg-amber-300 hover:bg-amber-400 text-black font-semibold py-4 rounded-lg transition-all duration-200 text-lg mt-6 disabled:bg-gray-500 disabled:cursor-not-allowed"
+              className="w-full bg-teal-400 hover:bg-teal-500 text-black font-semibold py-4 rounded-lg transition-all duration-200 text-lg mt-6 disabled:bg-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isProcessing ? 'Processing...' : 'Pay now'}
             </button>

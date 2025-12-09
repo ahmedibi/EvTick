@@ -8,9 +8,9 @@ import { updateEventAfterCheckout } from '../../redux/slices/eventSlice';
 import { clearCheckout, fetchLatestCheckout } from '../../redux/slices/checkoutSlice';
 import { savePayment } from '../../redux/slices/paymentSlice';
 import PaymentModal from '../../components/PaymentModal';
-import bgImage from '../../assets/auth.jpeg';
 
-// Zod Schema للـ Validation
+
+
 const checkoutSchema = z.object({
   firstName: z.string()
     .min(2, 'First name must be at least 2 characters')
@@ -60,7 +60,7 @@ export default function Checkout() {
   if (loading) return <p className="text-center text-white text-xl mt-10">Loading...</p>;
   if (!data) return null;
 
-  const { eventName, eventDate, venue, tickets, serviceFee, eventId, userId } = data;
+  const { eventName, eventDate, venue, tickets, serviceFee, eventId, userId , eventOwner } = data;
 
   const subtotal = tickets.reduce((sum, t) => sum + t.price, 0);
   const total = subtotal + serviceFee;
@@ -80,6 +80,7 @@ export default function Checkout() {
         ...paymentData,
         eventId,
         eventName,
+        eventOwner,
         tickets,
         total,
         serviceFee,
@@ -108,18 +109,14 @@ export default function Checkout() {
   return (
     <>
       <div 
-        className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-6"
-        style={{ backgroundImage: `url(${bgImage})` }}
-      >
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black/70"></div>
+        className="min-h-screen bg-black  flex items-center justify-center p-6">
         
         {/* Content */}
         <div className="relative z-10 w-full max-w-6xl flex flex-col lg:flex-row gap-8 items-start">
           
           {/* Left Side - Form */}
           <div className="flex-1 w-full">
-            <h1 className="text-5xl font-bold text-yellow-300 mb-8">Add your details</h1>
+            <h1 className="text-5xl font-bold text-teal-400 mb-8">Add your details</h1>
             
             <form onSubmit={handleSubmit(onContinue)} className="space-y-6">
               {/* First Name & Last Name */}
@@ -134,7 +131,7 @@ export default function Checkout() {
                     {...register('firstName')}
                     className={`w-full bg-transparent border-2 ${
                       errors.firstName ? 'border-red-500' : 'border-gray-500'
-                    } text-white px-4 py-3 rounded focus:border-yellow-300 focus:outline-none transition`}
+                    } text-white px-4 py-3 rounded focus:border-teal-300 focus:outline-none transition`}
                     placeholder="Enter your first name"
                   />
                   {errors.firstName && (
@@ -154,7 +151,7 @@ export default function Checkout() {
                     {...register('lastName')}
                     className={`w-full bg-transparent border-2 ${
                       errors.lastName ? 'border-red-500' : 'border-gray-500'
-                    } text-white px-4 py-3 rounded focus:border-yellow-300 focus:outline-none transition`}
+                    } text-white px-4 py-3 rounded focus:border-teal-300 focus:outline-none transition`}
                     placeholder="Enter your last name"
                   />
                   {errors.lastName && (
@@ -175,7 +172,7 @@ export default function Checkout() {
                   {...register('email')}
                   className={`w-full bg-transparent border-2 ${
                     errors.email ? 'border-red-500' : 'border-gray-500'
-                  } text-white px-4 py-3 rounded focus:border-yellow-300 focus:outline-none transition`}
+                  } text-white px-4 py-3 rounded focus:border-teal-300 focus:outline-none transition`}
                   placeholder="Enter your email"
                 />
                 {errors.email && (
@@ -189,7 +186,7 @@ export default function Checkout() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-yellow-300 text-black font-semibold py-4 rounded hover:bg-yellow-400 transition-all duration-200 text-lg mt-4 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="w-full bg-teal-300 text-black font-semibold py-4 rounded hover:bg-teal-400 transition-all duration-200 text-lg mt-4 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Processing...' : 'Continue'}
               </button>

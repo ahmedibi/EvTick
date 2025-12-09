@@ -7,7 +7,7 @@ const Icons = {
   Trash: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
 };
 
-const goldenStyle = "bg-gradient-to-r from-[#FFC107] to-[#FF9800] text-gray-900 rounded-2xl px-4 py-1 shadow-sm hover:brightness-105 transition-all";
+const goldenStyle = "bg-[#0f9386] text-white rounded-2xl px-4 py-1 shadow-sm hover:brightness-105 transition-all";
 
 const FilterModal = ({ 
   activeModal, 
@@ -28,7 +28,6 @@ const FilterModal = ({
         .react-calendar__navigation button:enabled:hover, .react-calendar__navigation button:enabled:focus { background-color: #f3f4f6; border-radius: 8px; }
         .react-calendar__month-view__weekdays { text-align: center; text-transform: uppercase; font-weight: bold; font-size: 0.75rem; color: #9ca3af; text-decoration: none; }
         
-        /* هنا الحل: بنجبر الخلفية تكون شفافة والخط أسود */
         .react-calendar__tile { 
           padding: 10px 6px; 
           background: transparent !important; 
@@ -46,7 +45,6 @@ const FilterModal = ({
           color: black !important; 
         }
         
-        /* التاريخ المختار */
         .react-calendar__tile--active { 
           background: transparent !important; 
           color: black !important; 
@@ -57,17 +55,17 @@ const FilterModal = ({
 
         .react-calendar__tile--now { 
           background: transparent !important; 
-          color: #FFC107 !important; 
+          color: #0f9386 !important; 
           font-weight: bold; 
         }
       `}</style>
 
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
       
-      <div className="relative bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-in border-2 border-black">
+      <div className="relative bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-in border-2 border-none">
         {/* Header */}
-        <div className="bg-[#FFC107] p-5 flex justify-between items-center border-b border-black">
-          <h2 className="text-xl font-bold mx-auto text-gray-950">
+        <div className="bg-[#0f9386] text-white p-5 flex justify-between items-center border-b border-none">
+          <h2 className="text-xl font-bold mx-auto text-white">
             {activeModal === 'date' && "Select Date"}
             {activeModal === 'category' && "Select Category"}
             {activeModal === 'location' && "Select Venue"}
