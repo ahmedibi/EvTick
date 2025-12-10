@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import { fetchEventTypes, fetchAllEvents } from "../../redux/slices/eventSlice";
 import bgImage from '../../assets/Untitled design.png';
 
@@ -31,12 +32,19 @@ export default function Events() {
   const [tempSelection, setTempSelection] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
-  
+
+  const location = useLocation();
 
   useEffect(() => {
     dispatch(fetchEventTypes());
     dispatch(fetchAllEvents());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (location.state?.category) {
+      setActiveFilter(location.state.category);
+    }
+  }, [location.state]);
 
   const uniqueLocations = useMemo(() => {
     return ["All", ...new Set(events.map(e => e.location || e.address || "Online Event"))];
@@ -103,7 +111,7 @@ export default function Events() {
 
         <div className="absolute left-6 md:left-20 top-15 text-white max-w-xl">
           <h1 className="text-3xl md:text-4xl font-bold leading-snug">
-            The Citywide <br /> 
+            The Citywide <br />
           </h1>
           <p className="mt-3 text-gray-200 text-sm md:text-base max-w-md">
             <p className=" ml-1 text-gray-200">Find and book your next experience</p>
@@ -115,7 +123,7 @@ export default function Events() {
 
             <div className="relative flex-1">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                <FaSearch/>
+                <FaSearch />
               </span>
               <input
                 type="text"

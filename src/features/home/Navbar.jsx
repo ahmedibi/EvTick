@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import EvTick from "../../assets/EvTick_Logo.png";
+import LogOutNav from "../../components/LogOutNav.jsx";
 
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const user = JSON.parse(localStorage.getItem("user"));
+
 
     return (
         <nav className="fixed w-full z-50 ">
@@ -45,46 +48,60 @@ export default function Navbar() {
                         </Link>
                     </div>
 
-                    {/* Right Side - Globe & Profile */}
-                    <div className="hidden lg:flex items-center space-x-4">
-
+                    {/* Right Side  */}
+                   <div className="hidden lg:flex items-center space-x-4">
+                    {user ? (
+                        <>
                         {/* Profile Icon */}
                         <Link
                             className="p-2 rounded-full bg-gray-300 hover:bg-gray-300 transition-colors duration-200"
-                            aria-label="Profile" to="/profile">
+                            aria-label="Profile"
+                            to="/profile"
+                        >
                             <svg
-                                className="w-6 h-6 text-black hover:text-white"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                                />
+                            className="w-6 h-6 text-black hover:text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            />
                             </svg>
                         </Link>
 
                         {/* Logout Icon */}
-                        <button
-                            className="p-2 rounded-full hover:bg-red-50 transition-colors duration-200"
-                            aria-label="Logout">
+                        <LogOutNav />
+                        </>
+                    ) : (
+                        <>
+                        {/* login icon */}
+                        <Link
+                            to="/login"
+                            aria-label="Login"
+                            className="p-2 rounded-full bg-green-500 hover:bg-green-600 transition-colors duration-200"
+                        >
                             <svg
-                                className="w-6 h-6 text-red-500"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V5"
-                                />
+                            fill="none"
+                            stroke="white"
+                            strokeWidth={2}
+                            className="w-6 h-6"
+                            viewBox="0 0 24 24"
+                            >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5m5 5H3"
+                            />
                             </svg>
-                        </button>
-
+                        </Link>
+                        </>
+                    )}
                     </div>
+
 
 
                     {/* Mobile Menu Button */}
