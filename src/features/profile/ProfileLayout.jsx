@@ -32,7 +32,7 @@ export default function ProfileLayout() {
   // };
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-black">
 
       {/* Sidebar */}
       <div
@@ -97,11 +97,11 @@ export default function ProfileLayout() {
 
         {/* Logout */}
        
-       <LogoutButton/>
+       <LogoutButton />
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto ">
         <Outlet />
       </div>
     </div>

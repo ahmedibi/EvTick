@@ -27,7 +27,6 @@ export default function AuthListener({ children }) {  //without it, app won't kn
       const userData = {
         uid: user.uid,
         email: user.email ?? null,
-        // phoneNumber: user.phoneNumber ?? null,
         fullName: snap.exists() ? snap.data().fullName : null,
         phone:  snap.exists() ? snap.data().phone : null,
         eventOwner: snap.exists() ? snap.data().eventOwner : null,
