@@ -4,6 +4,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "../firebase/firebase.config";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { LucideLogOut } from "lucide-react";
 
 export default function LogoutButton() {
   
@@ -20,9 +21,9 @@ const logout = async () => {
   return (
     <button
       onClick={logout}
-      className="px-4 py-2 bg-black text-white rounded"
+      className="px-4 py-2  text-white rounded cursor-pointer bg-red-400 mt-10 flex justify-center"
     >
-      Logout
+      <LucideLogOut/>
     </button>
   );
 }
