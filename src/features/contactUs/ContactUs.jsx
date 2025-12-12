@@ -5,8 +5,12 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import background from "../../../public/b8ca76c033cab052b757cda46bd5d65c.jpg"
 import Navbar from "../home/Navbar";
+import { useSelector } from "react-redux";
 
 export default function ContactUs() {
+
+  const { currentUser } = useSelector((state) => state.auth);
+
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -69,11 +73,13 @@ export default function ContactUs() {
     try {
       await addDoc(collection(db, "contactMessages"), {
         ...formData,
+         userId: currentUser?.uid || null,
+         status: "pending",
         createdAt: serverTimestamp(),
       });
 
       toast.success("Message sent successfully!");
-      setFormData({ fullName: "", phone: "", email: "", message: "" });
+      setFormData({ fullName: "", phone: "", email: "", message: ""});
     } catch (error) {
       console.error("Error adding document: ", error);
       toast.error("Something went wrong. Try again.");

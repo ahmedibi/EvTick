@@ -32,7 +32,7 @@ export default function ProfileLayout() {
   // };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-black">
+    <div className="flex h-screen overflow-hidden bg-neutral-800  ">
 
       {/* Sidebar */}
       <div
