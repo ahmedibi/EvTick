@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import EvTick from "../../assets/EvTick_Logo.png";
 import LogOutNav from "../../components/LogOutNav.jsx";
+import NotificationDropdown from "../../components/NotificationDropdown.jsx";
 
 
 export default function Navbar() {
@@ -52,6 +53,10 @@ export default function Navbar() {
                    <div className="hidden lg:flex items-center space-x-4">
                     {user ? (
                         <>
+
+
+                           <NotificationDropdown />
+
                         {/* Profile Icon */}
                         <Link
                             className="p-2 rounded-full bg-gray-300 hover:bg-gray-300 transition-colors duration-200"

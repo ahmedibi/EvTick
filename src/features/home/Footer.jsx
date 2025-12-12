@@ -6,7 +6,7 @@ import Logo from '../../assets/EvTick_Logo.png';
 
 export default function Footer() {
     return (
-        <footer className="w-full bg-gradient-to-br from-gray-50 via-white to-gray-100 text-black pt-16 pb-10">
+        <footer className="w-full bg-gradient-to-br  text-black pt-16 pb-10">
 
             {/*  TOP SECTION  */}
             <div className="max-w-7xl mx-auto mb-16 px-4">
@@ -17,7 +17,7 @@ export default function Footer() {
 
                     {/* Light Bottom Fade */}
                     <div className="absolute bottom-0 left-0 w-full h-20 
-               bg-gradient-to-t from-white via-white/40 to-transparent z-[2]"></div>
+               bg-gradient-to-t from-white via-white/10 to-transparent z-[2]"></div>
 
                     <img
                         src={img3}
@@ -34,7 +34,7 @@ export default function Footer() {
                             In love with what you're seeing?
                         </h2>
 
-                        <div className="w-32 sm:w-60 h-px bg-black mb-3"></div>
+                        <div className="w-32 sm:w-60 h-px bg-white mb-3"></div>
 
                         <button className="text-xl sm:text-[2rem] italic font-serif text-white hover:opacity-70 transition font-bold">
                             let's connect
