@@ -8,6 +8,7 @@ import { updateEventAfterCheckout } from '../../redux/slices/eventSlice';
 import { clearCheckout, fetchLatestCheckout } from '../../redux/slices/checkoutSlice';
 import { savePayment } from '../../redux/slices/paymentSlice';
 import PaymentModal from '../../components/PaymentModal';
+import { motion } from 'framer-motion';
 
 
 
@@ -97,9 +98,9 @@ export default function Checkout() {
 
       // 3. مسح الـ checkout من Redux
       dispatch(clearCheckout());
-
-      // 4. الذهاب لصفحة النجاح
-      navigate("/success");
+       alert("Payment completed successfully!");
+      
+      navigate("/events");
     } catch (error) {
       console.error("Payment error:", error);
       alert("Error processing payment. Please try again.");
@@ -109,13 +110,18 @@ export default function Checkout() {
   return (
     <>
       <div 
-        className="min-h-screen bg-black  flex items-center justify-center p-6">
+        className="min-h-screen bg-gray-100  flex items-center justify-center p-6">
         
         {/* Content */}
         <div className="relative z-10 w-full max-w-6xl flex flex-col lg:flex-row gap-8 items-start">
-          
+            <motion.div
+          initial={{ opacity: 0, x: -80 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          className="flex-1 w-full "
+        >
           {/* Left Side - Form */}
-          <div className="flex-1 w-full">
+          <div className="flex-1 w-full bg-white p-8 rounded-2xl">
             <h1 className="text-5xl font-bold text-teal-400 mb-8">Add your details</h1>
             
             <form onSubmit={handleSubmit(onContinue)} className="space-y-6">
@@ -123,15 +129,15 @@ export default function Checkout() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* First Name */}
                 <div>
-                  <label className="block text-white text-sm mb-2">
+                  <label className="block text-black text-sm mb-2">
                     First name
                   </label>
                   <input
                     type="text"
                     {...register('firstName')}
-                    className={`w-full bg-transparent border-2 ${
-                      errors.firstName ? 'border-red-500' : 'border-gray-500'
-                    } text-white px-4 py-3 rounded focus:border-teal-300 focus:outline-none transition`}
+                    className={`w-full bg-gray-100  border-2 ${
+                      errors.firstName ? 'border-red-500' : 'border-gray-600'
+                    } text-gray-600 px-4 py-3 rounded focus:border-teal-300 focus:outline-none transition`}
                     placeholder="Enter your first name"
                   />
                   {errors.firstName && (
@@ -143,15 +149,15 @@ export default function Checkout() {
                 
                 {/* Last Name */}
                 <div>
-                  <label className="block text-white text-sm mb-2">
+                  <label className="block text-black text-sm mb-2">
                     Last name
                   </label>
                   <input
                     type="text"
                     {...register('lastName')}
-                    className={`w-full bg-transparent border-2 ${
-                      errors.lastName ? 'border-red-500' : 'border-gray-500'
-                    } text-white px-4 py-3 rounded focus:border-teal-300 focus:outline-none transition`}
+                    className={`w-full bg-gray-100 border-2 ${
+                      errors.lastName ? 'border-red-500' : 'border-gray-600'
+                    } text-gray-600 px-4 py-3 rounded focus:border-teal-300 focus:outline-none transition`}
                     placeholder="Enter your last name"
                   />
                   {errors.lastName && (
@@ -164,15 +170,15 @@ export default function Checkout() {
 
               {/* Email */}
               <div>
-                <label className="block text-white text-sm mb-2">
+                <label className="block text-black text-sm mb-2">
                   Email
                 </label>
                 <input
                   type="email"
                   {...register('email')}
-                  className={`w-full bg-transparent border-2 ${
-                    errors.email ? 'border-red-500' : 'border-gray-500'
-                  } text-white px-4 py-3 rounded focus:border-teal-300 focus:outline-none transition`}
+                  className={`w-full bg-gray-100 border-2 ${
+                    errors.email ? 'border-red-500' : 'border-gray-600'
+                  } text-gray-600 px-4 py-3 rounded focus:border-teal-300 focus:outline-none transition`}
                   placeholder="Enter your email"
                 />
                 {errors.email && (
@@ -192,14 +198,20 @@ export default function Checkout() {
               </button>
             </form>
           </div>
-
+         </motion.div>
+         <motion.div
+          initial={{ opacity: 0, x: 80 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
+          className="w-full lg:w-96 "
+        >
           {/* Right Side - Order Summary */}
-          <div className="w-full lg:w-96 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-6">
+          <div className="w-full lg:w-96 bg-black/8 backdrop-blur-md border border-white/20 rounded-lg p-6">
             
             {/* Event Info */}
-            <div className="mb-6 pb-6 border-b border-white/20">
-              <h2 className="text-xl font-semibold text-white mb-2">{eventName}</h2>
-              <p className="text-gray-300 text-sm mb-1">
+            <div className="mb-6 pb-6 border-b border-black/20">
+              <h2 className="text-xl font-semibold text-gray-700 my-3">{eventName}</h2>
+              <p className="text-gray-700 text-sm mb-1">
                 {dateObj?.toLocaleDateString('en-US', { 
                   month: 'short', 
                   day: 'numeric', 
@@ -210,18 +222,18 @@ export default function Checkout() {
                   hour12: true 
                 })}
               </p>
-              <p className="text-gray-300 text-sm">{venue}</p>
+              <p className="text-gray-700 text-sm">{venue}</p>
             </div>
 
             {/* Tickets */}
-            <div className="mb-6 pb-6 border-b border-white/20">
+            <div className="mb-6 pb-6 border-b border-black/20">
               {tickets.map((ticket, index) => (
                 <div key={index} className="mb-4">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-white font-semibold">{ticket.type}</span>
-                    <span className="text-white font-semibold">${ticket.price.toFixed(2)}</span>
+                    <span className="text-gray-700 font-semibold">{ticket.type}</span>
+                    <span className="text-gray-700 font-semibold">${ticket.price.toFixed(2)}</span>
                   </div>
-                  <div className="flex gap-4 text-gray-300 text-sm">
+                  <div className="flex gap-4 text-gray-700 text-sm">
                     <div className="flex items-center gap-1">
                       <span className="font-medium">Row</span>
                       <span>{ticket.row}</span>
@@ -237,21 +249,21 @@ export default function Checkout() {
 
             {/* Pricing */}
             <div className="space-y-3">
-              <div className="flex justify-between text-white">
+              <div className="flex justify-between text-gray-700">
                 <span>Subtotal</span>
                 <span className="font-semibold">${subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-white">
+              <div className="flex justify-between text-gray-700">
                 <span>Service fee</span>
                 <span className="font-semibold">${serviceFee.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-white text-xl font-bold pt-3 border-t border-white/20">
+              <div className="flex justify-between text-gray-700 text-xl font-bold pt-3 border-t border-black/20">
                 <span>Total</span>
                 <span>${total.toFixed(2)}</span>
               </div>
             </div>
           </div>
-
+      </motion.div>
         </div>
       </div>
 
