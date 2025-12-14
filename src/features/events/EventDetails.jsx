@@ -6,8 +6,9 @@ import { saveCheckout } from "../../redux/slices/checkoutSlice";
 import { fetchEventById } from "../../redux/slices/eventSlice";
 import SeatsModal from "../../components/SeatsModal";
 import { auth } from "../../firebase/firebase.config";
-export default function EventDetails() {
+import EventMap from "../../components/EventMap";
 
+export default function EventDetails() {
   const { id } = useParams();
   const { events } = useSelector((state) => state.events);
   const [event, setEvent] = useState(null);
@@ -45,25 +46,24 @@ export default function EventDetails() {
   const rows = ["A", "B", "C", "D"];
   const seatsPerRow = 6;
 
-
   const isSeatBookedInFirebase = (seatId) => {
-  if (!event.bookedSeats) return false;
+    if (!event.bookedSeats) return false;
 
-  const row = seatId[0];
-  const seatNumber = seatId.slice(1);
+    const row = seatId[0];
+    const seatNumber = seatId.slice(1);
 
-  return event.bookedSeats.some(
-    b => b.row === row && b.seat === seatNumber
-  );
-};
+    return event.bookedSeats.some(
+      (b) => b.row === row && b.seat === seatNumber
+    );
+  };
 
   const getSeatStatus = (seatId) => {
-  // أولاً لو الكرسي موجود في seatMap ومحجوز
-  if (event.seatMap && event.seatMap[seatId]) return true;
+    // أولاً لو الكرسي موجود في seatMap ومحجوز
+    if (event.seatMap && event.seatMap[seatId]) return true;
 
-  // ثانياً لو موجود في bookedSeats بتوع Firebase
-  return isSeatBookedInFirebase(seatId);
-};
+    // ثانياً لو موجود في bookedSeats بتوع Firebase
+    return isSeatBookedInFirebase(seatId);
+  };
 
   const getSeatPrice = (row) => {
     return event.price[row];
@@ -93,7 +93,7 @@ export default function EventDetails() {
       return;
     }
 
-     setIsCheckoutLoading(true);
+    setIsCheckoutLoading(true);
 
     const tickets = selectedSeats.map((seatId) => ({
       row: seatId[0],
@@ -102,18 +102,20 @@ export default function EventDetails() {
       type: "GENERAL",
     }));
 
-  const checkoutData = {
-    eventId: event.id,
-    eventName: event.eventName,
-    eventDate: event.date?.seconds ? new Date(event.date.seconds * 1000).toISOString() : null,
-    venue: event.address,
-    tickets,
-    subtotal: tickets.reduce((sum, t) => sum + t.price, 0),
-    serviceFee: 0.5,
-    total: tickets.reduce((sum, t) => sum + t.price, 0) + 0.5,
-    userId: auth.currentUser?.uid || 'guest' , // أضف الـ userId هنا
-    eventOwner:event.eventOwner,
-  };
+    const checkoutData = {
+      eventId: event.id,
+      eventName: event.eventName,
+      eventDate: event.date?.seconds
+        ? new Date(event.date.seconds * 1000).toISOString()
+        : null,
+      venue: event.address,
+      tickets,
+      subtotal: tickets.reduce((sum, t) => sum + t.price, 0),
+      serviceFee: 0.5,
+      total: tickets.reduce((sum, t) => sum + t.price, 0) + 0.5,
+      userId: auth.currentUser?.uid || "guest", // أضف الـ userId هنا
+      eventOwner: event.eventOwner,
+    };
     // تخزين البيانات في Firestore
     await dispatch(saveCheckout(checkoutData));
 
@@ -124,115 +126,107 @@ export default function EventDetails() {
     : new Date(event.date);
   return (
     <div className="min-h-screen bg-black text-white w-full">
+      {/* HERO COVER */}
+      <div className="relative w-full h-[40vh] md:h-[50vh]">
+        <img
+          src={event.cover || event.photo}
+          className="w-full h-full object-cover brightness-50"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black"></div>
+      </div>
 
-  {/* HERO COVER */}
-  <div className="relative w-full h-[40vh] md:h-[50vh]">
-    <img
-      src={event.cover || event.photo}
-      className="w-full h-full object-cover brightness-50"
-    />
-    <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black"></div>
-  </div>
-
-  {/* MAIN CONTENT */}
-  <div className="w-full px-4 md:px-12 lg:px-40 pb-10 grid grid-cols-1 md:grid-cols-3 gap-10">
-
-    {/* LEFT - Poster */}
-    <div className="flex justify-center md:justify-start relative z-20 -mt-20 md:-mt-0">
-      <img
-        src={event.photo}
-        className="w-52 h-52 md:h-full md:w-72 lg:w-80 rounded-xl shadow-xl object-cover"
-      />
-    </div>
-
-    {/* CENTER - Title + Description */}
-    <div className="space-y-6 ">
-      <h1 className="text-3xl md:text-4xl font-extrabold tracking-wide">
-        {event.eventName}
-      </h1>
-
-      <p className="text-sm text-gray-400">Hosted by: {event.eventOwner}</p>
-
-      <p className="text-gray-300 leading-relaxed text-base md:text-lg">
-        {event.description}
-      </p>
-
-      <button
-        onClick={() => setIsModalOpen(true)}
-        className="bg-teal-600 text-white w-full py-3  rounded-xl mt-4 text-lg font-medium transition cursor-pointer  "
-      >
-        Buy Ticket
-      </button>
-    </div>
-
-    {/* RIGHT - Information Box */}
-    <div className="flex md:justify-end ">
-      <div className="bg-white/5 border border-white/10 rounded-xl p-6 md:p-8 max-w-xs w-full  space-y-4">
-        <div>
-          <p className="text-sm text-gray-400">Date</p>
-          <p className="text-xl font-semibold">
-            {eventDate.toLocaleDateString("en-US", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            })}
-          </p>
+      {/* MAIN CONTENT */}
+      <div className="w-full px-4 md:px-12 lg:px-40 pb-10 grid grid-cols-1 md:grid-cols-3 gap-10">
+        {/* LEFT - Poster */}
+        <div className="flex justify-center md:justify-start relative z-20 -mt-20 md:-mt-0">
+          <img
+            src={event.photo}
+            className="w-52 h-52 md:h-full md:w-72 lg:w-80 rounded-xl shadow-xl object-cover"
+          />
         </div>
 
-        <div>
-          <p className="text-sm text-gray-400">Time</p>
-          <p className="text-xl font-semibold">
-            {eventDate.toLocaleTimeString("en-US", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-            })}
+        {/* CENTER - Title + Description */}
+        <div className="space-y-6 ">
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-wide">
+            {event.eventName}
+          </h1>
+
+          <p className="text-sm text-gray-400">Hosted by: {event.eventOwner}</p>
+
+          <p className="text-gray-300 leading-relaxed text-base md:text-lg">
+            {event.description}
           </p>
+
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-teal-600 text-white w-full py-3  rounded-xl mt-4 text-lg font-medium transition cursor-pointer  "
+          >
+            Buy Ticket
+          </button>
         </div>
 
-        <div>
-          <p className="text-sm text-gray-400">Location</p>
-          <p className="text-lg font-medium">{event.address}</p>
+        {/* RIGHT - Information Box */}
+        <div className="flex md:justify-end ">
+          <div className="bg-white/5 border border-white/10 rounded-xl p-6 md:p-8 max-w-xs w-full  space-y-4">
+            <div>
+              <p className="text-sm text-gray-400">Date</p>
+              <p className="text-xl font-semibold">
+                {eventDate.toLocaleDateString("en-US", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-sm text-gray-400">Time</p>
+              <p className="text-xl font-semibold">
+                {eventDate.toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-sm text-gray-400">Location</p>
+              <p className="text-lg font-medium">{event.address}</p>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* MAP SECTION */}
+      <div className="w-full px-4 md:px-12 lg:px-40 pb-20">
+        <h2 className="text-2xl font-bold mb-4">Location</h2>
+
+        <EventMap
+          lat={30.0444}
+          lng={31.2357}
+          name={event.address || "Event Location"}
+        />
+      </div>
+
+      {/* MODAL */}
+      <SeatsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        event={event}
+        bookedSeats={Array.isArray(event.bookedSeats) ? event.bookedSeats : []}
+        selectedSeats={selectedSeats}
+        toggleSeat={toggleSeat}
+        calculateTotal={calculateTotal}
+        handleCheckout={handleCheckout}
+        rows={rows}
+        seatsPerRow={seatsPerRow}
+        getSeatStatus={getSeatStatus}
+        getSeatPrice={getSeatPrice}
+        showPrices={showPrices}
+        setShowPrices={setShowPrices}
+        isLoading={isCheckoutLoading}
+      />
     </div>
-  </div>
-
-  {/* MAP SECTION */}
-  <div className="w-full px-4 md:px-12 lg:px-20 pb-20">
-    <h2 className="text-2xl font-bold mb-4"></h2>
-    <div className="w-full h-[250px] md:h-[350px] rounded-xl overflow-hidden">
-      <iframe
-        title="Google Maps"
-        width="100%"
-        height="100%"
-        style={{ border: 0 }}
-        loading="lazy"
-        allowFullScreen
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d27607.10562459786!2d31.2357!3d30.0444!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x145840c1df9d0b!2sCairo!5e0!3m2!1sen!2seg!4v1700000000000"
-      ></iframe>
-    </div>
-  </div>
-
-  {/* MODAL */}
-  <SeatsModal
-    isOpen={isModalOpen}
-    onClose={() => setIsModalOpen(false)}
-    event={event}
-    bookedSeats={Array.isArray(event.bookedSeats) ? event.bookedSeats : []}
-    selectedSeats={selectedSeats}
-    toggleSeat={toggleSeat}
-    calculateTotal={calculateTotal}
-    handleCheckout={handleCheckout}
-    rows={rows}
-    seatsPerRow={seatsPerRow}
-    getSeatStatus={getSeatStatus}
-    getSeatPrice={getSeatPrice}
-    showPrices={showPrices}
-    setShowPrices={setShowPrices}
-    isLoading={isCheckoutLoading}
-  />
-</div>
-
   );
 }
