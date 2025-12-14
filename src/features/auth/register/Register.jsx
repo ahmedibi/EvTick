@@ -8,6 +8,7 @@ import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser, setRole } from "../authSlice";
+import RegisterForm from "./RegisterForm.jsx";
 
 export default function Register() {
   const [fullName, setFullName] = useState("");
@@ -72,14 +73,14 @@ export default function Register() {
       }
     }
 
-    //passsword rules (common for both)
+    //passsword rules
     const failedRules = passwordRules.filter((rule) => !rule.check);
     if (failedRules.length > 0) {
       newErrors.password = failedRules.map((rule) => rule.text).join(" ");
       valid = false;
     }
 
-    //confirm password (common for both)
+    //confirm password
     if (password !== confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match.";
       valid = false;
@@ -110,11 +111,11 @@ export default function Register() {
         createdAt: serverTimestamp(),
       });
 
-      // save to redux and localStorage
+      //save to redux and localStorage
       dispatch(setUser(newUser));
       dispatch(setRole("user"));
 
-      // redirect to home
+      //redirect to home
       navigate("/");
 
     } catch (err) {
@@ -128,12 +129,12 @@ export default function Register() {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
-      // Check if user exists in Firestore
+      //check if user exists in firestore
       const userDocRef = doc(db, "users", user.uid);
       const userDocSnapshot = await getDoc(userDocRef);
 
       if (userDocSnapshot.exists()) {
-        // User exists -> Login immediately
+        //user exists, Login immediately
         const userData = userDocSnapshot.data();
         dispatch(setUser({
           uid: userData.uid,
@@ -145,10 +146,10 @@ export default function Register() {
         dispatch(setRole(userData.role));
         navigate("/");
       } else {
-        // New user -> Request password
+        // new user, request password
         setGoogleUser(user);
         setIsGoogleSignup(true);
-        // Clear potential previous errors
+        // clear previous errors
         setErrors({ ...errors, firebase: "" });
       }
 
@@ -164,10 +165,10 @@ export default function Register() {
 
     try {
       if (googleUser) {
-        // 1. Set the password for the Google user
+        //set the password for google user
         await updatePassword(googleUser, password);
 
-        // 2. Create Firestore Doc
+        //create Firestore Doc
         const newUser = {
           uid: googleUser.uid,
           fullName: googleUser.displayName || "Google User",
@@ -179,7 +180,7 @@ export default function Register() {
 
         await setDoc(doc(db, "users", googleUser.uid), newUser);
 
-        // 3. Dispatch & Navigate
+        //dispatch and navigate to home
         dispatch(setUser(newUser));
         dispatch(setRole("user"));
         navigate("/");
@@ -190,6 +191,13 @@ export default function Register() {
       setErrors({ ...errors, firebase: error.message });
     }
   };
+
+  const cancelGoogleSignup = async () => {
+  await auth.signOut();     
+  setGoogleUser(null);
+  setIsGoogleSignup(false);
+};
+
 
   return (
     <AuthLayout>
@@ -204,137 +212,37 @@ export default function Register() {
         {isGoogleSignup ? "Set Password" : "Register"}
       </h2>
 
-      {isGoogleSignup ? (
-        // GOOGLE SIGNUP - PASSWORD ONLY FORM
-        <form onSubmit={finalizeGoogleSignup} className="space-y-4">
-          <p className="text-white text-center text-sm mb-4">
-            Please set a password for your account linked to: <br />
-            <span className="font-bold">{googleUser?.email}</span>
-          </p>
+        <RegisterForm
+    isGoogleSignup={isGoogleSignup}
+    googleUser={googleUser}
+    fullName={fullName}
+    setFullName={setFullName}
+    phone={phone}
+    setPhone={setPhone}
+    email={email}
+    setEmail={setEmail}
+    password={password}
+    setPassword={setPassword}
+    confirmPassword={confirmPassword}
+    setConfirmPassword={setConfirmPassword}
+    show={show}
+    setShow={setShow}
+    showConfirm={showConfirm}
+    setShowConfirm={setShowConfirm}
+    errors={errors}
+    handleSubmit={handleSubmit}
+    handleGoogleSignIn={handleGoogleSignIn}
+    finalizeGoogleSignup={finalizeGoogleSignup}
+    cancelGoogleSignup={cancelGoogleSignup}
+    />
 
-          {/* password */}
-          <div className="relative">
-            <input type={show ? "text" : "password"} className="auth-input"
-              placeholder="Create Password" value={password}
-              onChange={(e) => setPassword(e.target.value)} />
 
-            <span className="eye-btn" onClick={() => setShow(!show)}>
-              {show ? <FaEye /> : <FaEyeSlash />}
-            </span>
-
-            {errors.password && <p className="auth-error">{errors.password}</p>}
-          </div>
-
-          {/* confirm password */}
-          <div className="relative">
-            <input type={showConfirm ? "text" : "password"} className="auth-input"
-              placeholder="Confirm Password" value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)} />
-
-            <span className="eye-btn" onClick={() => setShowConfirm(!showConfirm)}>
-              {showConfirm ? <FaEye /> : <FaEyeSlash />}
-            </span>
-
-            {errors.confirmPassword && <p className="auth-error">{errors.confirmPassword}</p>}
-          </div>
-
-          {errors.firebase && <p className="auth-error">{errors.firebase}</p>}
-
-          <button type="submit"
-            className="w-full py-3 text-white rounded font-semibold outline-none"
-            style={{ background: "#0f9386" }}>
-            Complete Registration
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsGoogleSignup(false)}
-            className="w-full py-2 text-white/70 text-sm hover:text-white"
-          >
-            Cancel
-          </button>
-        </form>
-      ) : (
-        // DEFAULT REGISTRATION FORM
-        <form onSubmit={handleSubmit} className="space-y-2 ">
-
-          {/* full name */}
-          <div>
-            <input className="auth-input" placeholder="Full Name"
-              value={fullName} onChange={(e) => setFullName(e.target.value)} />
-            {errors.fullName && <p className="auth-error">{errors.fullName}</p>}
-          </div>
-
-          {/* phone */}
-          <div>
-            <input className="auth-input" placeholder="Phone Number"
-              value={phone} onChange={(e) => setPhone(e.target.value)} />
-            {errors.phone && <p className="auth-error">{errors.phone}</p>}
-          </div>
-
-          {/*email */}
-          <div>
-            <input className="auth-input" placeholder="Email"
-              value={email} onChange={(e) => setEmail(e.target.value)} />
-            {errors.email && <p className="auth-error">{errors.email}</p>}
-          </div>
-
-          {/* password */}
-          <div className="relative">
-            <input type={show ? "text" : "password"} className="auth-input"
-              placeholder="Password" value={password}
-              onChange={(e) => setPassword(e.target.value)} />
-
-            <span className="eye-btn" onClick={() => setShow(!show)}>
-              {show ? <FaEye /> : <FaEyeSlash />}
-            </span>
-
-            {errors.password && <p className="auth-error">{errors.password}</p>}
-          </div>
-
-          {/* confirm password */}
-          <div className="relative">
-            <input type={showConfirm ? "text" : "password"} className="auth-input"
-              placeholder="Confirm Password" value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)} />
-
-            <span className="eye-btn" onClick={() => setShowConfirm(!showConfirm)}>
-              {showConfirm ? <FaEye /> : <FaEyeSlash />}
-            </span>
-
-            {errors.confirmPassword && <p className="auth-error">{errors.confirmPassword}</p>}
-          </div>
-
-          {errors.firebase && <p className="auth-error">{errors.firebase}</p>}
-
-          <button type="submit"
-            className="w-full py-3 text-white rounded font-semibold outline-none"
-            style={{ background: "#0f9386" }}>
-            Sign Up
-          </button>
-
-          <div className="relative flex items-center justify-center my-4">
-            <hr className="w-full border-gray-300" />
-            <span className="absolute bg-white px-2 text-gray-500 text-sm">OR</span>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            className="w-full py-3 flex items-center justify-center gap-2 bg-white border border-gray-300 rounded text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
-          >
-            <FaGoogle className="text-red-500" />
-            Sign up with Google
-          </button>
-
-        </form>
-      )}
-
-      {!isGoogleSignup && (
-        <p className="mt-4 text-sm  text-center text-white/90">
-          Already have an account?
-          <Link to="/login" className=" font-bold text-[#0f9386]"> Log in</Link>
-        </p>
-      )}
+    {!isGoogleSignup && (
+    <p className="mt-4 text-sm text-center text-white/90">
+    Already have an account?
+    <Link to="/login" className=" font-bold text-[#0f9386]"> Log in</Link>
+    </p>
+    )}
     </AuthLayout>
   );
 }
