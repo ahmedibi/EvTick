@@ -144,7 +144,7 @@ export default function RegisterForm({
             className="w-full mt-6 py-3 flex items-center justify-center gap-2 bg-white border border-gray-300 rounded text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
           >
             <FaGoogle className="text-rose-500" />
-            Sign up with Google
+            Sign in with Google
           </button>
 
         </form>
