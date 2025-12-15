@@ -17,6 +17,7 @@ import Services from "../features/services/Services";
 import Navbar from "../features/home/Navbar";
 import Footer from "../features/home/Footer";
 import GuestRoute from "../components/GuestRoute";
+import Messages from "../features/profile/Messages";
 // simple placeholder dashboards
 const UserDashboard = () => <div className="p-6">User Dashboard</div>;
 const OrgDashboard = () => <div className="p-6">Organizer Dashboard</div>;
@@ -106,6 +107,7 @@ export default function AppRouter() {
           <Route index element={<Navigate to="info" replace />} />
           <Route path="info" element={<ProfilePage />} />
           <Route path="tickets" element={<MyTickets />} />
+          <Route path="messages" element={<Messages/>} />
         </Route>
       </Routes>
       {!hideLayout && <Footer/>}  
