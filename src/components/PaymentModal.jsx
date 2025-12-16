@@ -6,6 +6,37 @@ import { z } from 'zod';
 import creditCard from '../assets/credit card.png';
 import { FaGooglePay } from 'react-icons/fa';
 
+// ================= LUHN ALGORITHM =================
+function validateCardNumberLuhn(cardNumber) {
+  // إزالة أي مسافات أو شرطات
+  const cleanNumber = cardNumber.replace(/\D/g, '');
+  
+  // التحقق من أن الرقم يحتوي على 16 رقم
+  if (cleanNumber.length !== 16) {
+    return false;
+  }
+  
+  let sum = 0;
+  let isEven = false;
+  
+  // البدء من آخر رقم والسير للخلف
+  for (let i = cleanNumber.length - 1; i >= 0; i--) {
+    let digit = parseInt(cleanNumber[i]);
+    
+    if (isEven) {
+      digit *= 2;
+      if (digit > 9) {
+        digit -= 9;
+      }
+    }
+    
+    sum += digit;
+    isEven = !isEven;
+  }
+  
+  return sum % 10 === 0;
+}
+
 // ================= CARD PREVIEW =================
 function CardPreview({ cardName, cardNumber, cardExpiry }) {
   const formattedNumber = cardNumber?.replace(/\D/g, "").match(/.{1,4}/g)?.join(" ") || "---- ---- ---- ----";
@@ -59,6 +90,13 @@ const paymentSchema = z.object({
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Card number must be 16 digits',
+        path: ['cardNumber'],
+      });
+    } else if (!validateCardNumberLuhn(data.cardNumber)) {
+      // استخدام Luhn Algorithm للتحقق من صحة رقم الكارد
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Invalid card number',
         path: ['cardNumber'],
       });
     }
