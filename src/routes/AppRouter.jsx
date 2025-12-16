@@ -100,10 +100,11 @@ export default function AppRouter() {
           } />
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetails />} />
-        <Route path="/checkout" element={<Checkout />} />
+         <Route path="/checkout" element={  <ProtectedRoute>  <Checkout />  </ProtectedRoute>  }/>
 
 
-        <Route path="/profile" element={<ProfileLayout />}>
+
+        <Route path="/profile" element={<ProtectedRoute> <ProfileLayout /> </ProtectedRoute>}>
           <Route index element={<Navigate to="info" replace />} />
           <Route path="info" element={<ProfilePage />} />
           <Route path="tickets" element={<MyTickets />} />
