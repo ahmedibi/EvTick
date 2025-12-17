@@ -1,6 +1,8 @@
 import React from "react";
 import { X, Plus, Minus } from "lucide-react";
 import Spinner from "./Spinner";
+import MediumSeatMap from "./modelsSeat/mediumSeatMap/MediumSeatMap";
+import SmallSeatMap from "./modelsSeat/smallSeatMap/SmallSeatMap";
 
 export default function SeatsModal({
   isOpen,
@@ -11,7 +13,8 @@ export default function SeatsModal({
   calculateTotal,
   handleCheckout,
   rows,
-  seatsPerRow,
+  modelSeats,
+  currentModel,
   getSeatStatus,
   getSeatPrice,
   showPrices,
@@ -20,103 +23,144 @@ export default function SeatsModal({
 }) {
   if (!isOpen) return null;
 
+  // تحديد نوع الـ model بناءً على الـ name
+  const isMediumModel = currentModel?.name?.toLowerCase() === "medium";
+  const isSmallModel = currentModel?.name?.toLowerCase() === "small";
+
+  // تحويل الـ seats إلى seatMap format
+  const buildSeatMap = () => {
+    const seatMap = {};
+    
+    if (!modelSeats || modelSeats.length === 0) {
+      return seatMap;
+    }
+
+    modelSeats.forEach((seat) => {
+      const seatId = seat.id;
+      const isBooked = getSeatStatus(seatId);
+      const isSelected = selectedSeats.includes(seatId);
+      
+      // seatMap format: null = available, true = booked, false = unavailable/selected
+      if (isBooked) {
+        seatMap[seatId] = true; // Booked
+      } else if (isSelected) {
+        seatMap[seatId] = null; // Available but selected (will be handled by UI)
+      } else if (seat.status !== "available") {
+        seatMap[seatId] = false; // Unavailable
+      } else {
+        seatMap[seatId] = null; // Available
+      }
+    });
+
+    return seatMap;
+  };
+
+  const seatMap = buildSeatMap();
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 bg-black/70 z-50">
+    <div className="fixed inset-0 flex items-center justify-center p-4 bg-black/30 z-9999">
 
 <div className="bg-white/10 backdrop-blur-lg z-50 rounded-lg w-full max-w-7xl h-[90vh] flex flex-col md:flex-row overflow-y-auto">
 
 
     {/* LEFT SIDE */}
-    <div className="flex-1 bg-black/80 p-4 md:p-8 ">
+    <div className="flex-1 bg-black/20 p-4 md:p-0 ">
       <div className="max-w-4xl mx-auto">
 
-        {/* Stage */}
-        <div className="flex justify-center items-center mb-8">
-          <div className="bg-teal-300 rounded-full px-20 py-3 md:py-7 flex items-center shadow-md">
-            <span className="text-black font-semibold">Stage</span>
-          </div>
-        </div>
+      
 
-        {/* Seat colors legend */}
-        <div className="flex justify-center gap-6 mb-6">
-          <div className="flex items-center">
-            <div className="w-4 h-4 rounded-full bg-cyan-500"></div>
-            <div className="ml-2 text-gray-300 text-sm">Available</div>
-          </div>
-          <div className="flex items-center">
-            <div className="w-4 h-4 rounded-full bg-amber-400"></div>
-            <div className="ml-2 text-gray-300 text-sm">Selected</div>
-          </div>
-          <div className="flex items-center">
-            <div className="w-4 h-4 rounded-full bg-gray-400"></div>
-            <div className="ml-2 text-gray-300 text-sm">Booked</div>
-          </div>
-        </div>
-
-        {/* Seats */}
-        <div className="flex justify-center gap-4 md:gap-8">
-          <div className="space-y-2 md:space-y-3">
-            {rows.map((row) => (
-              <div key={row} className="flex items-center gap-1 md:gap-2">
-                <span className="text-sm font-semibold w-4 text-white">
-                  {row}
-                </span>
-
-                {[...Array(seatsPerRow)].map((_, i) => {
-                  const seatId = `${row}${i + 1}`;
-                  const isBooked = getSeatStatus(seatId);
-                  const isSelected = selectedSeats.includes(seatId);
-
+        {/* Seats - عرض الـ model المناسب */}
+        <div className="flex justify-center">
+          {isSmallModel ? (
+            <div className="w-full">
+              <SmallSeatMap 
+                seatMap={seatMap} 
+                totalPrice={calculateTotal()}
+                modelSeats={modelSeats}
+                toggleSeat={toggleSeat}
+                selectedSeats={selectedSeats}
+              />
+            </div>
+          ) : isMediumModel ? (
+            <div className="w-full">
+              <MediumSeatMap 
+                seatMap={seatMap} 
+                totalPrice={calculateTotal()}
+                modelSeats={modelSeats}
+                toggleSeat={toggleSeat}
+                selectedSeats={selectedSeats}
+              />
+            </div>
+          ) : (
+            // Fallback للـ default display
+            <div className="flex justify-center gap-4 md:gap-8">
+              <div className="space-y-2 md:space-y-3">
+                {rows.map((row) => {
+                  const rowSeats = modelSeats?.filter(s => s.row === row) || [];
                   return (
-                    <button
-                      key={seatId}
-                      onClick={() => toggleSeat(seatId)}
-                      disabled={isBooked}
-                      className={`w-6 h-6 md:w-8 md:h-8 m-2 rounded-full transition-all ${
-                        isBooked
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : isSelected
-                          ? "bg-amber-400 hover:bg-amber-500"
-                          : "bg-cyan-500 hover:bg-cyan-600"
-                      }`}
-                    />
+                    <div key={row} className="flex items-center gap-1 md:gap-2">
+                      <span className="text-sm font-semibold w-4 text-white">
+                        {row}
+                      </span>
+
+                      {rowSeats.map((seat) => {
+                        const seatId = seat.id;
+                        const isBooked = getSeatStatus(seatId);
+                        const isSelected = selectedSeats.includes(seatId);
+
+                        return (
+                          <button
+                            key={seatId}
+                            onClick={() => toggleSeat(seatId)}
+                            disabled={isBooked}
+                            className={`w-6 h-6 md:w-8 md:h-8 m-2 rounded-full transition-all ${
+                              isBooked
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : isSelected
+                                ? "bg-amber-400 hover:bg-amber-500"
+                                : "bg-cyan-500 hover:bg-cyan-600"
+                            }`}
+                            title={seatId}
+                          />
+                        );
+                      })}
+                    </div>
                   );
                 })}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          )}
+           <button
+        onClick={() => setShowPrices(!showPrices)}
+        className="absolute bottom-30  bg-teal-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-teal-600 z-10"
+      >
+        Show Prices {showPrices ? <Minus size={16} /> : <Plus size={16} />}
+      </button>
 
-        {/* Show prices button */}
-        <div className="flex justify-center mt-6 md:mt-8">
-          <button
-            onClick={() => setShowPrices(!showPrices)}
-            className="bg-teal-300 text-black px-4 py-2 flex items-center gap-2 hover:bg-teal-500"
-          >
-            Show Prices {showPrices ? <Minus size={16} /> : <Plus size={16} />}
-          </button>
-        </div>
-
-        {showPrices && (
-          <div className="mt-4 md:mt-6 bg-neutral-800 p-4 rounded-lg shadow">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 ">
+      {showPrices && (
+          <div className="mt-4 md:mt-6 bg-gray-800 p-4 rounded-lg shadow absolute bottom-10 ">
+            <div className="grid grid-cols-2 md:grid-cols-7 gap-4 ">
               {rows.map((row) => (
                 <div key={row} className="flex items-center gap-2">
                   <div className="w-6 h-6 bg-teal-300 text-black text-center rounded-full">
                     {row}
                   </div>
-                  <span>{getSeatPrice(row)} $</span>
+                  <span>{getSeatPrice(row)} EGP</span>
                 </div>
               ))}
             </div>
           </div>
         )}
+    </div>
+
+
+    
 
       </div>
     </div>
 
     {/* RIGHT SIDE */}
-    <div className="w-full md:w-96 border-t md:border-t-0 md:border-l p-6 flex flex-col bg-black/40">
+    <div className="w-full md:w-96 border-t md:border-t-0 md:border-l p-6 flex flex-col bg-black/20">
       <div className="flex justify-between items-start mb-6">
         <div>
           <h2 className="text-xl md:text-2xl font-bold mb-1 text-white">

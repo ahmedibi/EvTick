@@ -3,10 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { collection, query, where, onSnapshot, updateDoc, doc } from "firebase/firestore";
 import { db } from "../firebase/firebase.config";
+import { FaBell } from "react-icons/fa";
+import { useNavigate } from "react-router";
 
 export default function NotificationDropdown() {
   const { currentUser } = useSelector((state) => state.auth);
-
+   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
@@ -76,7 +78,7 @@ export default function NotificationDropdown() {
   return (
     <div className="relative" ref={dropdownRef}>
       <div onClick={handleToggle} className="cursor-pointer relative">
-        <Bell className="w-6 h-6 text-gray-600" />
+        <FaBell className="w-6 h-6 text-gray-600" />
         {unreadCount > 0 && (
           <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
             {unreadCount}
@@ -84,29 +86,55 @@ export default function NotificationDropdown() {
         )}
       </div>
 
-      {open && (
-        <div className="absolute right-0 mt-3 max-h-96 overflow-y-auto bg-white shadow-xl rounded-xl border p-4 z-50">
-          
+  {open && (
+  <div className="absolute right-0 mt-2 w-72 md:w-96 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-[100]">
 
-          {notifications.filter(n => n.status === "replied").length === 0 ? (
-            <p className="text-gray-500 text-sm">No notifications available.</p>
-          ) : (
-            <div className="space-y-3">
-              {notifications
-                .filter((n) => n.status === "replied")
-                .map((item) => (
-                  <div key={item.id} className="p-3 bg-gray-100 rounded-lg border">
-                    <p className=" text-gray-700">Admin reply:</p>
-                    <p className="text-gray-700">{item.adminReply}</p>
-                    <p className="text-xs text-gray-400 mt-2">
-                      {item.replyAt?.toDate().toLocaleString()}
-                    </p>
-                  </div>
-                ))}
-            </div>
-          )}
+    {/* Header */}
+    <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-200">
+      <h3 className="font-semibold text-gray-700">Notifications</h3>
+    </div>
+
+    {/* Body */}
+    <div className="max-h-[400px] overflow-y-auto">
+      {notifications.filter(n => n.status === "replied").length === 0 ? (
+        <div className="p-8 text-center text-gray-500 text-sm">
+          No notifications yet
         </div>
+      ) : (
+        notifications
+          .filter(n => n.status === "replied")
+          .map(item => (
+            <div
+              key={item.id}
+               onClick={() => navigate(`/profile/messages/${item.id}`)}
+              className={`p-4 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors flex gap-3
+                ${!item.isRead ? 'bg-blue-50/50' : ''}
+              `}
+            >
+              {/* Status Dot */}
+              <div className="mt-2 w-2 h-2 rounded-full bg-green-500 shrink-0" />
+
+              {/* Content */}
+              <div className="flex-1">
+                <h4 className={`text-sm font-semibold mb-1 ${item.isRead ? 'text-gray-700' : 'text-gray-900'}`}>
+                  Admin Reply
+                </h4>
+
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  {item.adminReply}
+                </p>
+
+                <span className="text-[10px] text-gray-400 mt-2 block">
+                  {item.replyAt?.toDate().toLocaleString()}
+                </span>
+              </div>
+            </div>
+          ))
       )}
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

@@ -62,7 +62,19 @@ export const fetchLatestCheckout = createAsyncThunk(
       if (snapshot.empty) return null;
 
       const docSnap = snapshot.docs[0];
-      return { id: docSnap.id, ...docSnap.data() };
+          const data = docSnap.data();
+      
+      // تحويل Firestore timestamp إلى ISO string إذا كان موجود
+      if (data.eventDate && data.eventDate.seconds) {
+        data.eventDate = new Date(data.eventDate.seconds * 1000).toISOString();
+      }
+      
+      // تحويل createdAt timestamp إذا كان موجود
+      if (data.createdAt && data.createdAt.seconds) {
+        data.createdAt = new Date(data.createdAt.seconds * 1000).toISOString();
+      }
+      
+      return { id: docSnap.id, ...data };
     } catch (err) {
       return rejectWithValue(err.message);
     }
