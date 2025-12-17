@@ -192,7 +192,7 @@ export default function EventDetails() {
 
             <div>
               <p className="text-sm text-gray-400">Location</p>
-              <p className="text-lg font-medium">{event.address}</p>
+              <p className="text-lg font-medium">{event.venue?.name}</p>
             </div>
           </div>
         </div>
@@ -202,11 +202,13 @@ export default function EventDetails() {
       <div className="w-full px-4 md:px-12 lg:px-40 pb-20">
         <h2 className="text-2xl font-bold mb-4">Location</h2>
 
-        <EventMap
-          lat={30.0444}
-          lng={31.2357}
-          name={event.address || "Event Location"}
-        />
+        {event.venue && (
+          <EventMap
+            lat={event.venue.latitude}
+            lng={event.venue.longitude}
+            name={event.venue.name}
+          />
+        )}
       </div>
 
       {/* MODAL */}
