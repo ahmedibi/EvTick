@@ -18,7 +18,7 @@ import { updateEventAfterCheckout } from '../../redux/slices/eventSlice';
 import { savePayment } from '../../redux/slices/paymentSlice';
 
 import PaymentModal from '../../components/PaymentModal';
-import { showError, showSuccess } from '../../components/sweetAlert';
+import { showErrorAlert, showSuccessAlert } from '../../components/sweetAlert';
 
 const checkoutSchema = z.object({
   firstName: z.string().min(2),
@@ -62,8 +62,20 @@ export default function Checkout() {
   });
 
   if (loading) return <p>Loading checkout...</p>;
-  if (error) return <p>Error loading checkout</p>;
-  if (!data) return null;
+    if (error) {
+    console.error("Checkout error:", error);
+    return <p>Error loading checkout: {error}</p>;
+  }
+  if (!data) {
+    console.log("No checkout data available");
+    return null;
+  }
+  
+  // التحقق من وجود البيانات المطلوبة
+  // if (!tickets || !Array.isArray(tickets) || tickets.length === 0) {
+  //   console.error("Invalid tickets data:", tickets);
+  //   return <p>Error: Invalid checkout data. Please try again.</p>;
+  // }
 
   const {
     id: checkoutId,
@@ -77,7 +89,11 @@ export default function Checkout() {
     userId
   } = data;
 
-  const dateObj = eventDate ? new Date(eventDate) : null;
+    const dateObj = eventDate 
+    ? (eventDate.seconds 
+        ? new Date(eventDate.seconds * 1000) 
+        : new Date(eventDate))
+    : null;
 
 
   const subtotal = tickets.reduce((s, t) => s + t.price, 0);
@@ -103,6 +119,7 @@ export default function Checkout() {
         eventOwner,
         tickets,
         total,
+        subtotal,
         serviceFee,
         userInfo: userFormData
       })).unwrap();
@@ -119,18 +136,18 @@ export default function Checkout() {
 
       dispatch(clearCheckout());
 
-      showSuccess("Payment successful!");
+      showSuccessAlert("Payment successful!");
       navigate("/events");
     } catch (err) {
       console.error(err);
-      showError("Payment failed");
+      showErrorAlert("Payment failed");
     }
   };
 
   return (
     <>
         <div
-        className="min-h-screen bg-gray-100  flex items-center justify-center p-6">
+        className="min-h-screen bg-gray-100  flex items-center justify-center pt-30">
 
         {/* Content */}
         <div className="relative z-10 w-full max-w-6xl flex flex-col lg:flex-row gap-8 items-start">
@@ -220,15 +237,16 @@ export default function Checkout() {
             initial={{ opacity: 0, x: 80 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
-            className="w-full lg:w-96 "
+            className="w-full lg:w-96 h-screen"
           >
             {/* Right Side - Order Summary */}
             <div className="w-full lg:w-96 bg-black/8 backdrop-blur-md border border-white/20 rounded-lg p-6">
 
               {/* Event Info */}
-              <div className="mb-6 pb-6 border-b border-black/20">
+              <div className="mb-6 pb-3 border-b border-black/20">
                 <h2 className="text-xl font-semibold text-gray-700 my-3">{eventName}</h2>
-                <p className="text-gray-700 text-sm mb-1">
+                <p className="text-gray-700 text-sm mb-1">{venue}</p>
+                <p className="text-gray-700 text-sm ">
                   {dateObj?.toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
@@ -239,26 +257,29 @@ export default function Checkout() {
                     hour12: true
                   })}
                 </p>
-                <p className="text-gray-700 text-sm">{venue}</p>
               </div>
 
               {/* Tickets */}
-              <div className="mb-6 pb-6 border-b border-black/20">
+              <div className="mb-6  pb-3 border-b border-black/20">
                 {tickets.map((ticket, index) => (
                   <div key={index} className="mb-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-gray-700 font-semibold">{ticket.type}</span>
-                      <span className="text-gray-700 font-semibold">${ticket.price.toFixed(2)}</span>
-                    </div>
-                    <div className="flex gap-4 text-gray-700 text-sm">
-                      <div className="flex items-center gap-1">
-                        <span className="font-medium">Row</span>
-                        <span>{ticket.row}</span>
+                  
+                    
+                    
+                
+                    <div className="flex justify-between gap-4 text-gray-700 text-sm">
+                        
+                      <div className='flex gap-5'>
+                        <div className="flex items-center gap-1">
+                          <span className="font-medium">Row</span>
+                          <span>{ticket.row}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="font-medium">Seat</span>
+                          <span>{ticket.seat}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <span className="font-medium">Seat</span>
-                        <span>{ticket.seat}</span>
-                      </div>
+                      <span className="text-gray-700 font-semibold">{ticket.price.toFixed(2)} EGP</span>
                     </div>
                   </div>
                 ))}
@@ -268,15 +289,15 @@ export default function Checkout() {
               <div className="space-y-3">
                 <div className="flex justify-between text-gray-700">
                   <span>Subtotal</span>
-                  <span className="font-semibold">${subtotal.toFixed(2)}</span>
+                  <span className="font-semibold">{subtotal.toFixed(2)} EGP</span>
                 </div>
                 <div className="flex justify-between text-gray-700">
                   <span>Service fee</span>
-                  <span className="font-semibold">${serviceFee.toFixed(2)}</span>
+                  <span className="font-semibold">{serviceFee.toFixed(2)} EGP</span>
                 </div>
                 <div className="flex justify-between text-gray-700 text-xl font-bold pt-3 border-t border-black/20">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>{total.toFixed(2)} EGP</span>
                 </div>
               </div>
             </div>

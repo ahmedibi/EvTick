@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import creditCard from '../assets/credit card.png';
 import { FaGooglePay } from 'react-icons/fa';
+import { showConfirmAlert } from './sweetAlert';
 
 // ================= LUHN ALGORITHM =================
 function validateCardNumberLuhn(cardNumber) {
@@ -176,7 +177,9 @@ export default function PaymentModal({
 
   if (!isOpen) return null;
 
-  const onSubmit = (data) => {
+  const onSubmit = async  (data) => {
+    const confirmed = await showConfirmAlert("Do you want to proceed with the payment?");
+     if (!confirmed) return;
     onPaymentSubmit(data);
   };
 

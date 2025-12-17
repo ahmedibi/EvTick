@@ -7,6 +7,7 @@ import { fetchEventById } from "../../redux/slices/eventSlice";
 import SeatsModal from "../../components/SeatsModal";
 import { auth } from "../../firebase/firebase.config";
 import EventMap from "../../components/EventMap";
+import { fetchSeatModelById, clearSeatModel } from "../../redux/slices/seatModelSlice";
 
 export default function EventDetails() {
   const { id } = useParams();
@@ -17,6 +18,7 @@ export default function EventDetails() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [showPrices, setShowPrices] = useState(false);
+  const { currentModel, loading: seatModelLoading } = useSelector((state) => state.seatModel);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -39,22 +41,64 @@ export default function EventDetails() {
     }
   }, [id, events, dispatch]);
 
+
+    useEffect(() => {
+    if (isModalOpen) {
+      // جلب الـ model من venue.seatModel
+      const modelUid = event?.venue?.seatModel;
+      if (modelUid) {
+        dispatch(fetchSeatModelById(modelUid));
+      }
+    } else if (!isModalOpen) {
+      // تنظيف الـ seat model عند إغلاق الـ modal
+      dispatch(clearSeatModel());
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedSeats([]);
+    }
+  }, [isModalOpen, event?.venue?.seatModel, dispatch]);
+
+
   if (loading) return <p>Loading...</p>;
   if (!event) return <p>Event not found</p>;
 
-  // تحويل seatMap لصفوف
-  const rows = ["A", "B", "C", "D"];
-  const seatsPerRow = 6;
+    // استخراج الـ rows و seats من الـ seat model
+  const getRowsAndSeats = () => {
+    if (!currentModel || !currentModel.seats || currentModel.seats.length === 0) {
+      // Fallback للـ hardcoded rows في حالة عدم وجود model
+      return { rows: ["A", "B", "C", "D"], seatsPerRow: 6, seats: [] };
+    }
+
+    // تجميع الـ seats حسب الـ row
+    const seatsByRow = {};
+    currentModel.seats.forEach((seat) => {
+      if (!seatsByRow[seat.row]) {
+        seatsByRow[seat.row] = [];
+      }
+      seatsByRow[seat.row].push(seat);
+    });
+
+    // ترتيب الـ rows و حساب أقصى عدد seats في أي row
+    const rows = Object.keys(seatsByRow).sort();
+    const rowLengths = rows.map((row) => seatsByRow[row].length);
+    const seatsPerRow = rowLengths.length > 0 ? Math.max(...rowLengths) : 0;
+
+    return { rows, seatsPerRow, seats: currentModel.seats };
+  };
+
+  const { rows, seatsPerRow, seats: modelSeats } = getRowsAndSeats();
+
 
   const isSeatBookedInFirebase = (seatId) => {
     if (!event.bookedSeats) return false;
-
-    const row = seatId[0];
-    const seatNumber = seatId.slice(1);
-
-    return event.bookedSeats.some(
-      (b) => b.row === row && b.seat === seatNumber
-    );
+    // البحث في الـ bookedSeats باستخدام الـ seat id أو row + seat
+    return event.bookedSeats.some((b) => {
+      // لو الـ booked seat فيه id مباشر
+      if (b.id === seatId) return true;
+      // لو الـ booked seat فيه row و seat
+      const row = seatId[0];
+      const seatNumber = seatId.slice(1);
+      return b.row === row && b.seat === seatNumber;
+    });
   };
 
   const getSeatStatus = (seatId) => {
@@ -62,7 +106,15 @@ export default function EventDetails() {
     if (event.seatMap && event.seatMap[seatId]) return true;
 
     // ثانياً لو موجود في bookedSeats بتوع Firebase
-    return isSeatBookedInFirebase(seatId);
+      if (isSeatBookedInFirebase(seatId)) return true;
+
+    // ثالثاً لو الـ seat موجود في الـ model و status مش available
+    if (modelSeats && modelSeats.length > 0) {
+      const seat = modelSeats.find((s) => s.id === seatId);
+      if (seat && seat.status !== "available") return true;
+    }
+
+    return false;
   };
 
   const getSeatPrice = (row) => {
@@ -93,33 +145,71 @@ export default function EventDetails() {
       return;
     }
 
+      if (!auth.currentUser) {
+      alert("Please login to continue");
+      return;
+    }
+
     setIsCheckoutLoading(true);
 
-    const tickets = selectedSeats.map((seatId) => ({
-      row: seatId[0],
-      seat: seatId.slice(1),
-      price: getSeatPrice(seatId[0]),
-      type: "GENERAL",
-    }));
+      try {
+      const tickets = selectedSeats.map((seatId) => {
+        const row = seatId[0];
+        const seatNumber = seatId.slice(1);
+        const price = getSeatPrice(row);
+        
+        return {
+          row: row,
+          seat: seatNumber,
+          price: typeof price === 'number' ? price : 0,
+          type: "GENERAL",
+        };
+      });
 
-    const checkoutData = {
-      eventId: event.id,
-      eventName: event.eventName,
-      eventDate: event.date?.seconds
-        ? new Date(event.date.seconds * 1000).toISOString()
-        : null,
-      venue: event.address,
-      tickets,
-      subtotal: tickets.reduce((sum, t) => sum + t.price, 0),
-      serviceFee: 0.5,
-      total: tickets.reduce((sum, t) => sum + t.price, 0) + 0.5,
-      userId: auth.currentUser?.uid || "guest", // أضف الـ userId هنا
-      eventOwner: event.eventOwner,
-    };
-    // تخزين البيانات في Firestore
-    await dispatch(saveCheckout(checkoutData));
+      const subtotal = tickets.reduce((sum, t) => sum + (t.price || 0), 0);
+      const serviceFee = parseFloat((subtotal * 0.05).toFixed(2)); 
+      const total = subtotal + serviceFee;
+
+      // التحقق من وجود event.date
+      let eventDateValue = null;
+      if (event.date) {
+        if (event.date.seconds) {
+          eventDateValue = new Date(event.date.seconds * 1000).toISOString();
+        } else if (event.date instanceof Date) {
+          eventDateValue = event.date.toISOString();
+        } else {
+          eventDateValue = new Date(event.date).toISOString();
+        }
+      }
+
+      const checkoutData = {
+        eventId: event.id || "",
+        eventName: event.eventName || "",
+        eventDate: eventDateValue,
+        venue: event.address || event.venue?.name || "",
+        tickets: tickets,
+        subtotal: subtotal,
+        serviceFee: serviceFee,
+        total: total,
+        userId: auth.currentUser.uid,
+        eventOwner: event.eventOwner || "",
+      };
+
+      // التحقق من البيانات قبل الإرسال
+      if (!checkoutData.eventId || !checkoutData.eventName || tickets.length === 0) {
+        throw new Error("Invalid checkout data");
+      }
+
+      // تخزين البيانات في Firestore
+      await dispatch(saveCheckout(checkoutData)).unwrap();
 
     navigate("/checkout");
+    } catch (error) {
+      console.error("Checkout error:", error);
+      alert("Error during checkout. Please try again.");
+    } finally {
+      setIsCheckoutLoading(false);
+    }
   };
   const eventDate = event.date?.seconds
     ? new Date(event.date.seconds * 1000)
@@ -223,11 +313,13 @@ export default function EventDetails() {
         handleCheckout={handleCheckout}
         rows={rows}
         seatsPerRow={seatsPerRow}
+        modelSeats={modelSeats}
+        currentModel={currentModel}
         getSeatStatus={getSeatStatus}
         getSeatPrice={getSeatPrice}
         showPrices={showPrices}
         setShowPrices={setShowPrices}
-        isLoading={isCheckoutLoading}
+        isLoading={isCheckoutLoading || seatModelLoading}
       />
     </div>
   );

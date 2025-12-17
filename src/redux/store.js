@@ -4,6 +4,7 @@ import authReducer from "../features/auth/authSlice";
 import checkoutReducer from "./slices/checkoutSlice";
 import paymentReducer from "./slices/paymentSlice";
 import messageReducer from "./slices/messageSlice";
+import seatModelReducer from "./slices/seatModelSlice";
 
 
 export const store = configureStore({
@@ -12,7 +13,8 @@ export const store = configureStore({
     auth: authReducer,
     checkout: checkoutReducer,
     payment: paymentReducer,
-    messages:messageReducer
+    messages:messageReducer,
+   seatModel: seatModelReducer,
   },
     middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
