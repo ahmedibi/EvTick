@@ -30,6 +30,7 @@ const MyTickets = () => {
   const currentTickets = userTickets?.slice(startIndex, endIndex) || [];
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(1);
   }, [userTickets?.length]);
 

@@ -42,6 +42,7 @@ export default function Events() {
 
   useEffect(() => {
     if (location.state?.category) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveFilter(location.state.category);
     }
   }, [location.state]);
@@ -78,7 +79,41 @@ export default function Events() {
   }
 
   const filteredEvents = useMemo(() => {
+      const now = new Date();
+      const threeHoursMs = 3 * 60 * 60 * 1000;
+
     return events.filter(e => {
+        // 1. Check if event is past
+      let eventDate = null;
+      if (e.date) {
+        if (e.date.seconds) eventDate = new Date(e.date.seconds * 1000);
+        else eventDate = new Date(e.date);
+      }
+
+      let isPast = false;
+      if (eventDate) {
+        const isOnline =
+          (e.type && e.type.toLowerCase() === "online") ||
+          (e.venue === "Online") ||
+          (e.address === "Online") ||
+          (typeof e.venue === 'string' && e.venue.toLowerCase() === 'online') ||
+          (e.venue?.name?.toLowerCase() === 'online');
+
+        if (isOnline) {
+          // Online: hide if now > start + 3 hours
+          if (now.getTime() > eventDate.getTime() + threeHoursMs) {
+            isPast = true;
+          }
+        } else {
+          // Offline: hide if now > start
+          if (now.getTime() > eventDate.getTime()) {
+            isPast = true;
+          }
+        }
+      }
+
+      if (isPast) return false;
+
       const matchesSearch = e.eventName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         e.name?.toLowerCase().includes(searchTerm.toLowerCase());
       const loc = e.address || e.location || "Online Event";

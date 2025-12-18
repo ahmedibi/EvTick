@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "../../../firebase/firebase.config.js";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { createUserWithEmailAndPassword, signInWithPopup, updatePassword } from "firebase/auth";
+import { auth, db, googleProvider } from "../../../firebase/firebase.config.js";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout.jsx";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser, setRole } from "../authSlice";
+import RegisterForm from "./RegisterForm.jsx";
 
 export default function Register() {
   const [fullName, setFullName] = useState("");
@@ -18,6 +19,10 @@ export default function Register() {
 
   const [show, setShow] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // New state for Google Signup flow
+  const [isGoogleSignup, setIsGoogleSignup] = useState(false);
+  const [googleUser, setGoogleUser] = useState(null);
 
   const dispatch = useDispatch();
 
@@ -48,22 +53,24 @@ export default function Register() {
     let valid = true;
     let newErrors = { fullName: "", phone: "", email: "", password: "", confirmPassword: "", firebase: "" };
 
-    //full name (must contain two names)
-    if (!fullName || !nameRegex.test(fullName) || fullName.trim().split(" ").length < 2) {
-      newErrors.fullName = "Please enter first & last name (letters only).";
-      valid = false;
-    }
+    if (!isGoogleSignup) {
+      //full name (must contain two names)
+      if (!fullName || !nameRegex.test(fullName) || fullName.trim().split(" ").length < 2) {
+        newErrors.fullName = "Please enter first & last name (letters only).";
+        valid = false;
+      }
 
-    // phone validation
-    if (!phoneRegex.test(phone)) {
-      newErrors.phone = "Invalid Phone";
-      valid = false;
-    }
+      // phone validation
+      if (!phoneRegex.test(phone)) {
+        newErrors.phone = "Invalid Phone";
+        valid = false;
+      }
 
-    // email
-    if (!emailRegex.test(email)) {
-      newErrors.email = "Invalid email address.";
-      valid = false;
+      // email
+      if (!emailRegex.test(email)) {
+        newErrors.email = "Invalid email address.";
+        valid = false;
+      }
     }
 
     //passsword rules
@@ -84,121 +91,158 @@ export default function Register() {
   };
 
   //handle submit
-
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!validateForm()) return;
+    e.preventDefault();
+    if (!validateForm()) return;
 
-  try {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
 
-    const newUser = {
-      uid: cred.user.uid,
-      fullName,
-      email,
-      phone,
-      role: "user"
-    };
+      const newUser = {
+        uid: cred.user.uid,
+        fullName,
+        email,
+        phone,
+        role: "user"
+      };
 
-    await setDoc(doc(db, "users", cred.user.uid), {
-      ...newUser,
-      createdAt: serverTimestamp(),
-    });
+      await setDoc(doc(db, "users", cred.user.uid), {
+        ...newUser,
+        createdAt: serverTimestamp(),
+      });
 
-    // save to redux and localStorage
-    dispatch(setUser(newUser));
-    dispatch(setRole("user"));
+      //save to redux and localStorage
+      dispatch(setUser(newUser));
+      dispatch(setRole("user"));
 
-    // redirect to home
-    navigate("/");
+      //redirect to home
+      navigate("/");
 
-  } catch (err) {
-    setErrors((prev) => ({ ...prev, firebase: err.message }));
-  }
+    } catch (err) {
+      setErrors((prev) => ({ ...prev, firebase: err.message }));
+    }
+  };
+
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      //check if user exists in firestore
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnapshot = await getDoc(userDocRef);
+
+      if (userDocSnapshot.exists()) {
+        //user exists, Login immediately
+        const userData = userDocSnapshot.data();
+        dispatch(setUser({
+          uid: userData.uid,
+          fullName: userData.fullName,
+          email: userData.email,
+          phone: userData.phone,
+          role: userData.role
+        }));
+        dispatch(setRole(userData.role));
+        navigate("/");
+      } else {
+        // new user, request password
+        setGoogleUser(user);
+        setIsGoogleSignup(true);
+        // clear previous errors
+        setErrors({ ...errors, firebase: "" });
+      }
+
+    } catch (error) {
+      console.error("Google Sign-In Error:", error);
+      setErrors((prev) => ({ ...prev, firebase: error.message }));
+    }
+  };
+
+  const finalizeGoogleSignup = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return; // validates password only since isGoogleSignup is true
+
+    try {
+      if (googleUser) {
+        //set the password for google user
+        await updatePassword(googleUser, password);
+
+        //create Firestore Doc
+        const newUser = {
+          uid: googleUser.uid,
+          fullName: googleUser.displayName || "Google User",
+          email: googleUser.email,
+          phone: "",
+          role: "user",
+          createdAt: serverTimestamp(),
+        };
+
+        await setDoc(doc(db, "users", googleUser.uid), newUser);
+
+        //dispatch and navigate to home
+        dispatch(setUser(newUser));
+        dispatch(setRole("user"));
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error finalizing google signup", error);
+      // If requires-recent-login error, prompt to sign in again or handle gracefully
+      setErrors({ ...errors, firebase: error.message });
+    }
+  };
+
+  const cancelGoogleSignup = async () => {
+  await auth.signOut();     
+  setGoogleUser(null);
+  setIsGoogleSignup(false);
 };
+
 
   return (
     <AuthLayout>
-      {/* <div className="absolute top-1 -right-12 bg-[#aa7e61] text-white font-bold w-80 py-3 shadow-md text-center text-2xl rotate-[20deg]">
-        <div className="ml-9">Create Account</div>
-      </div> */}
-        <div className="relative w-full">
-    <img 
-      src="/ticket.png"   
-      alt="ticket" 
-      className="absolute -top-8 left-1/2 -translate-x-1/2 w-25 "
+      <div className="relative w-full">
+        <img
+          src="/ticket.png"
+          alt="ticket"
+          className="absolute -top-8 left-1/2 -translate-x-1/2 w-25 "
+        />
+      </div>
+      <h2 className="font-serif text-xl font-bold mb-4 text-center mt-6">
+        {isGoogleSignup ? "Set Password" : "Register"}
+      </h2>
+
+        <RegisterForm
+    isGoogleSignup={isGoogleSignup}
+    googleUser={googleUser}
+    fullName={fullName}
+    setFullName={setFullName}
+    phone={phone}
+    setPhone={setPhone}
+    email={email}
+    setEmail={setEmail}
+    password={password}
+    setPassword={setPassword}
+    confirmPassword={confirmPassword}
+    setConfirmPassword={setConfirmPassword}
+    show={show}
+    setShow={setShow}
+    showConfirm={showConfirm}
+    setShowConfirm={setShowConfirm}
+    errors={errors}
+    handleSubmit={handleSubmit}
+    handleGoogleSignIn={handleGoogleSignIn}
+    finalizeGoogleSignup={finalizeGoogleSignup}
+    cancelGoogleSignup={cancelGoogleSignup}
     />
-  </div>
-      <h2 className="font-serif text-xl font-bold mb-4 text-center mt-6">Register</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-2 ">
 
-        {/* full name */}
-        <div>
-          <input className="auth-input" placeholder="Full Name"
-            value={fullName} onChange={(e) => setFullName(e.target.value)} />
-          {errors.fullName && <p className="auth-error">{errors.fullName}</p>}
-        </div>
-
-        {/* phone */}
-        <div>
-          <input className="auth-input" placeholder="Phone Number"
-            value={phone} onChange={(e) => setPhone(e.target.value)} />
-          {errors.phone && <p className="auth-error">{errors.phone}</p>}
-        </div>
-
-        {/*email */}
-        <div>
-          <input className="auth-input" placeholder="Email"
-            value={email} onChange={(e) => setEmail(e.target.value)} />
-          {errors.email && <p className="auth-error">{errors.email}</p>}
-        </div>
-
-        {/* password */}
-        <div className="relative">
-          <input type={show ? "text" : "password"} className="auth-input"
-            placeholder="Password" value={password}
-            onChange={(e) => setPassword(e.target.value)} />
-
-          <span className="eye-btn" onClick={() => setShow(!show)}>
-            {show ? <FaEye /> : <FaEyeSlash />}
-          </span>
-
-          {errors.password && <p className="auth-error">{errors.password}</p>}
-
-          {/* <div className="mt-2 text-xs text-gray-600">
-            {passwordRules.map((rule, i) => (
-              <p key={i} className={rule.check ? "text-green-600" : "text-gray-500"}>{rule.text}</p>
-            ))}
-          </div> */}
-        </div>
-
-        {/* confirm password */}
-        <div className="relative">
-          <input type={showConfirm ? "text" : "password"} className="auth-input"
-            placeholder="Confirm Password" value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)} />
-
-          <span className="eye-btn" onClick={() => setShowConfirm(!showConfirm)}>
-            {showConfirm ? <FaEye /> : <FaEyeSlash />}
-          </span>
-
-          {errors.confirmPassword && <p className="auth-error">{errors.confirmPassword}</p>}
-        </div>
-
-        {errors.firebase && <p className="auth-error">{errors.firebase}</p>}
-
-        <button type="submit"
-          className="w-full py-3 text-white rounded font-semibold outline-none"
-          style={{ background: "#0f9386" }}>
-          Sign Up
-        </button>
-      </form>
-
-      <p className="mt-4 text-sm  text-center text-white/90">
-        Already have an account?
-        <Link to="/login" className=" font-bold text-[#0f9386]"> Log in</Link>
-      </p>
+    {!isGoogleSignup && (
+    <p className="mt-4 text-sm text-center text-white/90">
+    Already have an account?
+    <Link to="/login" className=" font-bold text-[#0f9386]"> Log in</Link>
+    </p>
+    )}
     </AuthLayout>
   );
 }

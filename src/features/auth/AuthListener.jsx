@@ -1,13 +1,15 @@
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../firebase/firebase.config.js";
 import { doc, getDoc } from "firebase/firestore";
 import { setUser, setRole, setLoading } from "./authSlice";
+import Spinner from "../../components/Spinner";
 //import { useNavigate } from "react-router-dom";
 
 export default function AuthListener({ children }) {  //without it, app won't know user is logged in after refresh.
   const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.auth);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -28,8 +30,11 @@ export default function AuthListener({ children }) {  //without it, app won't kn
         uid: user.uid,
         email: user.email ?? null,
         fullName: snap.exists() ? snap.data().fullName : null,
-        phone:  snap.exists() ? snap.data().phone : null,
+        phone: snap.exists() ? snap.data().phone : null,
+        profilePic: snap.exists() ? snap.data().profilePic : null,
         eventOwner: snap.exists() ? snap.data().eventOwner : null,
+        role:snap.exists() ? snap.data().role : null,
+
         // ...snap.data()
       };
 
@@ -37,11 +42,17 @@ export default function AuthListener({ children }) {  //without it, app won't kn
       dispatch(setRole(snap.exists() ? snap.data().role : null));
       dispatch(setLoading(false));
 
-     
+
     });
 
     return unsubscribe;
   }, [dispatch]);
+
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className=" animate-spin rounded-full h-16 w-16 border-b-2 border-teal-600 "></div>
+    </div>
+  }
 
   return children;
 }

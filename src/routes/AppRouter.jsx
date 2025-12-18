@@ -17,6 +17,9 @@ import Services from "../features/services/Services";
 import Navbar from "../features/home/Navbar";
 import Footer from "../features/home/Footer";
 import GuestRoute from "../components/GuestRoute";
+import Messages from "../features/profile/Messages";
+import NotFound from "../components/NotFound";
+import Success from "../features/checkout/Success";
 // simple placeholder dashboards
 const UserDashboard = () => <div className="p-6">User Dashboard</div>;
 const OrgDashboard = () => <div className="p-6">Organizer Dashboard</div>;
@@ -38,6 +41,13 @@ export default function AppRouter() {
     hideLayoutRoutes.includes(location.pathname) ||
     location.pathname.startsWith("/profile");
 
+  // Hide footer for auth pages, profile pages, admin pages, and 404 page
+  const hideFooter = hideLayout || 
+    !["/", "/contact", "/services", "/events"].some(route => 
+      location.pathname === route || location.pathname.startsWith("/events/")
+    );
+    
+
   return (
     <>
     {!hideLayout && <Navbar />}
@@ -45,7 +55,6 @@ export default function AppRouter() {
         <Route path="/" element={<Home />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/services" element={<Services />} />
-
         {/* Authentication */}
         <Route path="/login" element={
           <GuestRoute>
@@ -99,16 +108,20 @@ export default function AppRouter() {
           } />
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetails />} />
-        <Route path="/checkout" element={<Checkout />} />
+         <Route path="/checkout" element={  <ProtectedRoute>  <Checkout />  </ProtectedRoute>  }/>
+         <Route path="/success" element={ <ProtectedRoute> <Success />  </ProtectedRoute> }/>
+         <Route path="*" element={<NotFound />} />
 
 
-        <Route path="/profile" element={<ProfileLayout />}>
+        <Route path="/profile" element={<ProtectedRoute> <ProfileLayout /> </ProtectedRoute>}>
           <Route index element={<Navigate to="info" replace />} />
           <Route path="info" element={<ProfilePage />} />
           <Route path="tickets" element={<MyTickets />} />
+          <Route path="messages" element={<Messages/>} />
+          <Route path="messages/:id" element={<Messages/>} />
         </Route>
       </Routes>
-      {!hideLayout && <Footer/>}  
+      {!hideFooter && <Footer/>}  
     </>
   );
 }
