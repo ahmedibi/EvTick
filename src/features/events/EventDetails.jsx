@@ -42,7 +42,7 @@ export default function EventDetails() {
   }, [id, events, dispatch]);
 
 
-    useEffect(() => {
+  useEffect(() => {
     if (isModalOpen) {
       // جلب الـ model من venue.seatModel
       const modelUid = event?.venue?.seatModel;
@@ -61,7 +61,7 @@ export default function EventDetails() {
   if (loading) return <p>Loading...</p>;
   if (!event) return <p>Event not found</p>;
 
-    // استخراج الـ rows و seats من الـ seat model
+  // استخراج الـ rows و seats من الـ seat model
   const getRowsAndSeats = () => {
     if (!currentModel || !currentModel.seats || currentModel.seats.length === 0) {
       // Fallback للـ hardcoded rows في حالة عدم وجود model
@@ -106,7 +106,7 @@ export default function EventDetails() {
     if (event.seatMap && event.seatMap[seatId]) return true;
 
     // ثانياً لو موجود في bookedSeats بتوع Firebase
-      if (isSeatBookedInFirebase(seatId)) return true;
+    if (isSeatBookedInFirebase(seatId)) return true;
 
     // ثالثاً لو الـ seat موجود في الـ model و status مش available
     if (modelSeats && modelSeats.length > 0) {
@@ -139,25 +139,96 @@ export default function EventDetails() {
     }, 0);
   };
 
+  const handleBuyTicket = async () => {
+
+    if (!auth.currentUser) {
+      alert("Please login to continue");
+      return;
+    }
+
+    const isOnline =
+      (event.type && event.type.toLowerCase() === "online") ||
+      (event.venue === "Online") ||
+      (event.address === "Online") ||
+      (typeof event.venue === 'string' && event.venue.toLowerCase() === 'online') ||
+      (event.venue?.name?.toLowerCase() === 'online');
+
+    if (isOnline) {
+      // التحقق من شراء التذكرة مسبقاً
+      const isBooked = event.bookedSeats?.some(
+        (seat) => seat.userId === auth.currentUser.uid
+      );
+
+      if (isBooked) {
+        alert("You have already purchased a ticket for this event");
+        return;
+      }
+
+      setIsCheckoutLoading(true);
+
+      try {
+        const subtotal = Number(event.price) || 0;
+        const serviceFee = parseFloat((subtotal * 0.05).toFixed(2));
+        const total = subtotal + serviceFee;
+
+        let eventDateValue = null;
+        if (event.date) {
+          if (event.date.seconds) {
+            eventDateValue = new Date(event.date.seconds * 1000).toISOString();
+          } else if (event.date instanceof Date) {
+            eventDateValue = event.date.toISOString();
+          } else {
+            eventDateValue = new Date(event.date).toISOString();
+          }
+        }
+
+        const checkoutData = {
+          eventId: event.id || "",
+          eventName: event.eventName || "",
+          eventDate: eventDateValue,
+          venue: "Online", // Or keep event.address if it says Online
+          tickets: [], // No specific seats for online events
+          subtotal: subtotal,
+          serviceFee: serviceFee,
+          total: total,
+          userId: auth.currentUser.uid,
+          eventOwner: event.eventOwner || "",
+          isOnline: true,
+        };
+
+        await dispatch(saveCheckout(checkoutData)).unwrap();
+        navigate("/checkout");
+      } catch (error) {
+        console.error("Checkout error:", error);
+        alert("Error during checkout. Please try again.");
+      } finally {
+        setIsCheckoutLoading(false);
+      }
+    } else {
+      // Offline event - open text selection modal
+      setIsModalOpen(true);
+    }
+  };
+
   const handleCheckout = async () => {
     if (selectedSeats.length === 0) {
       alert("Please select at least one seat");
       return;
     }
 
-      if (!auth.currentUser) {
+    if (!auth.currentUser) {
       alert("Please login to continue");
       return;
     }
 
     setIsCheckoutLoading(true);
 
-      try {
+    try {
       const tickets = selectedSeats.map((seatId) => {
         const row = seatId[0];
         const seatNumber = seatId.slice(1);
         const price = getSeatPrice(row);
-        
+
         return {
           row: row,
           seat: seatNumber,
@@ -167,7 +238,7 @@ export default function EventDetails() {
       });
 
       const subtotal = tickets.reduce((sum, t) => sum + (t.price || 0), 0);
-      const serviceFee = parseFloat((subtotal * 0.05).toFixed(2)); 
+      const serviceFee = parseFloat((subtotal * 0.05).toFixed(2));
       const total = subtotal + serviceFee;
 
       // التحقق من وجود event.date
@@ -193,6 +264,7 @@ export default function EventDetails() {
         total: total,
         userId: auth.currentUser.uid,
         eventOwner: event.eventOwner || "",
+        isOnline: false,
       };
 
       // التحقق من البيانات قبل الإرسال
@@ -203,7 +275,7 @@ export default function EventDetails() {
       // تخزين البيانات في Firestore
       await dispatch(saveCheckout(checkoutData)).unwrap();
 
-    navigate("/checkout");
+      navigate("/checkout");
     } catch (error) {
       console.error("Checkout error:", error);
       alert("Error during checkout. Please try again.");
@@ -247,12 +319,56 @@ export default function EventDetails() {
             {event.description}
           </p>
 
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-teal-600 text-white w-full py-3  rounded-xl mt-4 text-lg font-medium transition cursor-pointer  "
-          >
-            Buy Ticket
-          </button>
+          {(() => {
+            const isOnline =
+              (event.type && event.type.toLowerCase() === "online") ||
+              (event.venue === "Online") ||
+              (event.address === "Online") ||
+              (typeof event.venue === 'string' && event.venue.toLowerCase() === 'online') ||
+              (event.venue?.name?.toLowerCase() === 'online');
+
+            if (isOnline) {
+              const isBooked = auth.currentUser && event.bookedSeats?.some(
+                (seat) => seat.userId === auth.currentUser.uid
+              );
+
+              if (isBooked) {
+                const eventDateMs = event.date?.seconds * 1000 || new Date(event.date).getTime();
+                const nowMs = new Date().getTime();
+                const isStarted = nowMs >= eventDateMs;
+
+                if (isStarted) {
+                  return (
+                    <button
+                      onClick={() => navigate(`/stream`)}
+                      className="bg-green-600 text-white w-full py-3 rounded-xl mt-4 text-lg font-medium transition cursor-pointer hover:bg-green-700"
+                    >
+                      Enter Event Stream
+                    </button>
+                  );
+                } else {
+                  return (
+                    <button
+                      disabled
+                      className="bg-gray-500 text-white w-full py-3 rounded-xl mt-4 text-lg font-medium cursor-not-allowed"
+                    >
+                      Event Hasn't Started
+                    </button>
+                  );
+                }
+              }
+            }
+
+            return (
+              <button
+                onClick={handleBuyTicket}
+                disabled={isCheckoutLoading}
+                className="bg-teal-600 text-white w-full py-3 rounded-xl mt-4 text-lg font-medium transition cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                {isCheckoutLoading ? "Processing..." : "Buy Ticket"}
+              </button>
+            );
+          })()}
         </div>
 
         {/* RIGHT - Information Box */}

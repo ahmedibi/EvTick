@@ -10,33 +10,43 @@ import {
   FaFacebookMessenger,
   FaTicketAlt,
 } from "react-icons/fa";
-import { Ticket, TicketIcon, TicketPercent } from "lucide-react";
+import { auth } from "../../firebase/firebase.config.js"; 
 import LogoutButton from "../../components/LogoutButton.jsx";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function ProfileLayout() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const initialUser = JSON.parse(localStorage.getItem("user") || "null");
-  const [user, setUser] = useState(initialUser);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    if (!initialUser) {
-      navigate("/login");
-    }
-  }, [initialUser, navigate]);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        // لو المستخدم موجود
+        setUser({
+          name: firebaseUser.displayName,
+          email: firebaseUser.email,
+          avatar: firebaseUser.photoURL,
+        });
+      } else {
+        // لو مفيش مستخدم
+        navigate("/login");
+      }
+    });
+
+    // Cleanup
+    return () => unsubscribe();
+  }, [navigate]);
 
   return (
     <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-neutral-100">
       {/* Mobile Header with Toggle */}
       <div className="md:hidden bg-neutral-900 p-4 flex items-center justify-between">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="text-white z-50"
-        >
+        <button onClick={() => setIsOpen(!isOpen)} className="text-white z-50">
           <FaBars size={22} />
         </button>
         <h2 className="text-white font-semibold">Profile</h2>
-        <div className="w-6"></div> {/* Spacer for centering */}
+        <div className="w-6"></div>
       </div>
 
       {/* Overlay for mobile */}
@@ -58,23 +68,17 @@ export default function ProfileLayout() {
           transition-transform duration-300
           flex flex-col
           shadow-xl
-          
-          /* Mobile: Full width, slides from top */
           ${isOpen ? "translate-y-0" : "-translate-y-full"}
           w-full
           max-h-[85vh]
           overflow-y-auto
-          
-          /* Desktop: Sidebar style */
           md:translate-y-0
           md:w-72
           md:h-full
           md:max-h-full
-          
           p-5
         `}
       >
-        {/* Close Button for Mobile (Top Right) */}
         <button
           onClick={() => setIsOpen(false)}
           className="md:hidden absolute top-4 right-4 text-white hover:text-red-400 transition-colors"
@@ -82,7 +86,6 @@ export default function ProfileLayout() {
           <FaTimes size={24} />
         </button>
 
-    
         {/* User Info */}
         <div className="flex flex-col items-center text-center mt-4 md:mt-0">
           <img

@@ -26,7 +26,7 @@ export default function TicketCard({ ticket }) {
             {ticket.eventName}
           </h2>
           <p className="text-gray-500 text-sm mt-1 truncate">
-            {ticket.address || "Unknown Location"}
+            {ticket.venue?.name || "Unknown Location"}
           </p>
         </div>
 
@@ -60,7 +60,7 @@ export default function TicketCard({ ticket }) {
         <div className="text-right">
           <p className="text-gray-500 text-sm">Location</p>
           <p className="font-semibold text-gray-500 ">
-            {ticket.location || ticket.address || "California, CA"}
+            {ticket.venue?.address.split(" ").slice(0,6).join(" ") || "Cairo"}
           </p>
         </div>
       </div>
