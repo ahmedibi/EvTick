@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -18,7 +18,7 @@ import { updateEventAfterCheckout } from '../../redux/slices/eventSlice';
 import { savePayment } from '../../redux/slices/paymentSlice';
 
 import PaymentModal from '../../components/PaymentModal';
-import { showErrorAlert, showSuccessAlert } from '../../components/sweetAlert';
+import { showErrorAlert } from '../../components/sweetAlert';
 
 const checkoutSchema = z.object({
   firstName: z.string().min(2),
@@ -29,40 +29,53 @@ const checkoutSchema = z.object({
 export default function Checkout() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { data, loading, error } = useSelector(state => state.checkout);
   const { loading: paymentLoading } = useSelector(state => state.payment);
 
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [userFormData, setUserFormData] = useState(null);
-
+  const paymentCompletedRef = useRef(false);
+  const isNavigatingRef = useRef(false);
   const hasFetched = useRef(false);
 
   /* =========================
      FETCH CHECKOUT
   ========================= */
   useEffect(() => {
+    // Don't redirect if payment was just completed
+    if (paymentCompletedRef.current || isNavigatingRef.current || location.pathname === '/success') return;
+
     if (!data && !loading && !error && !hasFetched.current) {
       hasFetched.current = true;
       dispatch(fetchLatestCheckout())
         .unwrap()
         .then(res => {
-          if (!res) navigate('/');
+          // Only redirect if payment wasn't completed, not navigating, and no data found
+          if (!res && !paymentCompletedRef.current && !isNavigatingRef.current && location.pathname !== '/success') {
+            navigate('/');
+          }
         })
-        .catch(() => navigate('/'));
+        .catch(() => {
+          // Only redirect if payment wasn't completed and not navigating
+          if (!paymentCompletedRef.current && !isNavigatingRef.current && location.pathname !== '/success') {
+            navigate('/');
+          }
+        });
     }
-  }, [data, loading, error, dispatch, navigate]);
+  }, [data, loading, error, dispatch, navigate, location.pathname]);
 
   const {
     register,
     handleSubmit,
-    formState: { errors , isSubmitting}
+    formState: { errors, isSubmitting }
   } = useForm({
     resolver: zodResolver(checkoutSchema),
   });
 
   if (loading) return <p>Loading checkout...</p>;
-    if (error) {
+  if (error) {
     console.error("Checkout error:", error);
     return <p>Error loading checkout: {error}</p>;
   }
@@ -70,7 +83,7 @@ export default function Checkout() {
     console.log("No checkout data available");
     return null;
   }
-  
+
   // التحقق من وجود البيانات المطلوبة
   // if (!tickets || !Array.isArray(tickets) || tickets.length === 0) {
   //   console.error("Invalid tickets data:", tickets);
@@ -86,22 +99,24 @@ export default function Checkout() {
     tickets,
     serviceFee,
     eventOwner,
-    userId
+    userId,
+    isOnline,
+    subtotal: storedSubtotal
   } = data;
 
-    const dateObj = eventDate 
-    ? (eventDate.seconds 
-        ? new Date(eventDate.seconds * 1000) 
-        : new Date(eventDate))
+  const dateObj = eventDate
+    ? (eventDate.seconds
+      ? new Date(eventDate.seconds * 1000)
+      : new Date(eventDate))
     : null;
 
 
-  const subtotal = tickets.reduce((s, t) => s + t.price, 0);
+  const subtotal = isOnline ? storedSubtotal : tickets.reduce((s, t) => s + t.price, 0);
   const total = subtotal + serviceFee;
 
   /* =========================
      CONTINUE
-  ========================= */
+     ========================= */
   const onContinue = (formData) => {
     setUserFormData(formData);
     setIsPaymentModalOpen(true);
@@ -109,7 +124,7 @@ export default function Checkout() {
 
   /* =========================
      PAYMENT
-  ========================= */
+     ========================= */
   const handlePaymentSubmit = async (paymentData) => {
     try {
       await dispatch(savePayment({
@@ -121,23 +136,30 @@ export default function Checkout() {
         total,
         subtotal,
         serviceFee,
-        userInfo: userFormData
+        userInfo: userFormData,
+        isOnline
       })).unwrap();
 
       await dispatch(updateEventAfterCheckout({
         eventId,
         seats: tickets.map(t => ({ row: t.row, seat: t.seat })),
         userId,
-        userInfo: userFormData
+        userInfo: userFormData,
+        isOnline
       })).unwrap();
 
-  
+      // Mark payment as completed and navigating BEFORE deleteCheckout to prevent useEffect redirect
+      paymentCompletedRef.current = true;
+      isNavigatingRef.current = true;
+
       await dispatch(deleteCheckout(checkoutId)).unwrap();
 
+      // Clear checkout before navigation
       dispatch(clearCheckout());
 
-      showSuccessAlert("Payment successful!");
-      navigate("/events");
+      // Navigate to success page with replace to prevent back navigation
+      navigate("/success", { replace: true });
+
     } catch (err) {
       console.error(err);
       showErrorAlert("Payment failed");
@@ -146,7 +168,7 @@ export default function Checkout() {
 
   return (
     <>
-        <div
+      <div
         className="min-h-screen bg-gray-100  flex items-center justify-center pt-30">
 
         {/* Content */}
@@ -261,28 +283,34 @@ export default function Checkout() {
 
               {/* Tickets */}
               <div className="mb-6  pb-3 border-b border-black/20">
-                {tickets.map((ticket, index) => (
-                  <div key={index} className="mb-4">
-                  
-                    
-                    
-                
+                {isOnline ? (
+                  <div className="mb-4">
                     <div className="flex justify-between gap-4 text-gray-700 text-sm">
-                        
                       <div className='flex gap-5'>
-                        <div className="flex items-center gap-1">
-                          <span className="font-medium">Row</span>
-                          <span>{ticket.row}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className="font-medium">Seat</span>
-                          <span>{ticket.seat}</span>
-                        </div>
+                        <span className="font-medium">Online Ticket (General Admission)</span>
                       </div>
-                      <span className="text-gray-700 font-semibold">{ticket.price.toFixed(2)} EGP</span>
+                      <span className="text-gray-700 font-semibold">{subtotal.toFixed(2)} EGP</span>
                     </div>
                   </div>
-                ))}
+                ) : (
+                  tickets.map((ticket, index) => (
+                    <div key={index} className="mb-4">
+                      <div className="flex justify-between gap-4 text-gray-700 text-sm">
+                        <div className='flex gap-5'>
+                          <div className="flex items-center gap-1">
+                            <span className="font-medium">Row</span>
+                            <span>{ticket.row}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="font-medium">Seat</span>
+                            <span>{ticket.seat}</span>
+                          </div>
+                        </div>
+                        <span className="text-gray-700 font-semibold">{ticket.price.toFixed(2)} EGP</span>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
 
               {/* Pricing */}

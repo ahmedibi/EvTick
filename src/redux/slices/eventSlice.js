@@ -65,30 +65,37 @@ export const addNewEvent = createAsyncThunk(
 
 export const updateEventAfterCheckout = createAsyncThunk(
   "events/updateEventAfterCheckout",
-  async ({ eventId, seats, userId }, { rejectWithValue }) => {
+  async ({ eventId, seats, userId, isOnline }, { rejectWithValue }) => {
     try {
       const eventRef = doc(db, "events", eventId);
 
-      // bookedSeats جديد
-      const bookedSeatsData = seats.map(s => ({
-        row: s.row,
-        seat: s.seat,
-        userId
-      }));
+      let bookedSeatsData = [];
+      let seatMapUpdate = {};
+      let ticketsSoldIncrement = 0;
 
-      // تحديث seatMap بحيث المقاعد الجديدة تتحجز
-      const seatMapUpdate = {};
-      seats.forEach(s => {
-        const seatId = `${s.row}${s.seat}`;
-        seatMapUpdate[`seatMap.${seatId}`] = true; // ✅ هنا الفرق - لازم تحط seatMap. قبل الـ key
-      });
+      if (isOnline) {
+        // Online event: just store userId in bookedSeats, no specific seat details
+        bookedSeatsData = [{ userId }];
+        ticketsSoldIncrement = 1;
+      } else {
+        // Offline event: store row, seat, userId
+        bookedSeatsData = seats.map(s => ({
+          row: s.row,
+          seat: s.seat,
+          userId
+        }));
 
-      // تحديث ticketsSold
-      const ticketsSoldIncrement = seats.length;
+        // Update seatMap so new seats are booked
+        seats.forEach(s => {
+          const seatId = `${s.row}${s.seat}`;
+          seatMapUpdate[`seatMap.${seatId}`] = true;
+        });
+        ticketsSoldIncrement = seats.length;
+      }
 
       await updateDoc(eventRef, {
         bookedSeats: arrayUnion(...bookedSeatsData),
-        ...seatMapUpdate, //  ده هيحدث seatMap بشكل صحيح
+        ...seatMapUpdate,
         ticketsSold: increment(ticketsSoldIncrement)
       });
 
@@ -105,38 +112,45 @@ export const updateEventAfterCheckout = createAsyncThunk(
 export const fetchUserTickets = createAsyncThunk(
   "events/fetchUserTickets",
   async (userId) => {
-  
+
     const snapshot = await getDocs(collection(db, "events"));
     const userTickets = [];
-    
+
     snapshot.docs.forEach(doc => {
       const eventData = doc.data();
-      
+
       // Check if bookedSeats exists and is an array
       if (!eventData.bookedSeats || !Array.isArray(eventData.bookedSeats)) {
         console.warn(' No bookedSeats or not an array for event:', doc.id);
         return;
       }
-      
+
       // Filter booked seats for this user
       const userSeats = eventData.bookedSeats.filter(seat => {
         console.log('Checking seat:', seat, 'userId:', seat?.userId, 'matches:', seat?.userId === userId);
         return seat?.userId === userId;
       });
-      
+
       console.log('User seats found:', userSeats.length, 'for event:', doc.id);
-      
+
       // Add each ticket to the array
       userSeats.forEach(seat => {
+        let price = 0;
+        if (seat.row && typeof eventData.price === 'object') {
+          price = eventData.price[seat.row] || 0;
+        } else if (typeof eventData.price === 'number' || typeof eventData.price === 'string') {
+          price = Number(eventData.price) || 0;
+        }
+
         userTickets.push({
           id: doc.id,
           ...eventData,
           bookedSeat: seat,
-          ticketPrice: eventData.price?.[seat.row] || 0
+          ticketPrice: price
         });
       });
     });
-    
+
     console.log('Total user tickets:', userTickets.length);
     return userTickets;
   }

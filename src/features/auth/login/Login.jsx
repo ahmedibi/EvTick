@@ -64,6 +64,7 @@ export default function Login() {
         phone: userData.phone,
         role: userData.role,
         eventOwner: userData.eventOwner,
+        profilePic:userData.profilePic
       }));
 
       // dispatch to Redux 

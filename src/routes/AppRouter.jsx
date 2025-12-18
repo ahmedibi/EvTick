@@ -19,6 +19,7 @@ import Footer from "../features/home/Footer";
 import GuestRoute from "../components/GuestRoute";
 import Messages from "../features/profile/Messages";
 import NotFound from "../components/NotFound";
+import Success from "../features/checkout/Success";
 // simple placeholder dashboards
 const UserDashboard = () => <div className="p-6">User Dashboard</div>;
 const OrgDashboard = () => <div className="p-6">Organizer Dashboard</div>;
@@ -54,7 +55,6 @@ export default function AppRouter() {
         <Route path="/" element={<Home />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/services" element={<Services />} />
-
         {/* Authentication */}
         <Route path="/login" element={
           <GuestRoute>
@@ -109,6 +109,7 @@ export default function AppRouter() {
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetails />} />
          <Route path="/checkout" element={  <ProtectedRoute>  <Checkout />  </ProtectedRoute>  }/>
+         <Route path="/success" element={ <ProtectedRoute> <Success />  </ProtectedRoute> }/>
          <Route path="*" element={<NotFound />} />
 
 

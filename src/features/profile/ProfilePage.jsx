@@ -1,285 +1,320 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { db } from "../../firebase/firebase.config";
-import { doc, updateDoc } from "firebase/firestore";
-import { getAuth, reauthenticateWithCredential, EmailAuthProvider, updatePassword } from "firebase/auth";
-import { showSuccessAlert } from "../../components/sweetAlert"; // تأكد من المسار
+import React, { useState, useEffect } from "react";
+import { auth, db } from "../../firebase/firebase.config";
+import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { 
+  updatePassword,   
+  EmailAuthProvider, 
+  reauthenticateWithCredential,
+  updateProfile,
+  onAuthStateChanged
+} from "firebase/auth";
+import Swal from "sweetalert2";
+import { FaChevronDown, FaChevronUp, FaLock } from "react-icons/fa"; 
+import { showSuccessAlert } from "../../components/sweetAlert";
 
-export default function ProfilePage() {
-  const navigate = useNavigate();
-  const auth = getAuth();
+const PREDEFINED_AVATARS = [
+  "https://cdn-icons-png.flaticon.com/512/4140/4140048.png",
+  "https://cdn-icons-png.flaticon.com/512/4140/4140037.png",
+  "https://cdn-icons-png.flaticon.com/512/4140/4140047.png",
+  "https://cdn-icons-png.flaticon.com/512/4140/4140051.png",
+  "https://cdn-icons-png.flaticon.com/512/4333/4333609.png",
+  "https://cdn-icons-png.flaticon.com/512/4128/4128176.png",
+  "https://cdn-icons-png.flaticon.com/512/1999/1999625.png",
+  "https://cdn-icons-png.flaticon.com/512/6997/6997662.png"
+];
 
-  const [user, setUser] = useState(null);
+const EyeIcon = () => (
+  <svg className="w-5 h-5 text-gray-500 hover:text-[#0f9386] cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+  </svg>
+);
+const EyeSlashIcon = () => (
+  <svg className="w-5 h-5 text-gray-500 hover:text-[#0f9386] cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+  </svg>
+);
+
+export default function SettingPage() {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [avatarTab, setAvatarTab] = useState("select");
+  const [showPasswordSection, setShowPasswordSection] = useState(false);
+  const [showPass, setShowPass] = useState({ old: false, new: false, confirm: false });
+  const [phoneError, setPhoneError] = useState("");
+
   const [formData, setFormData] = useState({
     fullName: "",
+    email: "",
     phone: "",
+    profilePic: "",
     oldPassword: "",
     password: "",
-    "re-password": "",
+    confirmPassword: "",
   });
-
-  const [editable, setEditable] = useState({
-    fullName: false,
-    phone: false,
-    oldPassword: false,
-    password: false,
-    rePassword: false,
-  });
-
-  const [saving, setSaving] = useState(false);
-
-  const inputRefs = {
-    fullName: useRef(),
-    phone: useRef(),
-    oldPassword: useRef(),
-    password: useRef(),
-    rePassword: useRef(),
-  };
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const parsed = JSON.parse(storedUser);
-      setUser(parsed);
-      setFormData({
-        fullName: parsed.fullName || "",
-        phone: parsed.phone || "",
-        oldPassword: "",
-        password: "",
-        "re-password": "",
-      });
-    } else {
-      navigate("/login");
-    }
-  }, [navigate]);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        let phone = "";
+        try {
+          const docSnap = await getDoc(doc(db, "users", user.uid));
+          if (docSnap.exists()) phone = docSnap.data().phone || "";
+        } catch (err) {
+          console.error(err);
+        }
+        setCurrentUser({
+          uid: user.uid,
+          fullName: user.displayName || "",
+          email: user.email,
+          profilePic: user.photoURL || "",
+          phone,
+        });
+        setFormData({
+          fullName: user.displayName || "",
+          email: user.email,
+          profilePic: user.photoURL || "",
+          phone,
+          oldPassword: "",
+          password: "",
+          confirmPassword: "",
+        });
+      } else {
+        window.location.href = "/login";
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const validateEgyptianPhone = (phone) => /^01[0125][0-9]{8}$/.test(phone);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    if (name === "phone") {
+      if (value && !validateEgyptianPhone(value)) {
+        setPhoneError("Invalid phone number (must be 11 digits starting with 010, 011, 012, 015)");
+      } else setPhoneError("");
+    }
   };
 
-  const enableEdit = (field) => {
-    setEditable({ ...editable, [field]: true });
-    setTimeout(() => {
-      inputRefs[field].current?.focus();
-    }, 0);
+  const togglePasswordSection = () => {
+    if (showPasswordSection) {
+      setFormData(prev => ({ ...prev, oldPassword: "", password: "", confirmPassword: "" }));
+    }
+    setShowPasswordSection(!showPasswordSection);
   };
 
-  const hasChanges = () => {
-    if (!user) return false;
-    if (formData.fullName !== user.fullName) return true;
-    if (formData.phone !== user.phone) return true;
-    if (formData.password) return true;
-    return false;
-  };
-
-  const handleUpdate = async (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    if (!user?.uid) return alert("User not found!");
+    if (!currentUser?.uid) return Swal.fire("User not found!", "", "error");
 
-    setSaving(true);
-
-    const updatedFields = {};
-
-    if (formData.fullName !== user.fullName) updatedFields.fullName = formData.fullName;
-    if (formData.phone !== user.phone) updatedFields.phone = formData.phone;
-
-    try {
-      if (formData.password) {
-        if (formData.password !== formData["re-password"])
-          return alert("Passwords do not match.");
-
-        const currentUser = auth.currentUser;
-        const credential = EmailAuthProvider.credential(currentUser.email, formData.oldPassword);
-        await reauthenticateWithCredential(currentUser, credential);
-        await updatePassword(currentUser, formData.password);
-      }
-
-      await updateDoc(doc(db, "users", user.uid), updatedFields);
-
-      const updatedUser = { ...user, ...updatedFields };
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      setUser(updatedUser);
-
-      showSuccessAlert("Profile updated successfully");
-
-      setEditable({
-        fullName: false,
-        phone: false,
-        oldPassword: false,
-        password: false,
-        rePassword: false,
+    const cleanPhone = formData.phone?.trim() || "";
+    if (cleanPhone && !validateEgyptianPhone(cleanPhone)) {
+      return Swal.fire({
+        icon: 'error',
+        title: 'Invalid Phone Number',
+        text: 'Please enter a valid Egyptian phone number (11 digits starting with 01).',
+        confirmButtonColor: '#d33'
       });
-
-      setFormData((prev) => ({
-        ...prev,
-        oldPassword: "",
-        password: "",
-        "re-password": "",
-      }));
-    } catch (error) {
-      console.error(error);
-      alert(error.message || "Update failed!");
     }
 
-    setSaving(false);
+    try {
+      const updatedFields = {};
+      if (formData.fullName !== currentUser.fullName) updatedFields.fullName = formData.fullName;
+      if (cleanPhone !== currentUser.phone) updatedFields.phone = cleanPhone;
+      if (formData.profilePic !== currentUser.profilePic) updatedFields.profilePic = formData.profilePic;
+
+      if (showPasswordSection && formData.password) {
+        if (formData.password !== formData.confirmPassword) {
+          return Swal.fire("Oops...", "Passwords do not match!", "error");
+        }
+        if (!formData.oldPassword) {
+          return Swal.fire("Old Password Required", "Please enter your current password to confirm changes.", "warning");
+        }
+
+        const credential = EmailAuthProvider.credential(auth.currentUser.email, formData.oldPassword);
+        await reauthenticateWithCredential(auth.currentUser, credential);
+        await updatePassword(auth.currentUser, formData.password);
+        Swal.fire("Success!", "Password updated successfully!", "success");
+      }
+
+      if (Object.keys(updatedFields).length > 0) {
+        Swal.fire({ title: "Saving...", didOpen: () => Swal.showLoading() });
+
+        await updateDoc(doc(db, "users", currentUser.uid), updatedFields);
+
+        if (updatedFields.profilePic || updatedFields.fullName) {
+          await updateProfile(auth.currentUser, {
+            displayName: updatedFields.fullName || currentUser.fullName,
+            photoURL: updatedFields.profilePic || currentUser.profilePic
+          });
+        }
+
+        setCurrentUser(prev => ({ ...prev, ...updatedFields }));
+        setFormData(prev => ({ ...prev, oldPassword: "", password: "", confirmPassword: "" }));
+
+        showSuccessAlert( "Profile updated successfully");
+      }
+
+      setIsEditing(false);
+      setShowPasswordSection(false);
+      setPhoneError("");
+
+    } catch (error) {
+      console.error(error);
+      let errorMsg = error.message;
+      if (error.code === "auth/wrong-password") errorMsg = "Incorrect Old Password!";
+      Swal.fire("Error", errorMsg, "error");
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="relative bg-white rounded-2xl w-full max-w-4xl p-10 shadow-xl">
-        <div className="flex items-center gap-5 mb-8">
-          <img
-            src={user?.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
-            className="w-20 h-20 rounded-full border border-black"
-            alt="avatar"
-          />
-          <div>
-            <h2 className="text-xl font-semibold text-black">{user?.fullName}</h2>
-            <p className="text-gray-600">{user?.email}</p>
+    <div className="w-full max-w-5xl mx-auto relative p-4 md:p-6 lg:p-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-black">Profile Settings</h2>
+          <p className="text-gray-600 text-sm">Manage your account info</p>
+        </div>
+        <div className="w-full md:w-auto">
+          {!isEditing && (
+            <button 
+              onClick={() => setIsEditing(true)}
+              className="bg-[#0f9386] text-white px-5 py-2 w-full md:w-auto rounded-lg hover:bg-[#0b6e64] transition shadow-sm font-medium"
+            >
+              Edit Profile
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-visible relative">
+        <div className="h-24 md:h-32 bg-gradient-to-r from-[#0f9386] to-[#085f56] rounded-t-2xl"></div>
+        <div className="px-4 md:px-8 pb-8">
+          <div className="relative -mt-12 mb-8 flex flex-col md:flex-row items-center md:items-end gap-4 md:gap-6">
+            <div className="relative group">
+              <img 
+                src={formData.profilePic || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"} 
+                className="w-28 h-28 md:w-32 md:h-32 rounded-full border-4 border-white bg-white object-cover shadow-md"
+                alt="Profile"
+              />
+              {isEditing && (
+                <button 
+                  type="button"
+                  onClick={() => setShowAvatarModal(true)}
+                  className="absolute bottom-2 right-2 bg-gray-900 text-white p-2 rounded-full hover:bg-[#0f9386] transition shadow-lg"
+                >
+                  Edit
+                </button>
+              )}
+            </div>
+            <div className="mb-2 text-center md:text-left">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{formData.fullName || "User Name"}</h1>
+              <p className="text-gray-500 font-medium">{formData.email}</p>
+            </div>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSave}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-400 uppercase">Full Name</label>
+                <input type="text" name="fullName" disabled={!isEditing} value={formData.fullName} onChange={handleChange}
+                  className={`w-full p-3 rounded-xl bg-white text-gray-700 border ${isEditing ? 'border-gray-300 focus:ring-2 focus:ring-[#0f9386]' : 'border-gray-100 bg-gray-50 text-gray-600'} transition-all outline-none`} />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-400 uppercase">Phone Number</label>
+                <input type="text" name="phone" disabled={!isEditing} value={formData.phone} onChange={handleChange} placeholder="01xxxxxxxxx"
+                  className={`w-full p-3 rounded-xl border text-gray-700 transition-all outline-none ${phoneError ? 'border-red-500 focus:ring-2 focus:ring-red-200' : (isEditing ? 'border-gray-300 focus:ring-2 focus:ring-[#0f9386]' : 'border-gray-100 bg-gray-50 text-gray-600')}`} />
+                {phoneError && <p className="text-xs text-red-500 mt-1 font-bold animate-pulse">{phoneError}</p>}
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-400 uppercase">Email (Read Only)</label>
+                <input type="email" disabled value={formData.email} className="w-full p-3 rounded-xl border border-gray-100 bg-gray-100 text-gray-400 cursor-not-allowed" />
+              </div>
+
+              {isEditing && (
+                <div className="md:col-span-2 mt-4">
+                  <button type="button" onClick={togglePasswordSection} className="flex items-center gap-2 text-sm font-bold text-[#0f9386] hover:text-[#0b6e64] transition-all bg-teal-50 px-4 py-2 rounded-lg border border-teal-100 w-full md:w-auto justify-center md:justify-start">
+                    <FaLock />
+                    {showPasswordSection ? "Cancel Password Change" : "Change Password"}
+                    {showPasswordSection ? <FaChevronUp /> : <FaChevronDown />}
+                  </button>
+                  {showPasswordSection && (
+                    <div className="mt-4 p-4 md:p-6 bg-gray-50 rounded-xl border border-gray-200 animate-fade-in-down">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="relative">
+                          <label className="text-xs font-semibold text-gray-500">New Password</label>
+                          <input type={showPass.new ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} className="w-full mt-1 p-2 rounded-lg bg-white text-gray-700 border border-gray-300 focus:border-[#0f9386] outline-none bg-white pr-10" />
+                          <button type="button" onClick={() => setShowPass({...showPass, new: !showPass.new})} className="absolute right-3 top-8">{showPass.new ? <EyeSlashIcon /> : <EyeIcon />}</button>
+                        </div>
+
+                        <div className="relative">
+                          <label className="text-xs font-semibold text-gray-500">Confirm Password</label>
+                          <input type={showPass.confirm ? "text" : "password"} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} className="w-full mt-1 p-2 rounded-lg bg-white text-gray-700 border border-gray-300 focus:border-[#0f9386] outline-none bg-white pr-10" />
+                          <button type="button" onClick={() => setShowPass({...showPass, confirm: !showPass.confirm})} className="absolute right-3 top-8">{showPass.confirm ? <EyeSlashIcon /> : <EyeIcon />}</button>
+                        </div>
+
+                        <div className="md:col-span-2 relative">
+                          <label className="text-xs font-bold text-red-500">Old Password (Required)</label>
+                          <input type={showPass.old ? "text" : "password"} name="oldPassword" value={formData.oldPassword} onChange={handleChange} className="w-full mt-1 p-2 rounded-lg bg-white text-gray-700 border border-red-200 focus:border-red-500 bg-white outline-none pr-10" placeholder="Enter current password..." />
+                          <button type="button" onClick={() => setShowPass({...showPass, old: !showPass.old})} className="absolute right-3 top-8">{showPass.old ? <EyeSlashIcon /> : <EyeIcon />}</button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {isEditing && (
+              <div className="mt-8 flex gap-3 justify-end border-t pt-4">
+                <button type="button" onClick={() => { setIsEditing(false); setShowPasswordSection(false); setPhoneError(""); setFormData(prev => ({...prev, fullName: currentUser.fullName, phone: currentUser.phone, profilePic: currentUser.profilePic})); }} className="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium">Cancel</button>
+                <button type="submit" className="px-6 py-2 rounded-lg bg-[#0f9386] text-white hover:bg-[#0b6e64] shadow-md font-medium">Save Changes</button>
+              </div>
+            )}
+          </form>
+        </div>
+      </div>
+
+      {/* Avatar Modal */}
+      {showAvatarModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-sm md:max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-in">
+            <div className="bg-[#0f9386] p-4 flex justify-between items-center text-white">
+              <h3 className="font-bold text-lg">Choose Avatar</h3>
+              <button onClick={() => setShowAvatarModal(false)} className="hover:bg-white/20 p-1 rounded-full">X</button>
+            </div>
+            <div className="p-4">
+              <div className="flex gap-2 mb-4 p-1 bg-gray-100 rounded-lg">
+                <button onClick={() => setAvatarTab("select")} className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-all ${avatarTab==="select"?"bg-white shadow text-[#0f9386]":"text-gray-500 hover:text-gray-700"}`}>Select Avatar</button>
+                <button onClick={() => setAvatarTab("link")} className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-all ${avatarTab==="link"?"bg-white shadow text-[#0f9386]":"text-gray-500 hover:text-gray-700"}`}>Use Link</button>
+              </div>
+              <div className="min-h-[200px]">
+                {avatarTab==="select" ? (
+                  <div className="grid grid-cols-4 gap-4">
+                    {PREDEFINED_AVATARS.map((av, idx) => (
+                      <button key={idx} onClick={() => { setFormData({...formData, profilePic: av}); setShowAvatarModal(false); }} className={`border-2 rounded-xl p-1 hover:border-[#0f9386] hover:bg-teal-50 transition ${formData.profilePic===av?"border-[#0f9386] bg-teal-50":"border-transparent"}`}>
+                        <img src={av} alt="avatar" className="w-full h-full object-contain" />
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-4 mt-6">
+                    <input type="text" placeholder="https://example.com/image.png" className="w-full p-3 border text-gray-700 border-gray-300 rounded-lg focus:border-[#0f9386] outline-none" onChange={(e)=>setFormData({...formData, profilePic: e.target.value})} />
+                    <button onClick={() => setShowAvatarModal(false)} className="mt-2 bg-[#0f9386] text-white py-2 rounded-lg">Confirm URL</button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-
-        <form onSubmit={handleUpdate}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Full Name */}
-            <div className="flex-1 w-full col-span-2">
-              <label className="font-semibold text-gray-600">Full Name</label>
-              <div className="flex items-center gap-3 mt-2">
-                <input
-                  type="text"
-                  name="fullName"
-                  disabled={!editable.fullName}
-                  ref={inputRefs.fullName}
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  className={`w-full bg-gray-100 border border-teal-300 px-3 py-2 rounded-lg ${
-                    editable.fullName ? "text-gray-600" : "text-gray-300"
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => enableEdit("fullName")}
-                  className="text-teal-300 font-medium"
-                >
-                  <i className="fa-regular fa-pen-to-square"></i>
-                </button>
-              </div>
-            </div>
-
-            {/* Phone */}
-            <div>
-              <label className="font-semibold text-gray-600">Phone Number</label>
-              <div className="flex items-center gap-3 mt-2">
-                <input
-                  type="text"
-                  name="phone"
-                  disabled={!editable.phone}
-                  ref={inputRefs.phone}
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className={`w-full border bg-gray-100 border-teal-300 px-3 py-2 rounded-lg ${
-                    editable.phone ? "text-gray-600" : "text-gray-300"
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => enableEdit("phone")}
-                  className="text-teal-300 font-medium"
-                >
-                  <i className="fa-regular fa-pen-to-square"></i>
-                </button>
-              </div>
-            </div>
-
-            {/* Old Password */}
-            <div>
-              <label className="font-semibold text-gray-600">Old Password</label>
-              <div className="flex items-center gap-3 mt-2">
-                <input
-                  type="password"
-                  name="oldPassword"
-                  disabled={!editable.oldPassword}
-                  ref={inputRefs.oldPassword}
-                  value={formData.oldPassword}
-                  onChange={handleChange}
-                  className={`w-full border bg-gray-100 border-teal-300 px-3 py-2 rounded-lg ${
-                    editable.oldPassword ? "text-gray-600" : "text-gray-300"
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => enableEdit("oldPassword")}
-                  className="text-teal-300 font-medium"
-                >
-                  <i className="fa-regular fa-pen-to-square"></i>
-                </button>
-              </div>
-            </div>
-
-            {/* New Password */}
-            <div>
-              <label className="font-semibold text-gray-600">New Password</label>
-              <div className="flex items-center gap-3 mt-2">
-                <input
-                  type="password"
-                  name="password"
-                  disabled={!editable.password}
-                  ref={inputRefs.password}
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`w-full border bg-gray-100 border-teal-300 px-3 py-2 rounded-lg ${
-                    editable.password ? "text-gray-600" : "text-gray-300"
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => enableEdit("password")}
-                  className="text-teal-300 font-medium"
-                >
-                  <i className="fa-regular fa-pen-to-square"></i>
-                </button>
-              </div>
-            </div>
-
-            {/* Re-enter Password */}
-            <div>
-              <label className="font-semibold text-gray-600">Re-enter Password</label>
-              <div className="flex items-center gap-3 mt-2">
-                <input
-                  type="password"
-                  name="re-password"
-                  disabled={!editable.rePassword}
-                  ref={inputRefs.rePassword}
-                  value={formData["re-password"]}
-                  onChange={handleChange}
-                  className={`w-full border bg-gray-100 border-teal-300 px-3 py-2 rounded-lg ${
-                    editable.rePassword ? "text-gray-600" : "text-gray-300"
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => enableEdit("rePassword")}
-                  className="text-teal-300 font-medium"
-                >
-                  <i className="fa-regular fa-pen-to-square"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-right mt-8">
-            <button
-              type="submit"
-              disabled={!hasChanges() || saving}
-              className={`bg-teal-600 text-white px-6 py-3 rounded-lg shadow hover:bg-teal-700 transition ${
-                (!hasChanges() || saving) ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              {saving ? "Saving..." : "Save Changes"}
-            </button>
-          </div>
-        </form>
-      </div>
+      )}
     </div>
   );
 }

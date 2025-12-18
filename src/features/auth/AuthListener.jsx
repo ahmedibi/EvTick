@@ -31,7 +31,10 @@ export default function AuthListener({ children }) {  //without it, app won't kn
         email: user.email ?? null,
         fullName: snap.exists() ? snap.data().fullName : null,
         phone: snap.exists() ? snap.data().phone : null,
+        profilePic: snap.exists() ? snap.data().profilePic : null,
         eventOwner: snap.exists() ? snap.data().eventOwner : null,
+        role:snap.exists() ? snap.data().role : null,
+
         // ...snap.data()
       };
 
