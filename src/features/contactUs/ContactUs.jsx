@@ -73,13 +73,13 @@ export default function ContactUs() {
     try {
       await addDoc(collection(db, "contactMessages"), {
         ...formData,
-         userId: currentUser?.uid || null,
-         status: "pending",
+        userId: currentUser?.uid || null,
+        status: "pending",
         createdAt: serverTimestamp(),
       });
 
       toast.success("Message sent successfully!");
-      setFormData({ fullName: "", phone: "", email: "", message: ""});
+      setFormData({ fullName: "", phone: "", email: "", message: "" });
     } catch (error) {
       console.error("Error adding document: ", error);
       toast.error("Something went wrong. Try again.");
@@ -107,7 +107,7 @@ export default function ContactUs() {
 
           {/* Top Moving Line */}
           <div className="w-full max-w-[600px] h-[2px] bg-white/30 relative overflow-hidden mb-6">
-            <div className="absolute top-0 h-full w-[120px] bg-gradient-to-r from-green-400 via-blue-300 to-purple-400 animate-line"></div>
+            <div className="absolute top-0 h-full w-[120px] bg-gradient-to-r from-orange-400 via-blue-300 to-teal-500 animate-line"></div>
           </div>
 
           <h1 className="text-white text-4xl md:text-6xl font-bold tracking-widest">
@@ -116,7 +116,7 @@ export default function ContactUs() {
 
           {/* Bottom Moving Line */}
           <div className="w-full max-w-[600px] h-[2px] bg-white/30 relative overflow-hidden mt-6">
-            <div className="absolute top-0 h-full w-[120px] bg-gradient-to-r from-green-400 via-blue-300 to-purple-400 animate-line-reverse"></div>
+            <div className="absolute top-0 h-full w-[120px] bg-gradient-to-r from-orange-400 via-blue-300 to-teal-500 animate-line-reverse"></div>
           </div>
 
         </div>
@@ -200,7 +200,7 @@ export default function ContactUs() {
                 <div className="flex justify-center pt-6">
                   <button
                     type="submit"
-                    className="px-16 py-5 text-black font-bold text-xl tracking-widest rounded-full bg-gradient-to-r from-green-300 via-blue-200 to-purple-300 hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                    className="px-16 py-5 text-black font-bold text-xl tracking-widest rounded-full bg-gradient-to-r from-orange-400 via-blue-200 to-teal-500 hover:shadow-2xl hover:scale-105 transition-all duration-300"
                   >
                     SUBMIT
                   </button>
