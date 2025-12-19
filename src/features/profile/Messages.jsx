@@ -63,129 +63,148 @@ export default function Messages() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gray-100 ">
+    <div className="relative min-h-screen bg-gray-100">
+      <div className="max-w-7xl mx-auto py-12 px-4">
 
-   <div className="max-w-7xl mx-auto py-12 px-4 ">
-
-    <div className="mb-3 md:mb-12">
-      <h1 className="text-3xl font-bold text-black mb-3">My Messages</h1>
-    </div>
-        {/* ===== Filter + Badge ===== */}
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={() => setStatusFilter("all")}
-            className={`px-4 py-1 rounded-full text-sm ${
-              statusFilter === "all"
-                ? "bg-teal-600 text-white"
-                : "bg-white text-gray-700"
-            }`}
-          >
-            All
-          </button>
-      
-          <button
-            onClick={() => setStatusFilter("pending")}
-            className={`relative px-4 py-1 rounded-full text-sm ${
-              statusFilter === "pending"
-                ? "bg-orange-500 text-white"
-                : "bg-white text-gray-700"
-            }`}
-          >
-            Pending
-            {pendingCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
-                {pendingCount}
-              </span>
-            )}
-          </button>
-      
-          <button
-            onClick={() => setStatusFilter("replied")}
-            className={`px-4 py-1 rounded-full text-sm ${
-              statusFilter === "replied"
-                ? "bg-green-600 text-white"
-                : "bg-white text-gray-700"
-            }`}
-          >
-            Replied
-          </button>
+        {/* ===== Page Title ===== */}
+        <div className="mb-6 md:mb-12">
+          <h1 className="text-3xl font-bold text-black">My Messages</h1>
         </div>
 
+        {/* ===== Empty All Messages State ===== */}
+        {!loading && messages.length === 0 && (
+          <div className="bg-white rounded-xl shadow-sm p-16 text-center">
+            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fa-regular fa-message text-3xl text-gray-500"></i>
+            </div>
 
-        {/* ===== Empty Pending State ===== */}
-{statusFilter === "pending" && pendingCount === 0 && (
-  <div className="bg-white rounded-xl shadow-sm p-12 text-center">
-    <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-      <svg
-        className="w-10 h-10 text-gray-400"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M20 13V7a2 2 0 00-2-2H6a2 2 0 00-2 2v6m16 0l-8 5-8-5m16 0H4"
-        />
-      </svg>
-    </div>
-
-    <h2 className="text-xl font-semibold text-gray-800 mb-2">
-      No pending messages 
-    </h2>
-    <p className="text-gray-500">
-      You're all caught up! There are no pending messages right now.
-    </p>
-  </div>
-)}
-
-      
-        {/* ===== GRID ===== */}
-        {!(statusFilter === "pending" && pendingCount === 0) && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {currentMessages.map((msg) => (
-              <MessageCard key={msg.id} msg={msg} />
-            ))}
+            <h2 className="text-3xl font-bold text-gray-800 mb-3">
+              No Messages yet
+            </h2>
+            <p className="text-gray-500">
+              You haven't received any messages yet.
+            </p>
           </div>
         )}
 
-      
-        {/* ===== PAGINATION ===== */}
-        {totalPages > 1 && (
-          <div className="flex justify-center mt-6 gap-2">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((p) => p - 1)}
-              className="px-3 py-1 rounded-lg bg-gray-100 disabled:opacity-40"
-            >
-              Prev
-            </button>
-      
-            {[...Array(totalPages)].map((_, i) => (
+        {/* ===== Content (only if messages exist) ===== */}
+        {messages.length > 0 && (
+          <>
+            {/* ===== Filter + Badge ===== */}
+            <div className="flex items-center gap-4 mb-6">
               <button
-                key={i}
-                onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 rounded-lg ${
-                  currentPage === i + 1
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-100"
+                onClick={() => setStatusFilter("all")}
+                className={`px-4 py-1 rounded-full text-sm ${
+                  statusFilter === "all"
+                    ? "bg-teal-600 text-white"
+                    : "bg-white text-gray-700"
                 }`}
               >
-                {i + 1}
+                All
               </button>
-            ))}
-      
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((p) => p + 1)}
-              className="px-3 py-1 rounded-lg bg-gray-100 disabled:opacity-40"
-            >
-              Next
-            </button>
-          </div>
+
+              <button
+                onClick={() => setStatusFilter("pending")}
+                className={`relative px-4 py-1 rounded-full text-sm ${
+                  statusFilter === "pending"
+                    ? "bg-orange-500 text-white"
+                    : "bg-white text-gray-700"
+                }`}
+              >
+                Pending
+                {pendingCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
+                    {pendingCount}
+                  </span>
+                )}
+              </button>
+
+              <button
+                onClick={() => setStatusFilter("replied")}
+                className={`px-4 py-1 rounded-full text-sm ${
+                  statusFilter === "replied"
+                    ? "bg-green-600 text-white"
+                    : "bg-white text-gray-700"
+                }`}
+              >
+                Replied
+              </button>
+            </div>
+
+            {/* ===== Empty Pending State ===== */}
+            {statusFilter === "pending" && pendingCount === 0 && (
+              <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-10 h-10 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M20 13V7a2 2 0 00-2-2H6a2 2 0 00-2 2v6m16 0l-8 5-8-5m16 0H4"
+                    />
+                  </svg>
+                </div>
+
+                <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                  No pending messages
+                </h2>
+                <p className="text-gray-500">
+                  You're all caught up! There are no pending messages right now.
+                </p>
+              </div>
+            )}
+
+            {/* ===== GRID ===== */}
+            {!(statusFilter === "pending" && pendingCount === 0) && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {currentMessages.map((msg) => (
+                  <MessageCard key={msg.id} msg={msg} />
+                ))}
+              </div>
+            )}
+
+            {/* ===== PAGINATION ===== */}
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-6 gap-2">
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((p) => p - 1)}
+                  className="px-3 py-1 rounded-lg bg-gray-100 disabled:opacity-40"
+                >
+                  Prev
+                </button>
+
+                {[...Array(totalPages)].map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={`px-3 py-1 rounded-lg ${
+                      currentPage === i + 1
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-100"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((p) => p + 1)}
+                  className="px-3 py-1 rounded-lg bg-gray-100 disabled:opacity-40"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
-    </div>
+      </div>
     </div>
   );
 }

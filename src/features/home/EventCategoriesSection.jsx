@@ -92,7 +92,7 @@ export default function EventCategoriesSection() {
                     </div>
 
                     <Reveal delay={0.1}>
-                        <div className="flex items-center gap-3 mt-10 mx-20">
+                        <div className="flex items-center gap-3 mt-10 mx-42 ">
                             <div className="w-1 h-6 bg-teal-500"></div>
 
                             <p className="text-lg tracking-wide text-teal-500 text-left font-semibold">
@@ -107,17 +107,18 @@ export default function EventCategoriesSection() {
     flex flex-wrap justify-center gap-6 mt-10
 ">
                         {[
-                            {
+                              {
                                 name: "Entertainment",
-                                img: "https://i.ibb.co/dwGVs7pr/img.png"
+                                img: "https://i.ibb.co/pj2PL2BW/image.png"
+
                             },
                             {
                                 name: "sports",
-                                img: "https://i.pinimg.com/736x/6a/10/e2/6a10e2d3afa35afab220e28000088b7f.jpg"
+                                img: "https://i.ibb.co/hJfhpn4n/image.png"
                             },
                             {
                                 name: "Educational",
-                                img: "https://i.ibb.co/wr03bCQ8/ali-shaheen.png"
+                                img: "https://i.ibb.co/QFZLhn6W/image.png"
                             }
                         ].map((cat, i) => (
 

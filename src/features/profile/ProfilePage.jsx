@@ -58,24 +58,39 @@ export default function SettingPage() {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         let phone = "";
+        let fullName = "";
+        let profilePic = "";
+        
         try {
           const docSnap = await getDoc(doc(db, "users", user.uid));
-          if (docSnap.exists()) phone = docSnap.data().phone || "";
+          if (docSnap.exists()) {
+            const userData = docSnap.data();
+            phone = userData.phone || "";
+            fullName = userData.fullName || ""; 
+            profilePic = userData.profilePic || user.photoURL || "";
+          }
         } catch (err) {
           console.error(err);
         }
+
+        // إذا لم يكن الاسم موجود في Firestore، استخدم displayName من Auth
+        if (!fullName) {
+          fullName = user.displayName || "";
+        }
+
         setCurrentUser({
           uid: user.uid,
-          fullName: user.displayName || "",
+          fullName: fullName,
           email: user.email,
-          profilePic: user.photoURL || "",
-          phone,
+          profilePic: profilePic,
+          phone: phone,
         });
+        
         setFormData({
-          fullName: user.displayName || "",
+          fullName: fullName,
           email: user.email,
-          profilePic: user.photoURL || "",
-          phone,
+          profilePic: profilePic,
+          phone: phone,
           oldPassword: "",
           password: "",
           confirmPassword: "",
@@ -145,8 +160,10 @@ export default function SettingPage() {
       if (Object.keys(updatedFields).length > 0) {
         Swal.fire({ title: "Saving...", didOpen: () => Swal.showLoading() });
 
+        // ✅ تحديث Firestore
         await updateDoc(doc(db, "users", currentUser.uid), updatedFields);
 
+        // ✅ تحديث Firebase Auth displayName و photoURL
         if (updatedFields.profilePic || updatedFields.fullName) {
           await updateProfile(auth.currentUser, {
             displayName: updatedFields.fullName || currentUser.fullName,
@@ -157,7 +174,7 @@ export default function SettingPage() {
         setCurrentUser(prev => ({ ...prev, ...updatedFields }));
         setFormData(prev => ({ ...prev, oldPassword: "", password: "", confirmPassword: "" }));
 
-        showSuccessAlert( "Profile updated successfully");
+        showSuccessAlert("Profile updated successfully");
       }
 
       setIsEditing(false);
@@ -173,7 +190,7 @@ export default function SettingPage() {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto relative p-4 md:p-6 lg:p-8">
+    <div className="w-full   relative p-4 md:p-6 lg:p-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <h2 className="text-2xl font-bold text-black">Profile Settings</h2>

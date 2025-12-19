@@ -3,7 +3,6 @@ import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { db } from "../../firebase/firebase.config";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { toast } from "react-hot-toast";
-import background from "../../../public/b8ca76c033cab052b757cda46bd5d65c.jpg"
 import Navbar from "../home/Navbar";
 import { useSelector } from "react-redux";
 
@@ -88,47 +87,38 @@ export default function ContactUs() {
 
   return (
     <>
-      <Navbar />
+    
 
-      {/*ontact Hero Section */}
-      <div className="relative w-full h-[400px] overflow-hidden">
-        {/* Background Image */}
-        <img
-          src={background}
-          alt="Contact"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black/60"></div>
+    
+      <div className="relative w-full pt-30 pb-10 overflow-hidden">
 
         {/* Lines + Title */}
-        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center">
+        <div className="relative z-10  flex flex-col items-center bg-gray-100 justify-center h-full text-center">
 
           {/* Top Moving Line */}
-          <div className="w-full max-w-[600px] h-[2px] bg-white/30 relative overflow-hidden mb-6">
-            <div className="absolute top-0 h-full w-[120px] bg-gradient-to-r from-orange-400 via-blue-300 to-teal-500 animate-line"></div>
+          <div className="w-full max-w-[600px] h-[2px]  relative overflow-hidden mb-6">
+            <div className="absolute top-0 h-full w-[120px] bg-gradient-to-r from-teal-300 via-teal-500 to-teal-700 animate-line"></div>
           </div>
 
-          <h1 className="text-white text-4xl md:text-6xl font-bold tracking-widest">
+          <h1 className="text-gray-800 text-4xl md:text-6xl font-bold tracking-widest">
             CONTACT&nbsp;US
           </h1>
 
           {/* Bottom Moving Line */}
-          <div className="w-full max-w-[600px] h-[2px] bg-white/30 relative overflow-hidden mt-6">
-            <div className="absolute top-0 h-full w-[120px] bg-gradient-to-r from-orange-400 via-blue-300 to-teal-500 animate-line-reverse"></div>
+          <div className="w-full max-w-[600px] h-[3px]  relative overflow-hidden mt-6">
+            <div className="absolute top-0 h-full w-[120px] bg-gradient-to-r from-teal-300 via-teal-500 to-teal-700 animate-line-reverse"></div>
           </div>
 
         </div>
       </div>
 
-      <div className="w-full min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 py-20 px-6">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="w-full  min-h-screen bg-gray-100 pb-20 px-6">
+        <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 ">
 
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-50 rounded-full blur-3xl opacity-60"></div>
             <div className="relative bg-white/80 backdrop-blur-sm p-12 lg:p-16 rounded-full shadow-2xl aspect-square flex flex-col justify-center max-w-[600px] mx-auto">
-              <h2 className="text-3xl lg:text-3xl text-center font-bold text-black mb-10 tracking-wide">
+              <h2 className="text-xl lg:text-3xl text-center font-bold text-black mb-10 tracking-wide">
                 GET THE PARTY START
               </h2>
 
@@ -200,7 +190,7 @@ export default function ContactUs() {
                 <div className="flex justify-center pt-6">
                   <button
                     type="submit"
-                    className="px-16 py-5 text-black font-bold text-xl tracking-widest rounded-full bg-gradient-to-r from-orange-400 via-blue-200 to-teal-500 hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                    className="px-16 py-5 text-black font-bold text-xl tracking-widest rounded-full bg-gradient-to-r from-teal-300 via-teal-500 to-teal-700 hover:shadow-2xl hover:scale-105 transition-all duration-300"
                   >
                     SUBMIT
                   </button>
@@ -210,9 +200,9 @@ export default function ContactUs() {
           </div>
 
           {/*   RIGHT INFO  */}
-          <div className="space-y-10">
+          <div className="space-y-10 mt-14">
             <div>
-              <h2 className="text-4xl lg:text-5xl font-bold text-black mb-6 tracking-wide">
+              <h2 className="text-3xl lg:text-4xl font-bold text-black mb-6 tracking-wide">
                 LET'S GET IN TOUCH
               </h2>
               <p className="text-gray-500 text-lg leading-relaxed">
