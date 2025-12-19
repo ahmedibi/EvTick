@@ -42,7 +42,7 @@ const EventCard = ({ event }) => {
   const image = event.photo || event.image || "https://via.placeholder.com/400x300?text=No+Image";
   const displayPrice = formatPrice(event.price);
   const { day, month } = getDateParts(event.date);
-  const address = event.venue.name || event.location || "Online";
+  const address = event.venue?.name || event.location || "Online";
 
   return (
     <div

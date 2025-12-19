@@ -151,7 +151,9 @@ export default function EventDetails() {
       (event.venue === "Online") ||
       (event.address === "Online") ||
       (typeof event.venue === 'string' && event.venue.toLowerCase() === 'online') ||
-      (event.venue?.name?.toLowerCase() === 'online');
+    (event.venue?.name?.toLowerCase() === 'online') ||
+      (typeof event.price === 'number') ||
+      (!isNaN(event.price) && typeof event.price !== 'object');
 
     if (isOnline) {
       // التحقق من شراء التذكرة مسبقاً
@@ -325,7 +327,9 @@ export default function EventDetails() {
               (event.venue === "Online") ||
               (event.address === "Online") ||
               (typeof event.venue === 'string' && event.venue.toLowerCase() === 'online') ||
-              (event.venue?.name?.toLowerCase() === 'online');
+               (event.venue?.name?.toLowerCase() === 'online') ||
+              (typeof event.price === 'number') ||
+              (!isNaN(event.price) && typeof event.price !== 'object');
 
             if (isOnline) {
               const isBooked = auth.currentUser && event.bookedSeats?.some(
