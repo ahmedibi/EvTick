@@ -46,17 +46,18 @@ export default function ModernAppSection() {
 
                         {/* Label */}
                         <Reveal delay={0.2}>
-                            <p className="uppercase tracking-widest text-black/70
-                                  text-[10px] xs:text-xs sm:text-sm 
+                            <p className="uppercase tracking-widest text-teal-500
+                            lg:text-1xl
+                                   xs:text-xs sm:text-sm 
                                       mb-2 sm:mb-3 
-                                      font-medium">
+                                     font-semibold">
                                 Convenient Interaction
                             </p>
                         </Reveal>
 
                         {/* Title */}
                         <Reveal delay={0.3}>
-                            <h2 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl 
+                            <h2 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl font-semibold
                                     font-bold text-black
                                      mb-3 sm:mb-4 md:mb-5 
                                      leading-tight">
@@ -65,7 +66,8 @@ export default function ModernAppSection() {
                         </Reveal>
                         {/* Description */}
                         <Reveal delay={0.4}>
-                            <p className="text-black/70 leading-relaxed 
+                            <p className="text-black/70 leading-relaxed
+                            font-semibold 
                                     text-sm xs:text-base sm:text-lg md:text-xl lg:text-base xl:text-lg 
                                     mb-6 sm:mb-7 md:mb-8 
                                     max-w-xl mx-auto lg:mx-0">
@@ -80,7 +82,8 @@ export default function ModernAppSection() {
                             <a
                                 href="/app-file.apk"
                                 download
-                                className="bg-black/5 inline-flex items-center gap-2 text-black border border-black/30 px-10 py-2.5 rounded-full font-medium hover:bg-black hover:text-white transition "
+                                className="inline-flex items-center gap-2 px-10 py-2.5 rounded-full font-semibold hover:text-white transition  bg-teal-500 text-white
+                         hover:bg-teal-600 "
 
                             >
                                 Download App
