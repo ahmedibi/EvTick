@@ -43,7 +43,7 @@ export default function AppRouter() {
 
   // Hide footer for auth pages, profile pages, admin pages, and 404 page
   const hideFooter = hideLayout || 
-    !["/", "/contact", "/services", "/events"].some(route => 
+    !["/", "/contact", "/events"].some(route => 
       location.pathname === route || location.pathname.startsWith("/events/")
     );
     

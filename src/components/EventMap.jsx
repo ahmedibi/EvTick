@@ -12,7 +12,7 @@ L.Icon.Default.mergeOptions({
 
 export default function EventMap({ lat, lng, name }) {
   return (
-    <div className="w-full h-[350px] rounded-xl overflow-hidden border">
+    <div className="w-full h-[350px] rounded-xl overflow-hidden border border-white">
       <MapContainer
         center={[lat, lng]}
         zoom={15}

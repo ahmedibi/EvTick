@@ -6,7 +6,7 @@ import Logo from '../../assets/EvTick_Logo.png';
 
 export default function Footer() {
     return (
-        <footer className="w-full bg-gradient-to-br  text-black pt-16 pb-10">
+        <footer className="w-full bg-gradient-to-br bg-gray-100 text-black pt-16 pb-10">
 
             {/*  TOP SECTION  */}
             <div className="max-w-7xl mx-auto mb-16 px-4">
