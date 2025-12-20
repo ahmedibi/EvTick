@@ -65,7 +65,7 @@ function HeroSection() {
     return (
         <div className="min-h-screen bg-gray-100">
 
-            <main className="container mx-auto px-6 pt-12 pb-24">
+            <main className="container mx-auto px-6 pt-20 pb-24">
 
                 <Reveal delay={0.1}>
                     <motion.div
