@@ -21,10 +21,7 @@ import Messages from "../features/profile/Messages";
 import NotFound from "../components/NotFound";
 import Success from "../features/checkout/Success";
 import StreamPage from "../features/stream/StreamPage";
-// simple placeholder dashboards
-const UserDashboard = () => <div className="p-6">User Dashboard</div>;
-const OrgDashboard = () => <div className="p-6">Organizer Dashboard</div>;
-const AdminDashboard = () => <div className="p-6">Admin Dashboard</div>;
+
 
 
 
@@ -69,33 +66,6 @@ export default function AppRouter() {
           </GuestRoute>
           } />
 
-        {/* protected Role-based dashboards */}
-        <Route
-          path="/user"
-          element={
-            <ProtectedRoute requiredRole="user">
-              <UserDashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/organizer"
-          element={
-            <ProtectedRoute requiredRole="organizer">
-              <OrgDashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute requiredRole="admin">
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
 
         <Route path="/forgot-password" element={
           <GuestRoute>

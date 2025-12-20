@@ -12,7 +12,7 @@ export default function Navbar() {
 
 
     return (
-        <nav className="fixed w-full z-50 ">
+        <nav className="fixed w-full z-9999 ">
             <div className="max-w-8xl mx-10 my-6 bg-teal-500 border shadow-lg rounded-4xl px-4">
                 <div className="flex items-center justify-between h-15">
 
@@ -31,16 +31,17 @@ export default function Navbar() {
                             Home
                         </Link>
 
+                         <Link
+                            to="/events"
+                            className="text-black text-lg hover:text-gray-100 transition-colors duration-200  font-medium">
+                            Events
+                        </Link>
+
+
                         <Link
                             to="/services"
                             className="text-black text-lg hover:text-gray-100 transition-colors duration-200 font-medium">
                             Services
-                        </Link>
-
-                        <Link
-                            to="/events"
-                            className="text-black text-lg hover:text-gray-100 transition-colors duration-200  font-medium">
-                            Events
                         </Link>
 
                         <Link

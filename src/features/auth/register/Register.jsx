@@ -9,8 +9,9 @@ import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser, setRole } from "../authSlice";
 import RegisterForm from "./RegisterForm.jsx";
-import { showSuccessAlert, showErrorAlert } from "../../../components/sweetAlert";
-
+import { showRegisterSuccess} from "../../../components/sweetAlert.js";
+import { showSuccessAlert } from "../../../components/sweetAlert.js";
+import { showErrorAlert } from "../../../components/sweetAlert.js";
 
 export default function Register() {
   const [fullName, setFullName] = useState("");
@@ -26,6 +27,7 @@ export default function Register() {
   // New state for Google Signup flow
   const [isGoogleSignup, setIsGoogleSignup] = useState(false);
   const [googleUser, setGoogleUser] = useState(null);
+
 
   const dispatch = useDispatch();
 
@@ -93,11 +95,31 @@ export default function Register() {
     return valid;
   };
 
+  const AuthError = (err) => {
+  const code = err?.code || "";
+
+  switch (code) {
+    case "auth/email-already-in-use":
+      return "Email already in use.";
+    case "auth/invalid-email":
+      return "Invalid email address.";
+    case "auth/weak-password":
+      return "Password is too weak. Please choose a stronger password.";
+    case "auth/operation-not-allowed":
+      return "Email/password accounts are not enabled.";
+    case "auth/network-request-failed":
+      return "Network error. Please check your connection and try again.";
+    default:
+      return "Something went wrong. Please try again.";
+  }
+};
+
   //handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-      setLoading(true);
+
+    setLoading(true);
 
     try {
       const cred = await createUserWithEmailAndPassword(auth, email, password);
@@ -120,19 +142,20 @@ export default function Register() {
       dispatch(setRole("user"));
       showSuccessAlert("Registration successful!");
       //redirect to home
+      showRegisterSuccess("Account created successfully!", fullName || "User");
       navigate("/");
 
-    } catch (err) {
-      setErrors((prev) => ({ ...prev, firebase: err.message }));
-      showErrorAlert(err.message);
-    }finally {
+    } catch (err) { 
+      setErrors((prev) => ({ ...prev, 
+        firebase: AuthError(err), 
+      }));
+    } finally {
     setLoading(false);
   }
   };
 
 
   const handleGoogleSignIn = async () => {
-      setLoading(true);
 
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -153,6 +176,8 @@ export default function Register() {
           role: userData.role
         }));
         dispatch(setRole(userData.role));
+        // showLoginSuccess
+        showRegisterSuccess("You Have Successfully logged in!",userData.fullName || user.displayName  || "User");
         navigate("/");
       } else {
         // new user, request password
@@ -166,15 +191,13 @@ export default function Register() {
       console.error("Google Sign-In Error:", error);
       setErrors((prev) => ({ ...prev, firebase: error.message }));
       showErrorAlert(error.message);
-    }finally {
-    setLoading(false);
-  }
+    }
   };
 
   const finalizeGoogleSignup = async (e) => {
     e.preventDefault();
     if (!validateForm()) return; // validates password only since isGoogleSignup is true
-
+    setLoading(true);
     try {
       if (googleUser) {
         //set the password for google user
@@ -200,10 +223,11 @@ export default function Register() {
       }
     } catch (error) {
       console.error("Error finalizing google signup", error);
-      // If requires-recent-login error, prompt to sign in again or handle gracefully
       setErrors({ ...errors, firebase: error.message });
       showErrorAlert(error.message);
-    }
+    }finally {
+    setLoading(false);
+  }
   };
 
   const cancelGoogleSignup = async () => {
@@ -244,11 +268,11 @@ export default function Register() {
     showConfirm={showConfirm}
     setShowConfirm={setShowConfirm}
     errors={errors}
+    loading={loading} 
     handleSubmit={handleSubmit}
     handleGoogleSignIn={handleGoogleSignIn}
     finalizeGoogleSignup={finalizeGoogleSignup}
     cancelGoogleSignup={cancelGoogleSignup}
-    loading={loading}
     />
 
 
