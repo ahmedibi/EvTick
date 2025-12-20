@@ -131,7 +131,7 @@ export default function Events() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
-    <div className="bg-black pt-30">
+    <div className="bg-gray-100 pt-30">
 
       {/* ---------------------- HERO SECTION ---------------------- */}
       <div
@@ -154,9 +154,9 @@ export default function Events() {
         </div>
 
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[95%] md:w-[90%]">
-          <div className="bg-black rounded-2xl shadow-xl flex  md:flex-row md:items-center px-4 py-3 gap-3">
+          <div className="bg-gray-100 rounded-2xl shadow-xl flex  md:flex-row md:items-center px-4 py-3 gap-3">
 
-            <div className="relative flex-1">
+            <div className="relative flex-1 bg-white rounded-lg text-gray-800">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                 <FaSearch />
               </span>
@@ -165,7 +165,7 @@ export default function Events() {
                 placeholder="Search by name or type"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 rounded-lg bg-black-100 text-white outline-none"
+                className="w-full pl-10 pr-3 py-2 rounded-lg bg-black-100 text-gray-800 outline-none"
               />
             </div>
 
@@ -192,8 +192,8 @@ export default function Events() {
 
       {/* ---------------------- REST OF THE PAGE ---------------------- */}
 
-      <div className="relative min-h-screen bg-black flex items-center justify-center p-6 ">
-        <div className="absolute inset-0 bg-black/70 min-h-screen"></div>
+      <div className="relative min-h-screen bg-gray-100 flex items-center justify-center p-6 ">
+      
 
         <style>{`
           .react-calendar { width: 100%; border: none; background: transparent; font-family: inherit; }
@@ -205,7 +205,7 @@ export default function Events() {
         <div className="relative z-10 w-full max-w-7xl mt-12 mb-12 px-4 sm:px-6 lg:px-8 space-y-8">
 
           <div className="flex flex-col items-start">
-            <h1 className={`text-3xl font-bold mb-2 text-white`}>Discover Events</h1>
+            <h1 className={`text-3xl font-bold mb-2 text-gray-800`}>Discover Events</h1>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

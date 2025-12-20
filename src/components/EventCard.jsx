@@ -42,12 +42,12 @@ const EventCard = ({ event }) => {
   const image = event.photo || event.image || "https://via.placeholder.com/400x300?text=No+Image";
   const displayPrice = formatPrice(event.price);
   const { day, month } = getDateParts(event.date);
-  const address = event.address || event.location || "Online";
+  const address = event.venue?.name || event.location || "Online";
 
   return (
     <div
       onClick={() => navigate(`/events/${event.id}`)}
-      className="relative h-[400px] w-[350px] rounded-[30px] overflow-hidden group cursor-pointer shadow-xl hover:shadow-2xl transition-all duration-300"
+      className="relative h-[350px] w-[350px] rounded-[30px] overflow-hidden group cursor-pointer shadow-xl hover:shadow-2xl transition-all duration-300"
     >
       <img
         src={image}

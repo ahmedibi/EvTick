@@ -57,13 +57,13 @@ export default function EventCategoriesSection() {
             >
                 <div className="max-w-7xl mx-auto text-center text-black">
                     <Reveal delay={0.2}>
-                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold">
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-semibold">
                             Our Event Categories
                         </h2>
                     </Reveal>
 
                     <Reveal delay={0.3}>
-                        <p className="opacity-80 mt-3">
+                        <p className="opacity-80 mt-3 font-semibold">
                             Choose a category to explore all events created for this type.
                         </p>
                     </Reveal>
@@ -78,10 +78,11 @@ export default function EventCategoriesSection() {
                                         window.scrollTo({ top: 0, behavior: "smooth" });
                                     }}
 
-                                    className={`px-5 py-2 rounded-full border border-[#545453] transition-all
+                                    className={`px-5 py-2 rounded-full border border-teal-500 transition-all font-semibold hover:border-none
+                                        
                                         ${activeCategory === cat
                                             ? "bg-black text-white"
-                                            : "bg-white/50 text-black hover:bg-black hover:text-white"
+                                            : "bg-white/50 text-black hover:bg-teal-500 hover:text-white"
                                         }`}
                                 >
                                     {cat} Event
@@ -91,10 +92,10 @@ export default function EventCategoriesSection() {
                     </div>
 
                     <Reveal delay={0.1}>
-                        <div className="flex items-center gap-3 mt-10 mx-20">
-                            <div className="w-1 h-6 bg-black"></div>
+                        <div className="flex items-center gap-3 mt-10 mx-42 ">
+                            <div className="w-1 h-6 bg-teal-500"></div>
 
-                            <p className="text-lg tracking-wide text-black text-left">
+                            <p className="text-lg tracking-wide text-teal-500 text-left font-semibold">
 
                                 ONLY THE BEST EVENTS
                             </p>
@@ -106,17 +107,18 @@ export default function EventCategoriesSection() {
     flex flex-wrap justify-center gap-6 mt-10
 ">
                         {[
-                            {
+                              {
                                 name: "Entertainment",
-                                img: "https://d3vzzcunewy153.cloudfront.net/img/17f95c00-4ab0-492d-94a6-3a647e5ea2fe/1ff490a1bf1fe7bb16c4f02ba1ba038d.jpg"
+                                img: "https://i.ibb.co/pj2PL2BW/image.png"
+
                             },
                             {
                                 name: "sports",
-                                img: "https://i.pinimg.com/736x/6a/10/e2/6a10e2d3afa35afab220e28000088b7f.jpg"
+                                img: "https://i.ibb.co/hJfhpn4n/image.png"
                             },
                             {
                                 name: "Educational",
-                                img: "https://newsroom.info/UploadCache/libfiles/13/0/800x450o/138.jpeg"
+                                img: "https://i.ibb.co/QFZLhn6W/image.png"
                             }
                         ].map((cat, i) => (
 
@@ -142,7 +144,7 @@ export default function EventCategoriesSection() {
                                     />
 
                                     <div className="absolute bottom-5 left-6 z-10">
-                                        <h3 className="text-white text-2xl sm:text-3xl font-bold drop-shadow-lg">
+                                        <h3 className="text-white/70 text-2xl sm:text-3xl font-bold drop-shadow-lg">
                                             {cat.name}
                                         </h3>
                                     </div>
@@ -159,7 +161,10 @@ export default function EventCategoriesSection() {
                     <Reveal delay={0.2}>
                         <a
                             href="/events"
-                            className="px-6 py-2 bg-black/5 text-black border border-black/30 rounded-full font-semibold shadow-lg hover:bg-black hover:text-white "
+                            className="px-6 py-2 rounded-full shadow-lg
+                            font-semibold hover:text-white transition  bg-teal-500 text-white
+                         hover:bg-teal-600
+                            "
 
                         >
                             See All Events
