@@ -25,7 +25,7 @@ export default function ModernAppSection() {
                                      rotate-[-8deg] drop-shadow-2xl 
                                      relative z-10
                                      absolute top-14 right-10
-                                     transition-transform duration-300 hover:scale-105"
+                                     transition-transform duration-300 hover:scale-105 rounded-2xl"
                             />
                             <img
                                 src={phone2}
@@ -36,7 +36,7 @@ export default function ModernAppSection() {
                                      right-0 xs:right-4 sm:right-8 md:right-12 lg:left-30 xl:right-20
                                      rotate-[6deg] drop-shadow-2xl 
                                      z-20
-                                     transition-transform duration-300 hover:scale-105"
+                                     transition-transform duration-300 hover:scale-105 rounded-2xl"
                             />
                         </div>
                     </Reveal>
