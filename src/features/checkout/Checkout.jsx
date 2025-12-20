@@ -14,6 +14,8 @@ import {
   deleteCheckout
 } from '../../redux/slices/checkoutSlice';
 
+import { auth } from "../../firebase/firebase.config";
+
 import { updateEventAfterCheckout } from '../../redux/slices/eventSlice';
 import { savePayment } from '../../redux/slices/paymentSlice';
 
@@ -69,10 +71,22 @@ export default function Checkout() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting }
   } = useForm({
     resolver: zodResolver(checkoutSchema),
   });
+
+  useEffect(() => {
+    if (auth.currentUser?.email) {
+      setValue("email", auth.currentUser.email);
+    }
+    if (auth.currentUser?.displayName) {
+      const parts = auth.currentUser.displayName.split(" ");
+      if (parts.length > 0) setValue("firstName", parts[0]);
+      if (parts.length > 1) setValue("lastName", parts.slice(1).join(" "));
+    }
+  }, [setValue]);
 
   if (loading) return <p>Loading checkout...</p>;
   if (error) {
@@ -233,7 +247,8 @@ export default function Checkout() {
                   <input
                     type="email"
                     {...register('email')}
-                    className={`w-full bg-gray-100 border-2 ${errors.email ? 'border-red-500' : 'border-gray-600'
+                    readOnly
+                    className={`w-full bg-gray-200 cursor-not-allowed border-2 ${errors.email ? 'border-red-500' : 'border-gray-600'
                       } text-gray-600 px-4 py-3 rounded focus:border-teal-300 focus:outline-none transition`}
                     placeholder="Enter your email"
                   />

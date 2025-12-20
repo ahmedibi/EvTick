@@ -22,6 +22,7 @@ export default function RegisterForm({
   handleGoogleSignIn,
   finalizeGoogleSignup,
   cancelGoogleSignup,
+  loading,
 }) {
   return (
     <>
@@ -127,11 +128,24 @@ export default function RegisterForm({
 
           {errors.firebase && <p className="auth-error">{errors.firebase}</p>}
 
-          <button type="submit"
-            className="w-full py-3 text-white rounded font-semibold outline-none"
-            style={{ background: "#0f9386" }}>
-            Sign Up
-          </button>
+          <button
+             type="submit"
+             disabled={loading}
+             className={`w-full py-3 text-white rounded font-semibold outline-none
+               flex items-center justify-center gap-2
+               ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
+             style={{ background: "#0f9386" }}
+           >
+             {loading ? (
+               <>
+                 <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                 Signing up...
+               </>
+             ) : (
+               "Sign Up"
+             )}
+           </button>
+
 
           <div className="relative flex items-center justify-center my-4">
             <hr className="w-full border-gray-300" />

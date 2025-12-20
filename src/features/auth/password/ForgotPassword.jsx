@@ -3,6 +3,8 @@ import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../../../firebase/firebase.config";
 import { Link } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
+import { showSuccessAlert, showErrorAlert } from "../../../components/sweetAlert";
+
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -15,9 +17,10 @@ export default function ForgotPassword() {
    url: "http://localhost:5173/reset-password", 
    handleCodeInApp: true
 });
-      setMessage("Password reset link sent! Check your email.");
+      showSuccessAlert("Password reset link sent! Check your email.");
     } catch (error) {
       setMessage(error.message);
+      showErrorAlert(error.message);
     }
   };
 

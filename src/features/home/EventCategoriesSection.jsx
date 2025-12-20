@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { fetchEventTypes } from "../../redux/slices/eventSlice";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Reveal from "../home/Reveal";
 
 
@@ -10,7 +10,7 @@ export default function EventCategoriesSection() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const { events, loading } = useSelector((state) => state.events);
+    // const { events, loading } = useSelector((state) => state.events);
 
     const [activeCategory] = useState(null);
 
@@ -49,7 +49,7 @@ export default function EventCategoriesSection() {
         : {};
 
     return (
-        <section style={sectionStyle} className="w-full bg-gradient-to-br from-gray-50 via-white to-gray-100">
+        <section style={sectionStyle} className="w-full bg-gray-100">
 
             <div
                 className="w-full bg-cover bg-center py-16 md:py-24 px-4 sm:px-6 lg:px-12"
@@ -58,13 +58,13 @@ export default function EventCategoriesSection() {
                 <div className="max-w-7xl mx-auto text-center text-black">
                     <Reveal delay={0.2}>
                         <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-semibold">
-                            Our Event Categories
+                            Event Types
                         </h2>
                     </Reveal>
 
                     <Reveal delay={0.3}>
                         <p className="opacity-80 mt-3 font-semibold">
-                            Choose a category to explore all events created for this type.
+                            Choose a type to explore all events created for this type.
                         </p>
                     </Reveal>
 
@@ -159,16 +159,15 @@ export default function EventCategoriesSection() {
 
                     {/* SEE ALL Button */}
                     <Reveal delay={0.2}>
-                        <a
-                            href="/events"
+                        <Link
+                            to="/events"
                             className="px-6 py-2 rounded-full shadow-lg
                             font-semibold hover:text-white transition  bg-teal-500 text-white
                          hover:bg-teal-600
                             "
-
                         >
                             See All Events
-                        </a>
+                        </Link>
                     </Reveal>
                 </div>
             </div>

@@ -8,6 +8,7 @@ import SeatsModal from "../../components/SeatsModal";
 import { auth } from "../../firebase/firebase.config";
 import EventMap from "../../components/EventMap";
 import { fetchSeatModelById, clearSeatModel } from "../../redux/slices/seatModelSlice";
+import { showLoginRequired } from "../../components/sweetAlert";
 
 export default function EventDetails() {
   const { id } = useParams();
@@ -142,7 +143,7 @@ export default function EventDetails() {
   const handleBuyTicket = async () => {
 
     if (!auth.currentUser) {
-      alert("Please login to continue");
+       showLoginRequired("Please login to continue", navigate);
       return;
     }
 
