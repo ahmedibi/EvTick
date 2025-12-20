@@ -4,15 +4,17 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { auth } from "../../../firebase/firebase.config";
 import AuthLayout from "../components/AuthLayout";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { showSuccessAlert, showErrorAlert } from "../../../components/sweetAlert";
+
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [show, setShow] = useState(false);
 
   const navigate = useNavigate();
+  // eslint-disable-next-line no-unused-vars
   const [params] = useSearchParams();
 //   const oobCode = params.get("oobCode"); // get the oobCode from url
 const oobCode = new URLSearchParams(window.location.search).get("oobCode");
@@ -49,10 +51,10 @@ const oobCode = new URLSearchParams(window.location.search).get("oobCode");
 
     try {
       await confirmPasswordReset(auth, oobCode, password);
-      setSuccess("Password reset successful! Redirecting...");
+      showSuccessAlert("Password reset successful");
       setTimeout(() => navigate("http://localhost:5173/login"), 2000);
     } catch (err) {
-      setError(err.message);
+      showErrorAlert(err.message);
     }
   };
 
@@ -113,7 +115,6 @@ const oobCode = new URLSearchParams(window.location.search).get("oobCode");
 
         {/* error / success messages */}
         {error && <p className="auth-error">{error}</p>}
-        {success && <p className="text-green-600 font-medium">{success}</p>}
 
         
         <button className="w-full py-3 text-white rounded font-semibold mt-4"

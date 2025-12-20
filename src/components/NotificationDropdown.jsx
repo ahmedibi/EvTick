@@ -78,7 +78,7 @@ export default function NotificationDropdown() {
   return (
     <div className="relative" ref={dropdownRef}>
       <div onClick={handleToggle} className="cursor-pointer relative">
-        <FaBell className="w-6 h-6 text-gray-600" />
+        <FaBell className="w-5 h-5 text-black" />
         {unreadCount > 0 && (
           <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
             {unreadCount}
@@ -117,7 +117,7 @@ export default function NotificationDropdown() {
               {/* Content */}
               <div className="flex-1">
                 <h4 className={`text-sm font-semibold mb-1 ${item.isRead ? 'text-gray-700' : 'text-gray-900'}`}>
-                  Admin Reply
+                  Admin
                 </h4>
 
                 <p className="text-xs text-gray-600 leading-relaxed">

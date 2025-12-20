@@ -1,5 +1,6 @@
 
 import React from "react";
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from "react";
 import Reveal from "../home/Reveal";
@@ -57,7 +58,7 @@ function HeroSection() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+        <div className="min-h-screen bg-gray-100">
 
             <main className="container mx-auto px-6 pt-12 pb-24">
 

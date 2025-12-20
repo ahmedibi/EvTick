@@ -8,7 +8,7 @@ import Reveal from "../home/Reveal";
 export default function ModernAppSection() {
     return (
 
-        <section className="relative w-full h-full py-28 px-4 sm:px-6 md:px-10 lg:px-16 xl:px-20 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100">
+        <section className="relative w-full h-full py-28 px-4 sm:px-6 md:px-10 lg:px-16 xl:px-20 overflow-hidden bg-gray-100">
 
 
             {/* Background behind everything */}

@@ -20,6 +20,7 @@ import GuestRoute from "../components/GuestRoute";
 import Messages from "../features/profile/Messages";
 import NotFound from "../components/NotFound";
 import Success from "../features/checkout/Success";
+import StreamPage from "../features/stream/StreamPage";
 // simple placeholder dashboards
 const UserDashboard = () => <div className="p-6">User Dashboard</div>;
 const OrgDashboard = () => <div className="p-6">Organizer Dashboard</div>;
@@ -110,6 +111,7 @@ export default function AppRouter() {
         <Route path="/events/:id" element={<EventDetails />} />
          <Route path="/checkout" element={  <ProtectedRoute>  <Checkout />  </ProtectedRoute>  }/>
          <Route path="/success" element={ <ProtectedRoute> <Success />  </ProtectedRoute> }/>
+          <Route path="/stream" element={ <ProtectedRoute> <StreamPage/>  </ProtectedRoute> }/>
          <Route path="*" element={<NotFound />} />
 
 

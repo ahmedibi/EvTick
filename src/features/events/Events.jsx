@@ -81,7 +81,7 @@ export default function Events() {
   const filteredEvents = useMemo(() => {
       const now = new Date();
       const threeHoursMs = 3 * 60 * 60 * 1000;
-
+         const lowerSearch = searchTerm.trim().toLowerCase();
     return events.filter(e => {
         // 1. Check if event is past
       let eventDate = null;
@@ -113,9 +113,9 @@ export default function Events() {
       }
 
       if (isPast) return false;
-
-      const matchesSearch = e.eventName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        e.name?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+       const matchesSearch = e.eventName?.toLowerCase().includes(lowerSearch) ||
+        e.name?.toLowerCase().includes(lowerSearch);
       const loc = e.address || e.location || "Online Event";
       const matchesLocation = addressFilter === "" || loc.toLowerCase().includes(addressFilter.toLowerCase());
       const eventDateStr = formatDateForComparison(e.date);
@@ -142,7 +142,7 @@ export default function Events() {
           backgroundPosition: "center",
         }}
       >
-        <div className="absolute inset-0 bg-black/10"></div>
+  
 
         <div className="absolute left-6 md:left-20 top-15 text-white max-w-xl">
           <h1 className="text-3xl md:text-4xl font-bold leading-snug">
@@ -208,7 +208,7 @@ export default function Events() {
             <h1 className={`text-3xl font-bold mb-2 text-gray-800`}>Discover Events</h1>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 place-items-center">
             {loadingEvents ? (
               <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div></div>
             ) : errorEvents ? (
