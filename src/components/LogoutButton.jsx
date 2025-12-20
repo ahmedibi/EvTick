@@ -12,7 +12,7 @@ export default function LogoutButton() {
   const navigate = useNavigate();
 
   const logout = async () => {
-    
+
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "You will be logged out from your account.",
@@ -25,7 +25,6 @@ export default function LogoutButton() {
     });
 
     if (result.isConfirmed) {
-      
       await signOut(auth);
       dispatch(logoutUser());
       navigate("/"); 
