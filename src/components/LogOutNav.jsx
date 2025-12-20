@@ -4,6 +4,8 @@ import { signOut } from "firebase/auth";
 import { auth } from "../firebase/firebase.config";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { showSuccessAlert } from "./sweetAlert";
+import Swal from "sweetalert2";
 
 export default function LogoutButton() {
   
@@ -12,9 +14,25 @@ const navigate = useNavigate();
 
 
 const logout = async () => {
-  await signOut(auth);
-  dispatch(logoutUser());
-  navigate("/");
+  
+  const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You will be logged out from your account.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#0F9386",
+        cancelButtonColor: "gray",
+        confirmButtonText: "Yes, log out",
+        cancelButtonText: "Cancel",
+      });
+  
+      if (result.isConfirmed) {
+      
+        await signOut(auth);
+        dispatch(logoutUser());
+        navigate("/"); 
+        showSuccessAlert("You have logged out successfully");
+      }
 };
 
   return (

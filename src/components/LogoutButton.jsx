@@ -25,6 +25,7 @@ export default function LogoutButton() {
     });
 
     if (result.isConfirmed) {
+    
       await signOut(auth);
       dispatch(logoutUser());
       navigate("/"); 

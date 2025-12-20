@@ -4,6 +4,8 @@ import React from "react";
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from "react";
 import Reveal from "../home/Reveal";
+import { Link } from "react-router-dom";
+
 
 const slides = [
     {
@@ -44,8 +46,11 @@ const cardVariants = {
     }),
 };
 
+  const MotionLink = motion(Link);
+
 
 function HeroSection() {
+
 
     const [index, setIndex] = useState(0);
 
@@ -93,8 +98,9 @@ function HeroSection() {
                                 </motion.p>
                             </motion.div>
                         </AnimatePresence>
-                        <motion.a
-                            href='/events'
+                        <MotionLink
+
+                            to='/events'
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.6 }}
@@ -113,7 +119,7 @@ function HeroSection() {
                             >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                             </svg>
-                        </motion.a>
+                        </MotionLink>
 
                     </motion.div>
                 </Reveal>
