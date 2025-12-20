@@ -8,13 +8,14 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "../authSlice";
+import { showLoginSuccess, showLoginError } from "../../../components/sweetAlert";
 
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
-
+const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({
     email: "",
     password: "",
@@ -48,6 +49,8 @@ export default function Login() {
     e.preventDefault();
     if (!validateForm()) return;
 
+      setLoading(true);
+
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
 
@@ -69,7 +72,7 @@ export default function Login() {
 
       // dispatch to Redux 
       dispatch(setUser(userData));
-
+      showLoginSuccess("You have successfully logged in!", userData.fullName);
       // role-based redirect
       switch (userData.role) {
         case "admin": navigate("/admin"); break;
@@ -80,7 +83,11 @@ export default function Login() {
     } catch (err) {
       let msg = err.message.replace("Firebase:", "").trim();
       setErrors((prev) => ({ ...prev, firebase: msg }));
-    }
+      showLoginError(msg);
+
+    }finally {
+    setLoading(false);
+  }
   };
 
   return (
@@ -132,10 +139,22 @@ export default function Login() {
         <Link to="/forgot-password">Forgot Password?</Link>
        </p>
 
-        <button type="submit" className="w-full py-3 text-white font-semibold rounded"
-          style={{ background: "#0f9386" }}>
-          Sign in
-        </button>
+      <button
+  type="submit"
+  disabled={loading}
+  className={`w-full py-3 text-white font-semibold rounded flex items-center justify-center gap-2
+    ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
+  style={{ background: "#0f9386" }}
+>
+  {loading ? (
+    <>
+      <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+      Signing in...
+    </>
+  ) : (
+    "Sign in"
+  )}
+</button>
         {/* <p className="text-sm text-[#aa7e61] font-medium mt-2">
         <Link to="/forgot-password">Forgot Password?</Link>
        </p> */}

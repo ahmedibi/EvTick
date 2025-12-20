@@ -43,6 +43,7 @@ export default function SettingPage() {
   const [showPasswordSection, setShowPasswordSection] = useState(false);
   const [showPass, setShowPass] = useState({ old: false, new: false, confirm: false });
   const [phoneError, setPhoneError] = useState("");
+  const [nameError, setNameError] = useState("");
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -114,6 +115,13 @@ export default function SettingPage() {
         setPhoneError("Invalid phone number (must be 11 digits starting with 010, 011, 012, 015)");
       } else setPhoneError("");
     }
+     if (name === "fullName") {
+      if (!value.trim()) {
+        setNameError("Full Name is required");
+      } else {
+        setNameError("");
+      }
+    }
   };
 
   const togglePasswordSection = () => {
@@ -126,6 +134,19 @@ export default function SettingPage() {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!currentUser?.uid) return Swal.fire("User not found!", "", "error");
+
+     // Validation
+    let isValid = true;
+    if (!formData.fullName.trim()) {
+      setNameError("Full Name is required");
+      isValid = false;
+    }
+    if (!formData.phone.trim()) {
+      setPhoneError("Phone Number is required");
+      isValid = false;
+    }
+
+    if (!isValid) return;
 
     const cleanPhone = formData.phone?.trim() || "";
     if (cleanPhone && !validateEgyptianPhone(cleanPhone)) {
@@ -240,7 +261,8 @@ export default function SettingPage() {
               <div className="space-y-1">
                 <label className="text-xs font-bold text-gray-400 uppercase">Full Name</label>
                 <input type="text" name="fullName" disabled={!isEditing} value={formData.fullName} onChange={handleChange}
-                  className={`w-full p-3 rounded-xl bg-white text-gray-700 border ${isEditing ? 'border-gray-300 focus:ring-2 focus:ring-[#0f9386]' : 'border-gray-100 bg-gray-50 text-gray-600'} transition-all outline-none`} />
+                  className={`w-full p-3 rounded-xl bg-white text-gray-700 border ${isEditing ? (nameError ? 'border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-[#0f9386]') : 'border-gray-100 bg-gray-50 text-gray-600'} transition-all outline-none`} />
+                {nameError && <p className="text-xs text-red-500 mt-1 font-bold animate-pulse">{nameError}</p>}
               </div>
 
               <div className="space-y-1">

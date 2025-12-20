@@ -202,7 +202,7 @@ export default function SeatsModal({
             When you've chosen your tickets, they will appear here.
           </p>
         ) : (
-          <div className="mt-3 space-y-2">
+          <div className="mt-3 space-y-2 max-h-[300px] overflow-y-auto scrollbar-hide">
             {selectedSeats.map((seat) => (
               <div
                 key={seat}
