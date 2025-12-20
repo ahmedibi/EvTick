@@ -64,7 +64,7 @@ export default function Login() {
       if (userData.role === "admin" || userData.role === "organizer") {
       setErrors((prev) => ({
         ...prev,
-        firebase: "Invalid Email or Password."
+        firebase: "Invalid Email and Password."
       }));
 
       await auth.signOut(); 

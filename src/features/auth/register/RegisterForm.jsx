@@ -62,11 +62,23 @@ export default function RegisterForm({
 
           {errors.firebase && <p className="auth-error">{errors.firebase}</p>}
 
-          <button type="submit"
-            className="w-full py-3 text-white rounded font-semibold outline-none"
-            style={{ background: "#0f9386" }}>
-            Complete Registration
-          </button>
+         <button
+          type="submit"
+          disabled={loading}
+          className={`w-full py-3 text-white font-semibold rounded-lg transition
+            ${loading ? "bg-[#0f9386]/70 cursor-not-allowed" : "bg-[#0f9386] hover:opacity-90"}
+          `}
+        >
+          {loading ? (
+            <div className="flex items-center justify-center gap-2">
+              <span className="w-5 h-5 border-2 border-white/60 border-t-white rounded-full animate-spin"></span>
+              Completing registration...
+            </div>
+          ) : (
+            "Complete Registration"
+          )}
+        </button>
+
           <button
             type="button"
             onClick={cancelGoogleSignup}

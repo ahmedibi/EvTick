@@ -10,6 +10,8 @@ import { useDispatch } from "react-redux";
 import { setUser, setRole } from "../authSlice";
 import RegisterForm from "./RegisterForm.jsx";
 import { showRegisterSuccess} from "../../../components/sweetAlert.js";
+import { showSuccessAlert } from "../../../components/sweetAlert.js";
+import { showErrorAlert } from "../../../components/sweetAlert.js";
 
 export default function Register() {
   const [fullName, setFullName] = useState("");
@@ -154,7 +156,6 @@ export default function Register() {
 
 
   const handleGoogleSignIn = async () => {
-      setLoading(true);
 
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -190,15 +191,13 @@ export default function Register() {
       console.error("Google Sign-In Error:", error);
       setErrors((prev) => ({ ...prev, firebase: error.message }));
       showErrorAlert(error.message);
-    }finally {
-    setLoading(false);
-  }
+    }
   };
 
   const finalizeGoogleSignup = async (e) => {
     e.preventDefault();
     if (!validateForm()) return; // validates password only since isGoogleSignup is true
-
+    setLoading(true);
     try {
       if (googleUser) {
         //set the password for google user
@@ -226,7 +225,9 @@ export default function Register() {
       console.error("Error finalizing google signup", error);
       setErrors({ ...errors, firebase: error.message });
       showErrorAlert(error.message);
-    }
+    }finally {
+    setLoading(false);
+  }
   };
 
   const cancelGoogleSignup = async () => {
