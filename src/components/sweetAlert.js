@@ -48,6 +48,20 @@ export const showLoginSuccess = (message = "You have successfully logged in!", n
   });
 };
 
+export const showRegisterSuccess = (message = "You have successfully logged in!", name) => {
+  Swal.fire({
+    title: `Welcome ${name}`,
+    text: message,
+    icon: "success",
+    iconColor: "#0F9386",
+    background: "#fff",
+    color: "#333",
+    showConfirmButton: false,
+    timer: 2500,
+    timerProgressBar: true,
+  });
+};
+
 export const showLoginError = (message = "Invalid email or password.") => {
   Swal.fire({
     title: "Login Failed",
