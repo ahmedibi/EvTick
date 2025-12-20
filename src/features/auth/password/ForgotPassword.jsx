@@ -28,7 +28,7 @@ export default function ForgotPassword() {
         return;
       }
 
-      // 2) If exists in Firestore, send reset email via Firebase Auth
+      //If exists in Firestore, send reset email via Firebase Auth
       await sendPasswordResetEmail(auth, normalizedEmail, {
         url: "http://localhost:5173/reset-password",
         handleCodeInApp: true,
