@@ -23,7 +23,6 @@ export default function RegisterForm({
   handleGoogleSignIn,
   finalizeGoogleSignup,
   cancelGoogleSignup,
-  loading,
 }) {
   return (
     <>
