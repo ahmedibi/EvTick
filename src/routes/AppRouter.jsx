@@ -21,10 +21,7 @@ import Messages from "../features/profile/Messages";
 import NotFound from "../components/NotFound";
 import Success from "../features/checkout/Success";
 import StreamPage from "../features/stream/StreamPage";
-// simple placeholder dashboards
-const UserDashboard = () => <div className="p-6">User Dashboard</div>;
-const OrgDashboard = () => <div className="p-6">Organizer Dashboard</div>;
-const AdminDashboard = () => <div className="p-6">Admin Dashboard</div>;
+
 
 
 
