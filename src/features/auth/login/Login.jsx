@@ -8,14 +8,16 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "../authSlice";
-import { showLoginSuccess, showLoginError } from "../../../components/sweetAlert";
+import { showLoginSuccess } from "../../../components/sweetAlert.js";
 
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
-const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+
   const [errors, setErrors] = useState({
     email: "",
     password: "",
@@ -49,7 +51,7 @@ const [loading, setLoading] = useState(false);
     e.preventDefault();
     if (!validateForm()) return;
 
-      setLoading(true);
+    setLoading(true);
 
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
@@ -58,6 +60,16 @@ const [loading, setLoading] = useState(false);
       if (!snap.exists()) throw new Error("User profile not found!");
 
       const userData = snap.data();
+
+      if (userData.role === "admin" || userData.role === "organizer") {
+      setErrors((prev) => ({
+        ...prev,
+        firebase: "Invalid Email and Password."
+      }));
+
+      await auth.signOut(); 
+      return;
+      }
 
       // save user to localStorage
       localStorage.setItem("user", JSON.stringify({
@@ -80,11 +92,27 @@ const [loading, setLoading] = useState(false);
         default: navigate("/");
       }
 
-    } catch (err) {
-      let msg = err.message.replace("Firebase:", "").trim();
-      setErrors((prev) => ({ ...prev, firebase: msg }));
-      showLoginError(msg);
+    }catch (err) {
+  let msg = "";
 
+  switch (err.code) {
+    case "auth/invalid-email":
+      msg = "Invalid email address.";
+      break;
+    case "auth/user-not-found":
+    case "auth/wrong-password":
+      case "auth/invalid-credential":
+      msg = "Wrong email or password.";
+      break;
+    case "auth/too-many-requests":
+      msg = "Too many attempts. Try again later.";
+      break;
+    default:
+      msg = "Something went wrong. Please try again later.";
+  }
+
+      setErrors((prev) => ({ ...prev, firebase: msg }));
+      // showErrorAlert(msg);
     }finally {
     setLoading(false);
   }
@@ -139,22 +167,19 @@ const [loading, setLoading] = useState(false);
         <Link to="/forgot-password">Forgot Password?</Link>
        </p>
 
-      <button
-  type="submit"
-  disabled={loading}
-  className={`w-full py-3 text-white font-semibold rounded flex items-center justify-center gap-2
-    ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
-  style={{ background: "#0f9386" }}
->
-  {loading ? (
-    <>
-      <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-      Signing in...
-    </>
-  ) : (
-    "Sign in"
-  )}
-</button>
+        <button type="submit" 
+        disabled={loading}
+        className={`w-full py-3 text-white font-semibold rounded ${loading ? "bg-[#0f9386]/70 cursor-not-allowed" : "bg-[#0f9386] hover:opacity-90"}`}
+          >
+         {loading ? (
+        <div className="flex items-center justify-center gap-2">
+          <span className="w-5 h-5 border-2 border-white/60 border-t-white rounded-full animate-spin"></span>
+          Signing in...
+        </div>
+      ) : (
+        "Sign in"
+      )}
+        </button>
         {/* <p className="text-sm text-[#aa7e61] font-medium mt-2">
         <Link to="/forgot-password">Forgot Password?</Link>
        </p> */}
