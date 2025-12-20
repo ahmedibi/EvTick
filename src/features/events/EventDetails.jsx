@@ -8,6 +8,7 @@ import SeatsModal from "../../components/SeatsModal";
 import { auth } from "../../firebase/firebase.config";
 import EventMap from "../../components/EventMap";
 import { fetchSeatModelById, clearSeatModel } from "../../redux/slices/seatModelSlice";
+import { showLoginRequired } from "../../components/sweetAlert";
 
 export default function EventDetails() {
   const { id } = useParams();
@@ -142,7 +143,7 @@ export default function EventDetails() {
   const handleBuyTicket = async () => {
 
     if (!auth.currentUser) {
-      alert("Please login to continue");
+       showLoginRequired("Please login to continue", navigate);
       return;
     }
 
@@ -151,7 +152,9 @@ export default function EventDetails() {
       (event.venue === "Online") ||
       (event.address === "Online") ||
       (typeof event.venue === 'string' && event.venue.toLowerCase() === 'online') ||
-      (event.venue?.name?.toLowerCase() === 'online');
+    (event.venue?.name?.toLowerCase() === 'online') ||
+      (typeof event.price === 'number') ||
+      (!isNaN(event.price) && typeof event.price !== 'object');
 
     if (isOnline) {
       // التحقق من شراء التذكرة مسبقاً
@@ -287,35 +290,35 @@ export default function EventDetails() {
     ? new Date(event.date.seconds * 1000)
     : new Date(event.date);
   return (
-    <div className="min-h-screen bg-black text-white w-full">
+    <div className="min-h-screen bg-gray-100 text-gray-800 w-full">
       {/* HERO COVER */}
       <div className="relative w-full h-[40vh] md:h-[50vh]">
         <img
           src={event.cover || event.photo}
           className="w-full h-full object-cover brightness-50"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-white/0 to-gray-100"></div>
       </div>
 
       {/* MAIN CONTENT */}
       <div className="w-full px-4 md:px-12 lg:px-40 pb-10 grid grid-cols-1 md:grid-cols-3 gap-10">
         {/* LEFT - Poster */}
-        <div className="flex justify-center md:justify-start relative z-20 -mt-20 md:-mt-0">
+        <div className="flex justify-center md:justify-start h-[350px] w-[350px] relative z-20 -mt-20 md:-mt-0">
           <img
             src={event.photo}
-            className="w-52 h-52 md:h-full md:w-72 lg:w-80 rounded-xl shadow-xl object-cover"
+            className="w-52 h-52 md:h-72 md:w-72 lg:w-auto lg:h-auto rounded-xl shadow-xl "
           />
         </div>
 
         {/* CENTER - Title + Description */}
-        <div className="space-y-6 ">
+        <div className="space-y-6 mt-10 ">
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-wide">
             {event.eventName}
           </h1>
 
-          <p className="text-sm text-gray-400">Hosted by: {event.eventOwner}</p>
+          <p className=" text-gray-700"> {event.eventOwner}</p>
 
-          <p className="text-gray-300 leading-relaxed text-base md:text-lg">
+          <p className="text-gray-600 leading-relaxed text-base ">
             {event.description}
           </p>
 
@@ -325,7 +328,9 @@ export default function EventDetails() {
               (event.venue === "Online") ||
               (event.address === "Online") ||
               (typeof event.venue === 'string' && event.venue.toLowerCase() === 'online') ||
-              (event.venue?.name?.toLowerCase() === 'online');
+               (event.venue?.name?.toLowerCase() === 'online') ||
+              (typeof event.price === 'number') ||
+              (!isNaN(event.price) && typeof event.price !== 'object');
 
             if (isOnline) {
               const isBooked = auth.currentUser && event.bookedSeats?.some(
@@ -372,7 +377,7 @@ export default function EventDetails() {
         </div>
 
         {/* RIGHT - Information Box */}
-        <div className="flex md:justify-end ">
+        <div className="flex md:justify-end mt-5">
           <div className="bg-white/5 border border-white/10 rounded-xl p-6 md:p-8 max-w-xs w-full  space-y-4">
             <div>
               <p className="text-sm text-gray-400">Date</p>

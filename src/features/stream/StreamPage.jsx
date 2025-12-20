@@ -7,12 +7,12 @@ import {
 
 const apiKey = "n4bxhj5ucfb7";
 const token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJAc3RyZWFtLWlvL2Rhc2hib2FyZCIsImlhdCI6MTc2NTM4MzgwNCwiZXhwIjoxNzY1NDcwMjA0LCJ1c2VyX2lkIjoiIWFub24iLCJyb2xlIjoidmlld2VyIiwiY2FsbF9jaWRzIjpbImxpdmVzdHJlYW06bGl2ZXN0cmVhbV80ZWExM2YxYy1jNWNlLTRjODItYTg2NC04YTAwNjc3ZTViYTciXX0.D8f5ingtkF0aM24_iF7Tawsr5ci_aYygjGDzl_qR10w";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJAc3RyZWFtLWlvL2Rhc2hib2FyZCIsImlhdCI6MTc2NjE5MTgxNCwiZXhwIjoxNzY2Mjc4MjE0LCJ1c2VyX2lkIjoiIWFub24iLCJyb2xlIjoidmlld2VyIiwiY2FsbF9jaWRzIjpbImxpdmVzdHJlYW06bGl2ZXN0cmVhbV84MjdlYzlkNi05Nzg2LTQ3NmYtYmI3OS04OGQwNmE1NWMyM2IiXX0.RtKFUS62y81Dt7Q1TZyeUaanVLLWnLyThSjlR6fMNCs";
 
 const user = { type: "anonymous" };
 
 // 👉 make it static like you requested
-const callId = "livestream_4ea13f1c-c5ce-4c82-a864-8a00677e5ba7";
+const callId = "livestream_827ec9d6-9786-476f-bb79-88d06a55c23b";
 
 const client = new StreamVideoClient({ apiKey, user, token });
 

@@ -3,10 +3,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchUserTickets } from '../../redux/slices/eventSlice';
 import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import TicketCard from '../../components/TicketCard';
+import { FaSearch } from 'react-icons/fa';
 
 const MyTickets = () => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const ticketsPerPage = 6;
 
   // Redux state
@@ -23,16 +25,33 @@ const MyTickets = () => {
     }
   }, [dispatch, user]);
 
+  
+   // Group tickets by ID (Event ID)
+  const groupedTickets = Object.values(
+    (userTickets || []).reduce((acc, ticket) => {
+      // Use eventId if available, otherwise fallback to id
+      const id = ticket.eventId || ticket.id;
+
+      if (!acc[id]) {
+        acc[id] = { ...ticket, count: 0, id }; // Ensure ID is preserved
+      }
+      acc[id].count += 1;
+      return acc;
+    }, {})
+  ).filter(ticket =>
+    ticket.eventName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   // Pagination
-  const totalPages = Math.ceil((userTickets?.length || 0) / ticketsPerPage);
+  const totalPages = Math.ceil(groupedTickets.length / ticketsPerPage);
   const startIndex = (currentPage - 1) * ticketsPerPage;
   const endIndex = startIndex + ticketsPerPage;
-  const currentTickets = userTickets?.slice(startIndex, endIndex) || [];
+  const currentTickets = groupedTickets.slice(startIndex, endIndex);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(1);
-  }, [userTickets?.length]);
+  }, [userTickets?.length, searchTerm]);
 
   const handlePrevPage = () => {
     setCurrentPage(prev => Math.max(prev - 1, 1));
@@ -79,8 +98,22 @@ const MyTickets = () => {
 
       <div className="relative z-10 max-w-7xl mx-auto py-12 px-4">
         {/* Header */}
-        <div className="mb-12">
+        <div className="mb-12 flex flex-col md:flex-row justify-between items-center gap-4">
           <h1 className="text-3xl font-bold text-black mb-3">My Tickets</h1>
+
+             {/* Search Input */}
+          <div className="relative w-full md:w-96">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                <FaSearch className='text-gray-600' />
+              </span>
+            <input
+              type="text"
+              placeholder="Search by event name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-10 py-2 rounded-lg border text-gray-700 border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+            />
+          </div>
         </div>
 
         {/* No Tickets */}
@@ -96,13 +129,19 @@ const MyTickets = () => {
           </div>
         ) : (
           <>
-            {/* Tickets List */}
+              {/* Tickets List */}
+            {currentTickets.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500 text-lg">No tickets found matching "{searchTerm}"</p>
+              </div>
+            ) : (
+              
             <div key={currentPage} className=" gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
               {currentTickets.map((ticket) => (
                 <TicketCard key={ticket.id} ticket={ticket} />
               ))}
             </div>
-
+            ) }
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="mt-8 flex items-center justify-center gap-2">
@@ -120,8 +159,7 @@ const MyTickets = () => {
                     <button
                       key={pageNum}
                       onClick={() => handlePageClick(pageNum)}
-                      className={`w-10 h-10 rounded-lg font-semibold transition-all duration-200 ${
-                        currentPage === pageNum
+                       className={`w-10 h-10 rounded-lg font-semibold transition-all duration-200 ${currentPage === pageNum
                           ? 'bg-teal-500 text-white border-2 border-teal-400 shadow-lg scale-110'
                           : 'bg-white text-black border border-white/30 hover:bg-white/30'
                       }`}

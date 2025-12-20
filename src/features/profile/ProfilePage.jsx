@@ -43,6 +43,7 @@ export default function SettingPage() {
   const [showPasswordSection, setShowPasswordSection] = useState(false);
   const [showPass, setShowPass] = useState({ old: false, new: false, confirm: false });
   const [phoneError, setPhoneError] = useState("");
+  const [nameError, setNameError] = useState("");
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -58,24 +59,39 @@ export default function SettingPage() {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         let phone = "";
+        let fullName = "";
+        let profilePic = "";
+        
         try {
           const docSnap = await getDoc(doc(db, "users", user.uid));
-          if (docSnap.exists()) phone = docSnap.data().phone || "";
+          if (docSnap.exists()) {
+            const userData = docSnap.data();
+            phone = userData.phone || "";
+            fullName = userData.fullName || ""; 
+            profilePic = userData.profilePic || user.photoURL || "";
+          }
         } catch (err) {
           console.error(err);
         }
+
+        // إذا لم يكن الاسم موجود في Firestore، استخدم displayName من Auth
+        if (!fullName) {
+          fullName = user.displayName || "";
+        }
+
         setCurrentUser({
           uid: user.uid,
-          fullName: user.displayName || "",
+          fullName: fullName,
           email: user.email,
-          profilePic: user.photoURL || "",
-          phone,
+          profilePic: profilePic,
+          phone: phone,
         });
+        
         setFormData({
-          fullName: user.displayName || "",
+          fullName: fullName,
           email: user.email,
-          profilePic: user.photoURL || "",
-          phone,
+          profilePic: profilePic,
+          phone: phone,
           oldPassword: "",
           password: "",
           confirmPassword: "",
@@ -99,6 +115,13 @@ export default function SettingPage() {
         setPhoneError("Invalid phone number (must be 11 digits starting with 010, 011, 012, 015)");
       } else setPhoneError("");
     }
+     if (name === "fullName") {
+      if (!value.trim()) {
+        setNameError("Full Name is required");
+      } else {
+        setNameError("");
+      }
+    }
   };
 
   const togglePasswordSection = () => {
@@ -111,6 +134,19 @@ export default function SettingPage() {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!currentUser?.uid) return Swal.fire("User not found!", "", "error");
+
+     // Validation
+    let isValid = true;
+    if (!formData.fullName.trim()) {
+      setNameError("Full Name is required");
+      isValid = false;
+    }
+    if (!formData.phone.trim()) {
+      setPhoneError("Phone Number is required");
+      isValid = false;
+    }
+
+    if (!isValid) return;
 
     const cleanPhone = formData.phone?.trim() || "";
     if (cleanPhone && !validateEgyptianPhone(cleanPhone)) {
@@ -145,8 +181,10 @@ export default function SettingPage() {
       if (Object.keys(updatedFields).length > 0) {
         Swal.fire({ title: "Saving...", didOpen: () => Swal.showLoading() });
 
+        // ✅ تحديث Firestore
         await updateDoc(doc(db, "users", currentUser.uid), updatedFields);
 
+        // ✅ تحديث Firebase Auth displayName و photoURL
         if (updatedFields.profilePic || updatedFields.fullName) {
           await updateProfile(auth.currentUser, {
             displayName: updatedFields.fullName || currentUser.fullName,
@@ -157,7 +195,7 @@ export default function SettingPage() {
         setCurrentUser(prev => ({ ...prev, ...updatedFields }));
         setFormData(prev => ({ ...prev, oldPassword: "", password: "", confirmPassword: "" }));
 
-        showSuccessAlert( "Profile updated successfully");
+        showSuccessAlert("Profile updated successfully");
       }
 
       setIsEditing(false);
@@ -173,7 +211,7 @@ export default function SettingPage() {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto relative p-4 md:p-6 lg:p-8">
+    <div className="w-full   relative p-4 md:p-6 lg:p-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <h2 className="text-2xl font-bold text-black">Profile Settings</h2>
@@ -223,7 +261,8 @@ export default function SettingPage() {
               <div className="space-y-1">
                 <label className="text-xs font-bold text-gray-400 uppercase">Full Name</label>
                 <input type="text" name="fullName" disabled={!isEditing} value={formData.fullName} onChange={handleChange}
-                  className={`w-full p-3 rounded-xl bg-white text-gray-700 border ${isEditing ? 'border-gray-300 focus:ring-2 focus:ring-[#0f9386]' : 'border-gray-100 bg-gray-50 text-gray-600'} transition-all outline-none`} />
+                  className={`w-full p-3 rounded-xl bg-white text-gray-700 border ${isEditing ? (nameError ? 'border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-[#0f9386]') : 'border-gray-100 bg-gray-50 text-gray-600'} transition-all outline-none`} />
+                {nameError && <p className="text-xs text-red-500 mt-1 font-bold animate-pulse">{nameError}</p>}
               </div>
 
               <div className="space-y-1">

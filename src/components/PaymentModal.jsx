@@ -11,37 +11,37 @@ import { showConfirmAlert } from './sweetAlert';
 function validateCardNumberLuhn(cardNumber) {
   // إزالة أي مسافات أو شرطات
   const cleanNumber = cardNumber.replace(/\D/g, '');
-  
+
   // التحقق من أن الرقم يحتوي على 16 رقم
   if (cleanNumber.length !== 16) {
     return false;
   }
-  
+
   let sum = 0;
   let isEven = false;
-  
+
   // البدء من آخر رقم والسير للخلف
   for (let i = cleanNumber.length - 1; i >= 0; i--) {
     let digit = parseInt(cleanNumber[i]);
-    
+
     if (isEven) {
       digit *= 2;
       if (digit > 9) {
         digit -= 9;
       }
     }
-    
+
     sum += digit;
     isEven = !isEven;
   }
-  
+
   return sum % 10 === 0;
 }
 
 // ================= CARD PREVIEW =================
 function CardPreview({ cardName, cardNumber, cardExpiry }) {
   const formattedNumber = cardNumber?.replace(/\D/g, "").match(/.{1,4}/g)?.join(" ") || "---- ---- ---- ----";
-  
+
   return (
     <div
       className="w-full h-60 md:h-67 rounded-xl mb-8 bg-cover bg-center relative shadow-xl overflow-hidden"
@@ -116,6 +116,10 @@ const paymentSchema = z.object({
     } else {
       // التحقق من الشهر والسنة
       const [month, year] = data.cardExpiry.split('/').map(Number);
+      const now = new Date();
+      const currentYear = parseInt(now.getFullYear().toString().slice(-2)); // Get last 2 digits of year
+      const currentMonth = now.getMonth() + 1; // 1-12
+
       if (month < 1 || month > 12) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -123,10 +127,17 @@ const paymentSchema = z.object({
           path: ['cardExpiry'],
         });
       }
+
       if (year < 25 || year > 32) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'Year must be between 25 and 32',
+          path: ['cardExpiry'],
+        });
+      } else if (year === currentYear && month < currentMonth) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Card has expired',
           path: ['cardExpiry'],
         });
       }
@@ -177,9 +188,9 @@ export default function PaymentModal({
 
   if (!isOpen) return null;
 
-  const onSubmit = async  (data) => {
+  const onSubmit = async (data) => {
     const confirmed = await showConfirmAlert("Do you want to proceed with the payment?");
-     if (!confirmed) return;
+    if (!confirmed) return;
     onPaymentSubmit(data);
   };
 
@@ -232,23 +243,21 @@ export default function PaymentModal({
               <button
                 type="button"
                 onClick={() => setValue('paymentMethod', 'googlepay')}
-                className={`flex items-center justify-center gap-2 py-4 px-6 rounded-lg border-2 transition ${
-                  paymentMethod === 'googlepay'
+                className={`flex items-center justify-center gap-2 py-4 px-6 rounded-lg border-2 transition ${paymentMethod === 'googlepay'
                     ? 'bg-pink-900 '
                     : 'bg-pink-900'
-                }`}
+                  }`}
               >
-                <span className="text-[#ECCA5E] font-semibold"><FaGooglePay className='text-3xl'/></span>
+                <span className="text-[#ECCA5E] font-semibold"><FaGooglePay className='text-3xl' /></span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setValue('paymentMethod', 'paypal')}
-                className={`flex items-center justify-center gap-2 py-4 px-6 rounded-lg border-2 transition ${
-                  paymentMethod === 'paypal'
+                className={`flex items-center justify-center gap-2 py-4 px-6 rounded-lg border-2 transition ${paymentMethod === 'paypal'
                     ? 'bg-yellow-500 border-yellow-500'
                     : 'bg-teal-400 border-teal-400 hover:bg-teal-500'
-                }`}
+                  }`}
               >
                 <span className="text-xl text-blue-900">
                   <i className="fa-brands fa-paypal"></i>
@@ -276,9 +285,8 @@ export default function PaymentModal({
                     type="text"
                     {...register('cardName')}
                     placeholder="Abdallah Elsaid"
-                    className={`w-full bg-white text-gray-700 border ${
-                      errors.cardName ? 'border-red-500' : 'border-gray-200'
-                    } px-4 py-3 rounded-lg focus:border-teal-400 focus:outline-none transition`}
+                    className={`w-full bg-white text-gray-700 border ${errors.cardName ? 'border-red-500' : 'border-gray-200'
+                      } px-4 py-3 rounded-lg focus:border-teal-400 focus:outline-none transition`}
                   />
                   {errors.cardName && (
                     <p className="text-red-500 text-sm mt-1">{errors.cardName.message}</p>
@@ -295,9 +303,8 @@ export default function PaymentModal({
                     value={formatCardNumber(cardNumber)}
                     onChange={handleCardNumberChange}
                     placeholder="1234-5678-9012-3456"
-                    className={`w-full bg-white border ${
-                      errors.cardNumber ? 'border-red-500' : 'border-gray-200'
-                    } text-gray-700 px-4 py-3 rounded-lg focus:border-teal-400 focus:outline-none transition`}
+                    className={`w-full bg-white border ${errors.cardNumber ? 'border-red-500' : 'border-gray-200'
+                      } text-gray-700 px-4 py-3 rounded-lg focus:border-teal-400 focus:outline-none transition`}
                   />
                   {errors.cardNumber && (
                     <p className="text-red-500 text-sm mt-1">{errors.cardNumber.message}</p>
@@ -316,9 +323,8 @@ export default function PaymentModal({
                       onChange={handleExpiryChange}
                       placeholder="12/25"
                       maxLength={5}
-                      className={`w-full bg-white border ${
-                        errors.cardExpiry ? 'border-red-500' : 'border-gray-200'
-                      } text-gray-700 px-4 py-3 rounded-lg focus:border-teal-400 focus:outline-none transition`}
+                      className={`w-full bg-white border ${errors.cardExpiry ? 'border-red-500' : 'border-gray-200'
+                        } text-gray-700 px-4 py-3 rounded-lg focus:border-teal-400 focus:outline-none transition`}
                     />
                     {errors.cardExpiry && (
                       <p className="text-red-500 text-sm mt-1">{errors.cardExpiry.message}</p>
@@ -334,9 +340,8 @@ export default function PaymentModal({
                       onChange={handleCvvChange}
                       placeholder="123"
                       maxLength={3}
-                      className={`w-full bg-white border ${
-                        errors.cvv ? 'border-red-500' : 'border-gray-200'
-                      } text-gray-700 px-4 py-3 rounded-lg focus:border-teal-400 focus:outline-none transition`}
+                      className={`w-full bg-white border ${errors.cvv ? 'border-red-500' : 'border-gray-200'
+                        } text-gray-700 px-4 py-3 rounded-lg focus:border-teal-400 focus:outline-none transition`}
                     />
                     {errors.cvv && (
                       <p className="text-red-500 text-sm mt-1">{errors.cvv.message}</p>

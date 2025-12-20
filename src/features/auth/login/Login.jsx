@@ -84,8 +84,7 @@ export default function Login() {
 
       // dispatch to Redux 
       dispatch(setUser(userData));
-      //  showSuccessAlert("Welcome back!");
-      showLoginSuccess("You Have Successfully logged in!", userData.fullName  || "User");
+      showLoginSuccess("You have successfully logged in!", userData.fullName);
       // role-based redirect
       switch (userData.role) {
         case "admin": navigate("/admin"); break;

@@ -20,11 +20,11 @@ export default function Register() {
 
   const [show, setShow] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // New state for Google Signup flow
   const [isGoogleSignup, setIsGoogleSignup] = useState(false);
   const [googleUser, setGoogleUser] = useState(null);
-  const [loading, setLoading] = useState(false);
 
 
   const dispatch = useDispatch();
@@ -138,7 +138,7 @@ export default function Register() {
       //save to redux and localStorage
       dispatch(setUser(newUser));
       dispatch(setRole("user"));
-
+      showSuccessAlert("Registration successful!");
       //redirect to home
       showRegisterSuccess("Account created successfully!", fullName || "User");
       navigate("/");
@@ -154,6 +154,8 @@ export default function Register() {
 
 
   const handleGoogleSignIn = async () => {
+      setLoading(true);
+
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
@@ -187,7 +189,10 @@ export default function Register() {
     } catch (error) {
       console.error("Google Sign-In Error:", error);
       setErrors((prev) => ({ ...prev, firebase: error.message }));
-    }
+      showErrorAlert(error.message);
+    }finally {
+    setLoading(false);
+  }
   };
 
   const finalizeGoogleSignup = async (e) => {
@@ -214,11 +219,13 @@ export default function Register() {
         //dispatch and navigate to home
         dispatch(setUser(newUser));
         dispatch(setRole("user"));
+        showSuccessAlert("Registration successful");
         navigate("/");
       }
     } catch (error) {
       console.error("Error finalizing google signup", error);
       setErrors({ ...errors, firebase: error.message });
+      showErrorAlert(error.message);
     }
   };
 

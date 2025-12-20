@@ -145,7 +145,7 @@ export default function SeatsModal({
                   <div className="w-6 h-6 bg-teal-300 text-black text-center rounded-full">
                     {row}
                   </div>
-                  <span>{getSeatPrice(row)} EGP</span>
+                  <span className="text-gray-100">{getSeatPrice(row)} EGP</span>
                 </div>
               ))}
             </div>
@@ -202,14 +202,14 @@ export default function SeatsModal({
             When you've chosen your tickets, they will appear here.
           </p>
         ) : (
-          <div className="mt-3 space-y-2">
+          <div className="mt-3 space-y-2 max-h-[300px] overflow-y-auto scrollbar-hide">
             {selectedSeats.map((seat) => (
               <div
                 key={seat}
                 className="flex justify-between items-center text-sm bg-white/5 p-2 rounded"
               >
                 <span className="text-white">Seat {seat}</span>
-                <span className="text-gray-300">{getSeatPrice(seat[0])} $</span>
+                <span className="text-gray-300">{getSeatPrice(seat[0])} EGP</span>
               </div>
             ))}
           </div>
@@ -218,7 +218,7 @@ export default function SeatsModal({
         <div className="flex justify-between items-center border-t border-gray-500 mt-6 pt-3">
           <p className="text-xl font-bold text-white">Total :</p>
           <p className="text-xl font-bold text-white">
-            {calculateTotal().toFixed(2)} $
+            {calculateTotal().toFixed(2)} EGP
           </p>
         </div>
       </div>
@@ -228,7 +228,7 @@ export default function SeatsModal({
         <button
           onClick={handleCheckout}
           disabled={selectedSeats.length === 0}
-          className="w-full py-3 border border-gray-300 text-white font-semibold rounded hover:bg-white hover:text-black disabled:bg-gray-500 disabled:cursor-not-allowed transition"
+          className="w-full py-3   text-white font-semibold rounded-xl bg-teal-500 hover:bg-teal-600 hover:text-white disabled:bg-gray-500 disabled:cursor-not-allowed transition"
         >
            {isLoading ? (
                 <div className="flex items-center justify-center">

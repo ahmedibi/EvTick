@@ -36,7 +36,7 @@ export default function LogoutButton() {
   return (
     <button
       onClick={logout}
-      className="px-4 py-2  text-white rounded cursor-pointer w-full bg-red-400 mt-10 flex justify-center"
+      className="px-4 py-2  text-white rounded cursor-pointer w-full bg-neutral-800 mt-10 flex justify-center"
     >
       <LucideLogOut/>
     </button>

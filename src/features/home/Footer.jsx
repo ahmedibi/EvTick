@@ -6,7 +6,7 @@ import Logo from '../../assets/EvTick_Logo.png';
 
 export default function Footer() {
     return (
-        <footer className="w-full bg-gradient-to-br  text-black pt-16 pb-10">
+        <footer className="w-full bg-gradient-to-br bg-gray-100 text-black pt-16 pb-10">
 
             {/*  TOP SECTION  */}
             <div className="max-w-7xl mx-auto mb-16 px-4">
@@ -65,22 +65,9 @@ export default function Footer() {
                             to="/contact"
                             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                             className="
-                flex items-center gap-2 sm:gap-3 
-                mt-4 md:mt-10
-                bg-black/5
-                backdrop-blur-sm 
-                rounded-full 
-                px-5 sm:px-10 
-                py-3 sm:py-4 
-                text-sm sm:text-lg 
-                border border-gray-400  
-                text-black
-                hover:bg-black  
-                hover:text-white 
-                transition-all duration-300
-              "
+                flex items-center gap-2 sm:gap-3 mt-4 md:mt-10 backdrop-blur-sm rounded-full px-5 sm:px-10 py-3 sm:py-4 text-sm sm:text-lg border border-gray-400 transition-all duration-300 font-semibold hover:text-white transition  bg-teal-500 text-white hover:bg-teal-600"
                         >
-                            <FiHelpCircle size={20} className="text-green-700" />
+                            <FiHelpCircle size={20} className="text-white" />
                             <span className="whitespace-nowrap">
                                 Need some help? Contact us
                             </span>
@@ -91,7 +78,7 @@ export default function Footer() {
             </div>
 
             <div className="w-full py-8 mt-5 text-center text-gray-600">
-                © 2025 EvTick. All rights reserved.
+                © 2025 <span className='text-teal-500'>EvTick. </span>All rights reserved.
             </div>
         </footer>
     );
