@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { createUserWithEmailAndPassword, signInWithPopup, updatePassword } from "firebase/auth";
 import { auth, db, googleProvider } from "../../../firebase/firebase.config.js";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp, collection, query, where, getDocs } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout.jsx";
 import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
@@ -114,6 +114,17 @@ export default function Register() {
   }
 };
 
+const isPhoneAlreadyUsed = async (phone) => {
+  const q = query(
+    collection(db, "users"),
+    where("phone", "==", phone)
+  );
+
+  const querySnapshot = await getDocs(q);
+  return !querySnapshot.empty; // true if phone exists
+};
+
+
   //handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -122,6 +133,17 @@ export default function Register() {
     setLoading(true);
 
     try {
+
+    const phoneExists = await isPhoneAlreadyUsed(phone);
+    if (phoneExists) {
+      setErrors((prev) => ({
+        ...prev,
+        phone: "An account with this number may already exist.",
+      }));
+      setLoading(false);
+      return;
+    }
+
       const cred = await createUserWithEmailAndPassword(auth, email, password);
 
       const newUser = {
@@ -142,7 +164,7 @@ export default function Register() {
       dispatch(setRole("user"));
       showSuccessAlert("Registration successful!");
       //redirect to home
-      showRegisterSuccess("Account created successfully!", fullName || "User");
+      showRegisterSuccess("Account created successfully!", fullName);
       navigate("/");
 
     } catch (err) { 
