@@ -23,7 +23,6 @@ export default function ContactUs() {
     phone: "",
     email: "",
     message: "",
-    organizerName: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -52,21 +51,17 @@ export default function ContactUs() {
       newErrors.message = "Message is required";
     }
 
-    // Organizer validation
-    if (userType === "organizer") {
-      if (!formData.organizerName.trim()) {
-        newErrors.organizerName = "Organizer name is required";
-      } else {
-        const q = query(
-          collection(db, "contactMessages"),
-          where("organizerName", "==", formData.organizerName.trim())
-        );
+    // Organizer validation moved to fullName
+    if (userType === "organizer" && formData.fullName.trim()) {
+      const q = query(
+        collection(db, "contactMessages"),
+        where("fullName", "==", formData.fullName.trim())
+      );
 
-        const snapshot = await getDocs(q);
+      const snapshot = await getDocs(q);
 
-        if (!snapshot.empty) {
-          newErrors.organizerName = "Organizer name already exists";
-        }
+      if (!snapshot.empty) {
+        newErrors.fullName = "Organizer name already exists";
       }
     }
 
@@ -155,37 +150,20 @@ export default function ContactUs() {
               <form onSubmit={handleSubmit} className="space-y-8">
                 {/* FULL NAME */}
 
-                {userType === "organizer" && (
-                  <div>
-                    <input
-                      name="organizerName"
-                      value={formData.organizerName}
-                      onChange={handleChange}
-                      placeholder="Organizer name"
-                      className={`w-full pl-6 border-b-2 pb-3 outline-none text-gray-700 placeholder:text-gray-400 text-lg focus:border-gray-500 transition-colors bg-transparent ${
-                        errors.fullName ? "border-red-500" : "border-gray-300"
-                      }`}
-                      type="text"
-                    />
-                    {errors.organizerName && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.organizerName}
-                      </p>
-                    )}
-                  </div>
-                )}
-
                 <div>
                   <input
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleChange}
-                    placeholder="Your full name"
+                    placeholder={
+                      userType === "organizer" ? "Organizer name" : "User name"
+                    }
                     className={`w-full pl-6 border-b-2 pb-3 outline-none text-gray-700 placeholder:text-gray-400 text-lg focus:border-gray-500 transition-colors bg-transparent ${
                       errors.fullName ? "border-red-500" : "border-gray-300"
                     }`}
                     type="text"
                   />
+
                   {errors.fullName && (
                     <p className="text-red-500 text-sm mt-1">
                       {errors.fullName}
